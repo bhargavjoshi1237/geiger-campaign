@@ -49,14 +49,14 @@ function CreateCredentialDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Credential name" htmlFor="c-name">
-            <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Production app" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Production app" className="bg-background border-border" />
           </Field>
           <Field label="Generated username" hint="A password will be shown once after creation.">
-            <div className="rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">{username}</div>
+            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{username}</div>
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create credential</Button>
         </DialogFooter>
       </DialogContent>
@@ -85,15 +85,15 @@ export function SmtpRelayScreen() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Connection settings */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Server className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Connection settings</h2>
+            <Server className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Connection settings</h2>
           </div>
           <Field label="Host">
-            <div className="rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">smtp.geiger.studio</div>
+            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">smtp.geiger.studio</div>
           </Field>
           <Field label="Port">
             <Select value={port} onValueChange={setPort}>
@@ -115,19 +115,19 @@ export function SmtpRelayScreen() {
               </SelectContent>
             </Select>
           </Field>
-          <p className="text-xs text-[#737373]">Point your app's SMTP client at this host using one of the credentials on the right.</p>
+          <p className="text-xs text-text-secondary">Point your app's SMTP client at this host using one of the credentials on the right.</p>
         </div>
 
         {/* Credentials */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <KeyRound className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Credentials</h2>
+            <KeyRound className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Credentials</h2>
           </div>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Name</TableHead>
                   <TableHead>Username</TableHead>
                   <TableHead>Created</TableHead>
@@ -137,10 +137,10 @@ export function SmtpRelayScreen() {
               </TableHeader>
               <TableBody>
                 {creds.map((c) => (
-                  <TableRow key={c.id} className="border-[#2a2a2a]">
-                    <TableCell className="font-medium text-[#ededed]">{c.name}</TableCell>
-                    <TableCell className="font-mono text-[#a3a3a3]">{c.username}</TableCell>
-                    <TableCell className="whitespace-nowrap text-[#a3a3a3]">{c.created}</TableCell>
+                  <TableRow key={c.id} className="border-border">
+                    <TableCell className="font-medium text-foreground">{c.name}</TableCell>
+                    <TableCell className="font-mono text-muted-foreground">{c.username}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{c.created}</TableCell>
                     <TableCell><Pill tone={c.status === "Active" ? "green" : "zinc"}>{c.status}</Pill></TableCell>
                     <TableCell className="text-right">
                       <RowActions
@@ -154,8 +154,8 @@ export function SmtpRelayScreen() {
                   </TableRow>
                 ))}
                 {creds.length === 0 && (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                    <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No credentials found.</TableCell>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No credentials found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

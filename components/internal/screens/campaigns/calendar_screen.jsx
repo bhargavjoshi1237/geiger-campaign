@@ -47,7 +47,7 @@ function ScheduleDialog({ open, onOpenChange, onCreate, year, month, daysInMonth
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Campaign name" htmlFor="cal-name">
-            <Input id="cal-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="cal-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-3 gap-3">
             <Field label="Day">
@@ -59,7 +59,7 @@ function ScheduleDialog({ open, onOpenChange, onCreate, year, month, daysInMonth
               </Select>
             </Field>
             <Field label="Time" htmlFor="cal-time">
-              <Input id="cal-time" type="time" value={form.time} onChange={(e) => set("time")(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="cal-time" type="time" value={form.time} onChange={(e) => set("time")(e.target.value)} className="bg-background border-border" />
             </Field>
             <Field label="Channel">
               <Select value={form.channel} onValueChange={set("channel")}>
@@ -70,7 +70,7 @@ function ScheduleDialog({ open, onOpenChange, onCreate, year, month, daysInMonth
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Schedule</Button>
         </DialogFooter>
       </DialogContent>
@@ -116,21 +116,21 @@ export function CalendarScreen() {
         }
       />
 
-      <div className="flex items-center justify-between border-t border-[#242424] pt-4">
+      <div className="flex items-center justify-between border-t border-surface-active pt-4">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold text-white">{MONTHS[month]} {year}</h2>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon-sm" onClick={() => shift(-1)} className="border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#242424]"><ChevronLeft className="h-4 w-4" /></Button>
-            <Button variant="outline" size="icon-sm" onClick={() => shift(1)} className="border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#242424]"><ChevronRight className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon-sm" onClick={() => shift(-1)} className="border-border bg-surface-card text-foreground hover:bg-surface-active"><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon-sm" onClick={() => shift(1)} className="border-border bg-surface-card text-foreground hover:bg-surface-active"><ChevronRight className="h-4 w-4" /></Button>
           </div>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => { setYear(2026); setMonth(5); }} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Today</Button>
+        <Button variant="ghost" size="sm" onClick={() => { setYear(2026); setMonth(5); }} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Today</Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-        <div className="grid grid-cols-7 border-b border-[#2a2a2a] bg-[#1a1a1a]">
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
+        <div className="grid grid-cols-7 border-b border-border bg-surface-subtle">
           {WEEKDAYS.map((w) => (
-            <div key={w} className="px-3 py-2 text-center text-[11px] font-medium uppercase tracking-wider text-[#737373]">{w}</div>
+            <div key={w} className="px-3 py-2 text-center text-[11px] font-medium uppercase tracking-wider text-text-secondary">{w}</div>
           ))}
         </div>
         <div className="grid grid-cols-7">
@@ -138,14 +138,14 @@ export function CalendarScreen() {
             <div
               key={i}
               className={cn(
-                "min-h-[112px] border-b border-r border-[#242424] p-1.5",
+                "min-h-[112px] border-b border-r border-surface-active p-1.5",
                 (i + 1) % 7 === 0 && "border-r-0",
-                day === null && "bg-[#1c1c1c]",
+                day === null && "bg-surface-card",
               )}
             >
               {day !== null && (
                 <>
-                  <span className="px-1 text-xs text-[#737373]">{day}</span>
+                  <span className="px-1 text-xs text-text-secondary">{day}</span>
                   <div className="mt-1 space-y-1">
                     {eventsFor(day).map((e) => {
                       const meta = CHANNEL_META[e.channel];

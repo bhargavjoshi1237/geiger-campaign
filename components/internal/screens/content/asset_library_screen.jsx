@@ -58,7 +58,7 @@ function UploadDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="File name" htmlFor="a-name">
-            <Input id="a-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. autumn-hero.png" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="a-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. autumn-hero.png" className="bg-background border-border" />
           </Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
@@ -66,14 +66,14 @@ function UploadDialog({ open, onOpenChange, onCreate }) {
               <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#2a2a2a] bg-[#161616] py-10 text-center">
-            <UploadCloud className="h-7 w-7 text-[#737373]" />
-            <p className="text-sm text-[#a3a3a3]">Drag &amp; drop a file here</p>
-            <p className="text-xs text-[#737373]">or click to browse — up to 25 MB</p>
+          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background py-10 text-center">
+            <UploadCloud className="h-7 w-7 text-text-secondary" />
+            <p className="text-sm text-muted-foreground">Drag &amp; drop a file here</p>
+            <p className="text-xs text-text-secondary">or click to browse — up to 25 MB</p>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Upload</Button>
         </DialogFooter>
       </DialogContent>
@@ -102,19 +102,19 @@ export function AssetLibraryScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search assets…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {type === "All" ? "All types" : type}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", type === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", type === t && "text-white")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
@@ -123,7 +123,7 @@ export function AssetLibraryScreen() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center text-sm text-[#737373]">
+        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
           No assets match your filters.
         </div>
       ) : (
@@ -132,7 +132,7 @@ export function AssetLibraryScreen() {
             const meta = TYPE_META[a.type];
             const Icon = meta.icon;
             return (
-              <div key={a.id} className="group overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-colors hover:border-[#474747]">
+              <div key={a.id} className="group overflow-hidden rounded-xl border border-border bg-surface-subtle transition-colors hover:border-border-strong">
                 <div
                   className="relative flex aspect-video items-center justify-center"
                   style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}
@@ -148,8 +148,8 @@ export function AssetLibraryScreen() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="truncate font-medium text-[#ededed]">{a.name}</h3>
-                  <p className="mt-1 text-xs text-[#737373]">{a.ext} · {a.size}</p>
+                  <h3 className="truncate font-medium text-foreground">{a.name}</h3>
+                  <p className="mt-1 text-xs text-text-secondary">{a.ext} · {a.size}</p>
                 </div>
               </div>
             );

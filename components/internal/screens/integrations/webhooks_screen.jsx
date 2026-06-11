@@ -72,14 +72,14 @@ function AddWebhookDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Endpoint URL" htmlFor="w-url">
-            <Input id="w-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://api.yourapp.com/webhooks/geiger" className="bg-[#161616] border-[#2a2a2a] font-mono text-sm" />
+            <Input id="w-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://api.yourapp.com/webhooks/geiger" className="bg-background border-border font-mono text-sm" />
           </Field>
           <Field label="Events">
-            <div className="space-y-2 rounded-lg border border-[#2a2a2a] bg-[#161616] p-3">
+            <div className="space-y-2 rounded-lg border border-border bg-background p-3">
               {EVENT_OPTIONS.map((ev) => (
                 <label key={ev} htmlFor={`ev-${ev}`} className="flex cursor-pointer items-center gap-2.5">
                   <Checkbox id={`ev-${ev}`} checked={events.includes(ev)} onCheckedChange={(c) => toggleEvent(ev, c === true)} />
-                  <span className="font-mono text-sm text-[#a3a3a3]">{ev}</span>
+                  <span className="font-mono text-sm text-muted-foreground">{ev}</span>
                 </label>
               ))}
             </div>
@@ -96,7 +96,7 @@ function AddWebhookDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!url.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Add webhook</Button>
         </DialogFooter>
       </DialogContent>
@@ -124,11 +124,11 @@ export function WebhooksScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Endpoint</TableHead>
                 <TableHead>Events</TableHead>
                 <TableHead>Status</TableHead>
@@ -138,28 +138,28 @@ export function WebhooksScreen() {
             </TableHeader>
             <TableBody>
               {webhooks.map((w) => (
-                <TableRow key={w.id} className="border-[#2a2a2a]">
+                <TableRow key={w.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                         <Webhook className="h-4 w-4" />
                       </span>
-                      <span className="max-w-[260px] truncate font-mono text-sm text-[#ededed]">{w.url}</span>
+                      <span className="max-w-[260px] truncate font-mono text-sm text-foreground">{w.url}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap items-center gap-1.5">
                       {w.events.slice(0, 2).map((ev) => (
-                        <span key={ev} className="rounded border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5 font-mono text-xs text-[#a3a3a3]">{ev}</span>
+                        <span key={ev} className="rounded border border-border bg-surface-active px-1.5 py-0.5 font-mono text-xs text-muted-foreground">{ev}</span>
                       ))}
                       {w.events.length > 2 && (
-                        <span className="rounded border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5 text-xs text-[#737373]">+{w.events.length - 2}</span>
+                        <span className="rounded border border-border bg-surface-active px-1.5 py-0.5 text-xs text-text-secondary">+{w.events.length - 2}</span>
                       )}
                     </div>
                   </TableCell>
                   <TableCell><Pill tone={STATUS_TONE[w.status]}>{w.status}</Pill></TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#a3a3a3]">
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-muted-foreground">
                       {w.status === "Failing" ? (
                         <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
                       ) : (
@@ -181,8 +181,8 @@ export function WebhooksScreen() {
                 </TableRow>
               ))}
               {webhooks.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                  <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No webhooks found.</TableCell>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No webhooks found.</TableCell>
                 </TableRow>
               )}
             </TableBody>

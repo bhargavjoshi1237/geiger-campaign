@@ -52,14 +52,14 @@ export function InboxPlacementScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search providers…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Provider</TableHead>
               <TableHead>Inbox %</TableHead>
               <TableHead>Spam %</TableHead>
@@ -72,33 +72,33 @@ export function InboxPlacementScreen() {
               const meta = PROVIDER_META[r.provider];
               const Icon = meta.icon;
               return (
-                <TableRow key={r.id} className="border-[#2a2a2a]">
+                <TableRow key={r.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                         <Icon className="h-4 w-4" />
                       </span>
                       <div className="flex min-w-0 flex-col">
-                        <span className="font-medium text-[#ededed]">{r.provider}</span>
-                        <span className="truncate text-xs text-[#737373]">{meta.label}</span>
+                        <span className="font-medium text-foreground">{r.provider}</span>
+                        <span className="truncate text-xs text-text-secondary">{meta.label}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex w-40 items-center gap-3">
-                      <Progress value={r.inbox} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                      <Progress value={r.inbox} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
                       <span className="tabular-nums text-xs font-medium text-emerald-300">{r.inbox}%</span>
                     </div>
                   </TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{r.spam}%</TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{r.missing}%</TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{r.tested}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{r.spam}%</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{r.missing}%</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{r.tested}</TableCell>
                 </TableRow>
               );
             })}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No providers found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No providers found.</TableCell>
               </TableRow>
             )}
           </TableBody>

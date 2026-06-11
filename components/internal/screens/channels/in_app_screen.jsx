@@ -63,7 +63,7 @@ function CreateMessageDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Message name" htmlFor="ia-name">
-            <Input id="ia-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. New feature announcement" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="ia-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. New feature announcement" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -87,7 +87,7 @@ function CreateMessageDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create message</Button>
         </DialogFooter>
       </DialogContent>
@@ -121,19 +121,19 @@ export function InAppScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search messages…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {type === "All" ? "All types" : type}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", type === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", type === t && "text-white")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
@@ -144,7 +144,7 @@ export function InAppScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Message</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Audience</TableHead>
@@ -155,22 +155,22 @@ export function InAppScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((m) => (
-              <TableRow key={m.id} className="border-[#2a2a2a]">
+              <TableRow key={m.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <AppWindow className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{m.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{m.description}</span>
+                      <span className="font-medium text-foreground">{m.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{m.description}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={TYPE_TONE[m.type]}>{m.type}</Pill></TableCell>
-                <TableCell className="text-[#a3a3a3]">{m.audience}</TableCell>
+                <TableCell className="text-muted-foreground">{m.audience}</TableCell>
                 <TableCell><Pill tone={STATUS_TONE[m.status]}>{m.status}</Pill></TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{m.impressions ? m.impressions.toLocaleString() : "—"}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{m.impressions ? m.impressions.toLocaleString() : "—"}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -184,8 +184,8 @@ export function InAppScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No messages found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No messages found.</TableCell>
               </TableRow>
             )}
           </TableBody>

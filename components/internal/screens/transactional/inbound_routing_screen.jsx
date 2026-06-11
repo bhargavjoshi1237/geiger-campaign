@@ -59,7 +59,7 @@ function CreateRouteDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Match pattern" htmlFor="r-match">
-            <Input id="r-match" value={form.match} onChange={(e) => setForm((f) => ({ ...f, match: e.target.value }))} placeholder="support@*.geiger.studio" className="bg-[#161616] border-[#2a2a2a] font-mono" />
+            <Input id="r-match" value={form.match} onChange={(e) => setForm((f) => ({ ...f, match: e.target.value }))} placeholder="support@*.geiger.studio" className="bg-background border-border font-mono" />
           </Field>
           <Field label="Action">
             <Select value={form.action} onValueChange={(v) => setForm((f) => ({ ...f, action: v }))}>
@@ -70,18 +70,18 @@ function CreateRouteDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Destination URL" htmlFor="r-dest" hint="Where parsed messages are POSTed.">
-            <Input id="r-dest" value={form.destination} onChange={(e) => setForm((f) => ({ ...f, destination: e.target.value }))} placeholder="https://" className="bg-[#161616] border-[#2a2a2a] font-mono" />
+            <Input id="r-dest" value={form.destination} onChange={(e) => setForm((f) => ({ ...f, destination: e.target.value }))} placeholder="https://" className="bg-background border-border font-mono" />
           </Field>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#161616] px-3 py-2.5">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2.5">
             <div className="flex flex-col">
               <span className="text-sm font-medium text-[#e5e5e5]">Include attachments</span>
-              <span className="text-xs text-[#737373]">Forward file attachments with the parsed payload.</span>
+              <span className="text-xs text-text-secondary">Forward file attachments with the parsed payload.</span>
             </div>
             <Switch checked={form.attachments} onCheckedChange={(v) => setForm((f) => ({ ...f, attachments: v }))} />
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.match.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Add route</Button>
         </DialogFooter>
       </DialogContent>
@@ -116,14 +116,14 @@ export function InboundRoutingScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search routes…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Match</TableHead>
               <TableHead>Action</TableHead>
               <TableHead>Destination</TableHead>
@@ -133,17 +133,17 @@ export function InboundRoutingScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((r) => (
-              <TableRow key={r.id} className="border-[#2a2a2a]">
+              <TableRow key={r.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <Inbox className="h-4 w-4" />
                     </span>
-                    <span className="font-mono text-sm text-[#ededed]">{r.match}</span>
+                    <span className="font-mono text-sm text-foreground">{r.match}</span>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={ACTION_TONE[r.action]}>{r.action}</Pill></TableCell>
-                <TableCell className="font-mono text-[#a3a3a3]">{r.destination}</TableCell>
+                <TableCell className="font-mono text-muted-foreground">{r.destination}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2.5">
                     <Switch checked={r.active} onCheckedChange={() => toggle(r.id)} />
@@ -162,8 +162,8 @@ export function InboundRoutingScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No routes found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No routes found.</TableCell>
               </TableRow>
             )}
           </TableBody>

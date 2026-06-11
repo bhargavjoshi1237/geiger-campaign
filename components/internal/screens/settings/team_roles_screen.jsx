@@ -76,7 +76,7 @@ function InviteMemberDialog({ open, onOpenChange, onInvite }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Email address" htmlFor="inv-email">
-            <Input id="inv-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="inv-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="bg-background border-border" />
           </Field>
           <Field label="Role" hint="You can change this at any time.">
             <Select value={role} onValueChange={setRole}>
@@ -90,7 +90,7 @@ function InviteMemberDialog({ open, onOpenChange, onInvite }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Send invite</Button>
         </DialogFooter>
       </DialogContent>
@@ -117,11 +117,11 @@ export function TeamRolesScreen() {
         }
       />
 
-      <div className="space-y-4 border-t border-[#242424] pt-4">
+      <div className="space-y-4 border-t border-surface-active pt-4">
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Member</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
@@ -131,21 +131,21 @@ export function TeamRolesScreen() {
             </TableHeader>
             <TableBody>
               {members.map((m) => (
-                <TableRow key={m.id} className="border-[#2a2a2a]">
+                <TableRow key={m.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2a2a2a] bg-[#242424] text-xs font-semibold text-[#e7e7e7]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-active text-xs font-semibold text-foreground">
                         {initials(m.name)}
                       </span>
                       <div className="flex min-w-0 flex-col">
-                        <span className="font-medium text-[#ededed]">{m.name}</span>
-                        <span className="truncate text-xs text-[#737373]">{m.email}</span>
+                        <span className="font-medium text-foreground">{m.name}</span>
+                        <span className="truncate text-xs text-text-secondary">{m.email}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell><Pill tone={ROLE_TONE[m.role]}>{m.role}</Pill></TableCell>
                   <TableCell><Pill tone={STATUS_TONE[m.status]}>{m.status}</Pill></TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{m.lastActive}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{m.lastActive}</TableCell>
                   <TableCell className="text-right">
                     <RowActions
                       items={[
@@ -160,8 +160,8 @@ export function TeamRolesScreen() {
                 </TableRow>
               ))}
               {members.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                  <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No members found.</TableCell>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No members found.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -169,11 +169,11 @@ export function TeamRolesScreen() {
         </TableShell>
 
         {/* Roles legend */}
-        <div className="space-y-2 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-          <h2 className="text-sm font-semibold text-[#ededed]">Roles</h2>
+        <div className="space-y-2 rounded-xl border border-border bg-surface-subtle p-5">
+          <h2 className="text-sm font-semibold text-foreground">Roles</h2>
           {ROLE_LEGEND.map((r) => (
-            <p key={r.role} className="text-xs text-[#737373]">
-              <span className="font-medium text-[#a3a3a3]">{r.role}</span> — {r.desc}
+            <p key={r.role} className="text-xs text-text-secondary">
+              <span className="font-medium text-muted-foreground">{r.role}</span> — {r.desc}
             </p>
           ))}
         </div>

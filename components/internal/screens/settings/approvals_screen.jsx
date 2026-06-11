@@ -43,18 +43,18 @@ export function ApprovalsScreen() {
         description="Require sign-off before campaigns go out."
       />
 
-      <div className="space-y-4 border-t border-[#242424] pt-4">
+      <div className="space-y-4 border-t border-surface-active pt-4">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Approval policy</h2>
+            <ShieldCheck className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Approval policy</h2>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Require approval for sends</p>
-              <p className="text-xs text-[#737373]">Campaigns must be approved before they can be scheduled.</p>
+              <p className="text-xs text-text-secondary">Campaigns must be approved before they can be scheduled.</p>
             </div>
             <Switch checked={requireApproval} onCheckedChange={setRequireApproval} />
           </div>
@@ -70,22 +70,22 @@ export function ApprovalsScreen() {
             </Select>
           </Field>
 
-          <div className="flex items-start gap-2 rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
-            <Users className="mt-0.5 h-4 w-4 shrink-0 text-[#737373]" />
+          <div className="flex items-start gap-2 rounded-lg border border-border bg-surface-card px-4 py-3">
+            <Users className="mt-0.5 h-4 w-4 shrink-0 text-text-secondary" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Approvers</p>
-              <p className="text-xs text-[#737373]">{APPROVERS.join(", ")}</p>
+              <p className="text-xs text-text-secondary">{APPROVERS.join(", ")}</p>
             </div>
           </div>
         </div>
 
         {/* Pending requests */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-[#ededed]">Pending requests</h2>
+          <h2 className="text-sm font-semibold text-foreground">Pending requests</h2>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Campaign</TableHead>
                   <TableHead>Requested by</TableHead>
                   <TableHead className="text-right">Recipients</TableHead>
@@ -96,11 +96,11 @@ export function ApprovalsScreen() {
               </TableHeader>
               <TableBody>
                 {requests.map((r) => (
-                  <TableRow key={r.id} className="border-[#2a2a2a]">
-                    <TableCell className="font-medium text-[#ededed]">{r.campaign}</TableCell>
-                    <TableCell className="text-[#a3a3a3]">{r.requestedBy}</TableCell>
-                    <TableCell className="text-right tabular-nums text-[#a3a3a3]">{r.recipients.toLocaleString()}</TableCell>
-                    <TableCell className="whitespace-nowrap text-[#a3a3a3]">{r.requested}</TableCell>
+                  <TableRow key={r.id} className="border-border">
+                    <TableCell className="font-medium text-foreground">{r.campaign}</TableCell>
+                    <TableCell className="text-muted-foreground">{r.requestedBy}</TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">{r.recipients.toLocaleString()}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{r.requested}</TableCell>
                     <TableCell><Pill tone={STATUS_TONE[r.status]}>{r.status}</Pill></TableCell>
                     <TableCell className="text-right">
                       <RowActions
@@ -114,8 +114,8 @@ export function ApprovalsScreen() {
                   </TableRow>
                 ))}
                 {requests.length === 0 && (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                    <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No approval requests found.</TableCell>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No approval requests found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

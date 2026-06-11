@@ -72,14 +72,14 @@ export function CopyGeneratorScreen() {
       />
 
       {/* Config form */}
-      <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
         <Field label="Prompt" htmlFor="cg-prompt">
           <Textarea
             id="cg-prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="What are you promoting?"
-            className="min-h-20 bg-[#161616] border-[#2a2a2a]"
+            className="min-h-20 bg-background border-border"
           />
         </Field>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -115,27 +115,27 @@ export function CopyGeneratorScreen() {
 
       {/* Results */}
       {!variants ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface-active text-muted-foreground">
             <Sparkles className="h-6 w-6" />
           </span>
-          <p className="mt-4 text-sm text-[#a3a3a3]">Describe what you're promoting and generate copy.</p>
-          <p className="mt-1 text-xs text-[#737373]">You'll get three on-brand variants to choose from.</p>
+          <p className="mt-4 text-sm text-muted-foreground">Describe what you're promoting and generate copy.</p>
+          <p className="mt-1 text-xs text-text-secondary">You'll get three on-brand variants to choose from.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {variants.map((v) => (
-            <div key={v.id} className="flex flex-col rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+            <div key={v.id} className="flex flex-col rounded-xl border border-border bg-surface-subtle p-5">
               <div className="flex items-center justify-between">
-                <span className="rounded border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5 text-xs font-medium text-[#ededed]">{v.label}</span>
-                <span className="text-xs text-[#737373]">{v.meta}</span>
+                <span className="rounded border border-border bg-surface-active px-1.5 py-0.5 text-xs font-medium text-foreground">{v.label}</span>
+                <span className="text-xs text-text-secondary">{v.meta}</span>
               </div>
-              <p className="mt-4 flex-1 whitespace-pre-line text-sm leading-relaxed text-[#a3a3a3]">{v.copy}</p>
-              <div className="mt-5 flex items-center gap-2 border-t border-[#242424] pt-4">
-                <Button size="sm" variant="outline" className="h-8 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+              <p className="mt-4 flex-1 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{v.copy}</p>
+              <div className="mt-5 flex items-center gap-2 border-t border-surface-active pt-4">
+                <Button size="sm" variant="outline" className="h-8 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
                   <Copy className="h-3.5 w-3.5" /> Copy
                 </Button>
-                <Button onClick={generate} size="sm" variant="ghost" className="h-8 text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+                <Button onClick={generate} size="sm" variant="ghost" className="h-8 text-muted-foreground hover:bg-surface-active hover:text-foreground">
                   <RotateCcw className="h-3.5 w-3.5" /> Regenerate
                 </Button>
               </div>

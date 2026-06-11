@@ -57,7 +57,7 @@ function AddDomainDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Domain" htmlFor="d-domain" hint="Use a subdomain dedicated to email, e.g. mail.yourbrand.com.">
-            <Input id="d-domain" value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="mail.yourbrand.com" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="d-domain" value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="mail.yourbrand.com" className="bg-background border-border" />
           </Field>
           <Field label="Sending region">
             <Select value={region} onValueChange={setRegion}>
@@ -71,7 +71,7 @@ function AddDomainDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!domain.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Add domain</Button>
         </DialogFooter>
       </DialogContent>
@@ -104,14 +104,14 @@ export function SendingDomainsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search domains…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Domain</TableHead>
               <TableHead>SPF</TableHead>
               <TableHead>DKIM</TableHead>
@@ -122,15 +122,15 @@ export function SendingDomainsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((d) => (
-              <TableRow key={d.id} className="border-[#2a2a2a]">
+              <TableRow key={d.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <Globe className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{d.domain}</span>
-                      <span className="truncate text-xs text-[#737373]">{REGION_LABEL[d.region]}</span>
+                      <span className="font-medium text-foreground">{d.domain}</span>
+                      <span className="truncate text-xs text-text-secondary">{REGION_LABEL[d.region]}</span>
                     </div>
                   </div>
                 </TableCell>
@@ -150,8 +150,8 @@ export function SendingDomainsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No domains found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No domains found.</TableCell>
               </TableRow>
             )}
           </TableBody>

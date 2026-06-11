@@ -58,7 +58,7 @@ function CreateBlockDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Block name" htmlFor="b-name">
-            <Input id="b-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring hero banner" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="b-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring hero banner" className="bg-background border-border" />
           </Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
@@ -71,7 +71,7 @@ function CreateBlockDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create block</Button>
         </DialogFooter>
       </DialogContent>
@@ -102,19 +102,19 @@ export function ContentBlocksScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search blocks…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {typeFilter === "All" ? "All types" : typeFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", typeFilter === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
@@ -125,7 +125,7 @@ export function ContentBlocksScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Block</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Used in</TableHead>
@@ -138,21 +138,21 @@ export function ContentBlocksScreen() {
               const meta = TYPE_META[b.type];
               const Icon = meta.icon;
               return (
-                <TableRow key={b.id} className="border-[#2a2a2a]">
+                <TableRow key={b.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                         <Icon className="h-4 w-4" />
                       </span>
                       <div className="flex min-w-0 flex-col">
-                        <span className="font-medium text-[#ededed]">{b.name}</span>
-                        <span className="truncate text-xs text-[#737373]">{b.description}</span>
+                        <span className="font-medium text-foreground">{b.name}</span>
+                        <span className="truncate text-xs text-text-secondary">{b.description}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell><Pill tone={meta.tone}>{b.type}</Pill></TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{b.usedIn} campaigns</TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{b.updated}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{b.usedIn} campaigns</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{b.updated}</TableCell>
                   <TableCell className="text-right">
                     <RowActions
                       items={[
@@ -166,8 +166,8 @@ export function ContentBlocksScreen() {
               );
             })}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No blocks found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No blocks found.</TableCell>
               </TableRow>
             )}
           </TableBody>

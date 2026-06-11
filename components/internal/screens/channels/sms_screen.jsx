@@ -71,11 +71,11 @@ function AddNumberDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Preferred area code" htmlFor="n-area" hint="We'll provision an available number.">
-            <Input id="n-area" value={form.areaCode} onChange={(e) => setForm((f) => ({ ...f, areaCode: e.target.value }))} placeholder="e.g. 415" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="n-area" value={form.areaCode} onChange={(e) => setForm((f) => ({ ...f, areaCode: e.target.value }))} placeholder="e.g. 415" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Add number</Button>
         </DialogFooter>
       </DialogContent>
@@ -106,10 +106,10 @@ export function SmsScreen() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-          <h2 className="text-sm font-semibold text-[#ededed]">SMS settings</h2>
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
+          <h2 className="text-sm font-semibold text-foreground">SMS settings</h2>
 
           <Field label="Default sender number">
             <Select value={defaultNumber} onValueChange={setDefaultNumber}>
@@ -120,16 +120,16 @@ export function SmsScreen() {
             </Select>
           </Field>
           <Field label="Opt-out keyword" htmlFor="s-optout">
-            <Input id="s-optout" value={optOutKeyword} onChange={(e) => setOptOutKeyword(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="s-optout" value={optOutKeyword} onChange={(e) => setOptOutKeyword(e.target.value)} className="bg-background border-border" />
           </Field>
           <Field label="Help keyword" htmlFor="s-help">
-            <Input id="s-help" value={helpKeyword} onChange={(e) => setHelpKeyword(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="s-help" value={helpKeyword} onChange={(e) => setHelpKeyword(e.target.value)} className="bg-background border-border" />
           </Field>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Append opt-out notice to first message</p>
-              <p className="text-xs text-[#737373]">Adds "Reply {optOutKeyword} to unsubscribe" to a contact's first SMS.</p>
+              <p className="text-xs text-text-secondary">Adds "Reply {optOutKeyword} to unsubscribe" to a contact's first SMS.</p>
             </div>
             <Switch checked={appendOptOut} onCheckedChange={setAppendOptOut} />
           </div>
@@ -138,14 +138,14 @@ export function SmsScreen() {
         {/* Sending numbers */}
         <div className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-[#ededed]">Sending numbers</h2>
-            <p className="text-xs text-[#737373]">Numbers and short codes registered to your account.</p>
+            <h2 className="text-sm font-semibold text-foreground">Sending numbers</h2>
+            <p className="text-xs text-text-secondary">Numbers and short codes registered to your account.</p>
           </div>
 
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Number</TableHead>
                   <TableHead>Country</TableHead>
                   <TableHead>Type</TableHead>
@@ -156,21 +156,21 @@ export function SmsScreen() {
               </TableHeader>
               <TableBody>
                 {numbers.map((n) => (
-                  <TableRow key={n.id} className="border-[#2a2a2a]">
+                  <TableRow key={n.id} className="border-border">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                           <Smartphone className="h-4 w-4" />
                         </span>
-                        <span className="font-mono text-[#ededed]">{n.number}</span>
+                        <span className="font-mono text-foreground">{n.number}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-[#a3a3a3]">{n.country}</TableCell>
+                    <TableCell className="text-muted-foreground">{n.country}</TableCell>
                     <TableCell><Pill tone={TYPE_TONE[n.type]}>{n.type}</Pill></TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {n.capabilities.map((c) => (
-                          <span key={c} className="rounded-md border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5 text-xs text-[#a3a3a3]">{c}</span>
+                          <span key={c} className="rounded-md border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">{c}</span>
                         ))}
                       </div>
                     </TableCell>
@@ -187,8 +187,8 @@ export function SmsScreen() {
                   </TableRow>
                 ))}
                 {numbers.length === 0 && (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                    <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No sending numbers found.</TableCell>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No sending numbers found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

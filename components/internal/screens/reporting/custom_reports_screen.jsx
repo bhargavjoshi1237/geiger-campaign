@@ -70,34 +70,34 @@ function CreateReportDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Report name" htmlFor="r-name">
-            <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Monthly revenue review" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Monthly revenue review" className="bg-background border-border" />
           </Field>
           <Field label="Description" htmlFor="r-desc">
             <Textarea id="r-desc" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="What does this report cover?" />
           </Field>
           <Field label="Group by">
             <Select value={form.groupBy} onValueChange={(v) => setForm((f) => ({ ...f, groupBy: v }))}>
-              <SelectTrigger className="bg-[#161616] border-[#2a2a2a]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
               <SelectContent>{GROUP_BY.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Schedule">
               <Select value={form.schedule} onValueChange={(v) => setForm((f) => ({ ...f, schedule: v }))}>
-                <SelectTrigger className="bg-[#161616] border-[#2a2a2a]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
                 <SelectContent>{SCHEDULES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="Format">
               <Select value={form.format} onValueChange={(v) => setForm((f) => ({ ...f, format: v }))}>
-                <SelectTrigger className="bg-[#161616] border-[#2a2a2a]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
                 <SelectContent>{FORMATS.map((fmt) => <SelectItem key={fmt} value={fmt}>{fmt}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create report</Button>
         </DialogFooter>
       </DialogContent>
@@ -127,14 +127,14 @@ export function CustomReportsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search reports…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Report</TableHead>
               <TableHead>Metrics</TableHead>
               <TableHead>Schedule</TableHead>
@@ -145,28 +145,28 @@ export function CustomReportsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((r) => (
-              <TableRow key={r.id} className="border-[#2a2a2a]">
+              <TableRow key={r.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <FileBarChart className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{r.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{r.description}</span>
+                      <span className="font-medium text-foreground">{r.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{r.description}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {r.metrics.map((m) => (
-                      <span key={m} className="rounded-md border border-[#2a2a2a] bg-[#242424] px-2 py-0.5 text-xs text-[#a3a3a3]">{m}</span>
+                      <span key={m} className="rounded-md border border-border bg-surface-active px-2 py-0.5 text-xs text-muted-foreground">{m}</span>
                     ))}
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={SCHEDULE_TONE[r.schedule]}>{r.schedule}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{r.lastRun}</TableCell>
-                <TableCell className="font-mono text-xs text-[#a3a3a3]">{r.format}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{r.lastRun}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">{r.format}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -180,8 +180,8 @@ export function CustomReportsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No reports found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No reports found.</TableCell>
               </TableRow>
             )}
           </TableBody>

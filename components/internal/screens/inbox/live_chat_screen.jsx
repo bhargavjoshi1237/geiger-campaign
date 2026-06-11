@@ -48,24 +48,24 @@ export function LiveChatScreen() {
         title="Live Chat"
         description="Live website chat sessions and your chat widget settings."
         actions={
-          <Button variant="outline" className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+          <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
             <Settings className="h-4 w-4" /> Widget settings
           </Button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Config card */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Chat widget</h2>
+            <MessageSquare className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Chat widget</h2>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Widget enabled</p>
-              <p className="text-xs text-[#737373]">Show the chat bubble on your website.</p>
+              <p className="text-xs text-text-secondary">Show the chat bubble on your website.</p>
             </div>
             <Switch checked={enabled} onCheckedChange={setEnabled} />
           </div>
@@ -81,7 +81,7 @@ export function LiveChatScreen() {
           </Field>
 
           <Field label="Greeting message" htmlFor="lc-greeting" hint="Shown when a visitor first opens the widget.">
-            <Input id="lc-greeting" value={greeting} onChange={(e) => setGreeting(e.target.value)} className="border-[#2a2a2a] bg-[#161616]" />
+            <Input id="lc-greeting" value={greeting} onChange={(e) => setGreeting(e.target.value)} className="border-border bg-background" />
           </Field>
 
           <Field label="Assign to">
@@ -98,11 +98,11 @@ export function LiveChatScreen() {
 
         {/* Sessions table */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-[#ededed]">Active &amp; recent sessions</h2>
+          <h2 className="text-sm font-semibold text-foreground">Active &amp; recent sessions</h2>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Visitor</TableHead>
                   <TableHead>Page</TableHead>
                   <TableHead>Status</TableHead>
@@ -113,22 +113,22 @@ export function LiveChatScreen() {
               </TableHeader>
               <TableBody>
                 {sortedSessions.map((s) => (
-                  <TableRow key={s.id} className="border-[#2a2a2a]">
+                  <TableRow key={s.id} className="border-border">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2a2a2a] bg-[#242424] text-xs font-medium text-[#a3a3a3]">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-active text-xs font-medium text-muted-foreground">
                           {s.anonymous ? "?" : initials(s.visitor)}
                         </span>
                         <div className="flex min-w-0 flex-col">
-                          <span className="font-medium text-[#ededed]">{s.anonymous ? "Anonymous" : s.visitor}</span>
-                          <span className="truncate text-xs text-[#737373]">{s.location}</span>
+                          <span className="font-medium text-foreground">{s.anonymous ? "Anonymous" : s.visitor}</span>
+                          <span className="truncate text-xs text-text-secondary">{s.location}</span>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-[#a3a3a3]">{s.page}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">{s.page}</TableCell>
                     <TableCell><Pill tone={STATUS_TONE[s.status]}>{s.status}</Pill></TableCell>
-                    <TableCell className="tabular-nums text-[#a3a3a3]">{s.duration}</TableCell>
-                    <TableCell className="text-[#a3a3a3]">{s.agent}</TableCell>
+                    <TableCell className="tabular-nums text-muted-foreground">{s.duration}</TableCell>
+                    <TableCell className="text-muted-foreground">{s.agent}</TableCell>
                     <TableCell className="text-right">
                       <RowActions
                         items={[
@@ -140,8 +140,8 @@ export function LiveChatScreen() {
                   </TableRow>
                 ))}
                 {sortedSessions.length === 0 && (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                    <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No sessions found.</TableCell>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No sessions found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

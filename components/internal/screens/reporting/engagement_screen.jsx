@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/chart";
 
 const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
-const TOOLTIP_CLASS = "bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]";
+const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
 
 const ENGAGEMENT = [
   { day: "Mon", opens: 4120, clicks: 640 },
@@ -61,10 +61,10 @@ export function EngagementScreen() {
         description="How recipients interact with your messages over time."
       />
 
-      <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="rounded-xl border border-border bg-surface-subtle p-5">
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-[#ededed]">Opens & clicks over time</h3>
-          <p className="text-xs text-[#737373]">Daily interaction counts for the last week.</p>
+          <h3 className="text-sm font-semibold text-foreground">Opens & clicks over time</h3>
+          <p className="text-xs text-text-secondary">Daily interaction counts for the last week.</p>
         </div>
         <ChartContainer config={ENGAGEMENT_CONFIG} className="aspect-auto h-[280px] w-full">
           <AreaChart data={ENGAGEMENT} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
@@ -92,13 +92,13 @@ export function EngagementScreen() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
         <div className="space-y-3">
           <div>
-            <h3 className="text-sm font-semibold text-[#ededed]">Top links</h3>
-            <p className="text-xs text-[#737373]">Most-clicked destinations across recent sends.</p>
+            <h3 className="text-sm font-semibold text-foreground">Top links</h3>
+            <p className="text-xs text-text-secondary">Most-clicked destinations across recent sends.</p>
           </div>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Link</TableHead>
                   <TableHead className="text-right">Clicks</TableHead>
                   <TableHead className="text-right">Unique</TableHead>
@@ -107,11 +107,11 @@ export function EngagementScreen() {
               </TableHeader>
               <TableBody>
                 {TOP_LINKS.map((l) => (
-                  <TableRow key={l.url} className="border-[#2a2a2a]">
-                    <TableCell className="max-w-[280px] truncate font-mono text-xs text-[#a3a3a3]">{l.url}</TableCell>
-                    <TableCell className="text-right tabular-nums text-[#a3a3a3]">{l.clicks.toLocaleString()}</TableCell>
-                    <TableCell className="text-right tabular-nums text-[#a3a3a3]">{l.unique.toLocaleString()}</TableCell>
-                    <TableCell className="text-right tabular-nums text-[#ededed]">{l.ctr}%</TableCell>
+                  <TableRow key={l.url} className="border-border">
+                    <TableCell className="max-w-[280px] truncate font-mono text-xs text-muted-foreground">{l.url}</TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">{l.clicks.toLocaleString()}</TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">{l.unique.toLocaleString()}</TableCell>
+                    <TableCell className="text-right tabular-nums text-foreground">{l.ctr}%</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -119,10 +119,10 @@ export function EngagementScreen() {
           </TableShell>
         </div>
 
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="rounded-xl border border-border bg-surface-subtle p-5">
           <div className="mb-4">
-            <h3 className="text-sm font-semibold text-[#ededed]">Engagement by device</h3>
-            <p className="text-xs text-[#737373]">Share of opens by device type.</p>
+            <h3 className="text-sm font-semibold text-foreground">Engagement by device</h3>
+            <p className="text-xs text-text-secondary">Share of opens by device type.</p>
           </div>
           <div className="space-y-4">
             {DEVICES.map((d) => {
@@ -131,12 +131,12 @@ export function EngagementScreen() {
                 <div key={d.label} className="space-y-1.5">
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2 text-[#c4c4c4]">
-                      <Icon className="h-4 w-4 text-[#737373]" />
+                      <Icon className="h-4 w-4 text-text-secondary" />
                       {d.label}
                     </span>
-                    <span className="tabular-nums font-medium text-[#ededed]">{d.share}%</span>
+                    <span className="tabular-nums font-medium text-foreground">{d.share}%</span>
                   </div>
-                  <Progress value={d.share} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                  <Progress value={d.share} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
                 </div>
               );
             })}

@@ -24,26 +24,26 @@ export function AdvancedSettingsScreen() {
         description="Power-user controls and workspace data options."
       />
 
-      <div className="space-y-4 border-t border-[#242424] pt-4">
+      <div className="space-y-4 border-t border-surface-active pt-4">
         {/* Data & security */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Data & security</h2>
+            <Lock className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Data & security</h2>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Require 2FA for all members</p>
-              <p className="text-xs text-[#737373]">Members must set up two-factor authentication to sign in.</p>
+              <p className="text-xs text-text-secondary">Members must set up two-factor authentication to sign in.</p>
             </div>
             <Switch checked={require2fa} onCheckedChange={setRequire2fa} />
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">IP allowlist</p>
-              <p className="text-xs text-[#737373]">Restrict workspace access to approved IP ranges.</p>
+              <p className="text-xs text-text-secondary">Restrict workspace access to approved IP ranges.</p>
             </div>
             <Switch checked={ipAllowlist} onCheckedChange={setIpAllowlist} />
           </div>
@@ -59,10 +59,10 @@ export function AdvancedSettingsScreen() {
             </Select>
           </Field>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Export data</p>
-              <p className="text-xs text-[#737373]">
+              <p className="text-xs text-text-secondary">
                 {exportRequested ? "Export requested — we'll email you a download link." : "Download a full archive of your workspace data."}
               </p>
             </div>
@@ -70,7 +70,7 @@ export function AdvancedSettingsScreen() {
               variant="outline"
               onClick={() => setExportRequested(true)}
               disabled={exportRequested}
-              className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]"
+              className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle"
             >
               <Download className="h-4 w-4" /> {exportRequested ? "Requested" : "Request export"}
             </Button>
@@ -87,7 +87,7 @@ export function AdvancedSettingsScreen() {
           <div className="flex flex-col gap-3 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Reset workspace data</p>
-              <p className="text-xs text-[#737373]">Permanently delete all campaigns, contacts and reports. The workspace itself stays.</p>
+              <p className="text-xs text-text-secondary">Permanently delete all campaigns, contacts and reports. The workspace itself stays.</p>
             </div>
             <Button
               variant="ghost"
@@ -101,7 +101,7 @@ export function AdvancedSettingsScreen() {
           <div className="flex flex-col gap-3 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Delete workspace</p>
-              <p className="text-xs text-[#737373]">Permanently remove this workspace and everything in it. This cannot be undone.</p>
+              <p className="text-xs text-text-secondary">Permanently remove this workspace and everything in it. This cannot be undone.</p>
             </div>
             <Button
               variant="ghost"

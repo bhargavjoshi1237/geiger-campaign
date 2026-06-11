@@ -89,7 +89,7 @@ function CreateTagDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Tag name" htmlFor="t-name">
-            <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP" className="bg-background border-border" />
           </Field>
           <Field label="Color">
             <div className="flex flex-wrap gap-2">
@@ -100,7 +100,7 @@ function CreateTagDialog({ open, onOpenChange, onCreate }) {
                   onClick={() => setColor(c.value)}
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors",
-                    color === c.value ? "border-white" : "border-transparent hover:border-[#474747]",
+                    color === c.value ? "border-white" : "border-transparent hover:border-border-strong",
                   )}
                   aria-label={c.name}
                 >
@@ -111,7 +111,7 @@ function CreateTagDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create tag</Button>
         </DialogFooter>
       </DialogContent>
@@ -139,10 +139,10 @@ function CreateFieldDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Field label" htmlFor="f-label">
-            <Input id="f-label" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} placeholder="e.g. Company" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="f-label" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} placeholder="e.g. Company" className="bg-background border-border" />
           </Field>
           <Field label="API key" hint="Auto-generated from the label; used in personalization and the API.">
-            <div className="flex items-center rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">
+            <div className="flex items-center rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">
               {key || "field_key"}
             </div>
           </Field>
@@ -154,16 +154,16 @@ function CreateFieldDialog({ open, onOpenChange, onCreate }) {
               </SelectContent>
             </Select>
           </Field>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Required field</p>
-              <p className="text-xs text-[#737373]">Forms must collect this value before submitting.</p>
+              <p className="text-xs text-text-secondary">Forms must collect this value before submitting.</p>
             </div>
             <Switch checked={form.required} onCheckedChange={(v) => setForm((f) => ({ ...f, required: v }))} />
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.label.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create field</Button>
         </DialogFooter>
       </DialogContent>
@@ -190,7 +190,7 @@ export function TagsFieldsScreen() {
         description="Label contacts with tags and store structured data in custom fields."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
         <SegmentedTabs
           value={tab}
           onChange={setTab}
@@ -217,7 +217,7 @@ export function TagsFieldsScreen() {
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Tag</TableHead>
                 <TableHead>Contacts tagged</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -225,14 +225,14 @@ export function TagsFieldsScreen() {
             </TableHeader>
             <TableBody>
               {filteredTags.map((t) => (
-                <TableRow key={t.id} className="border-[#2a2a2a]">
+                <TableRow key={t.id} className="border-border">
                   <TableCell>
-                    <span className="inline-flex items-center gap-2 rounded-md border border-[#2a2a2a] bg-[#242424] px-2.5 py-1 text-sm text-[#ededed]">
+                    <span className="inline-flex items-center gap-2 rounded-md border border-border bg-surface-active px-2.5 py-1 text-sm text-foreground">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.color }} />
                       {t.name}
                     </span>
                   </TableCell>
-                  <TableCell className="tabular-nums font-medium text-[#ededed]">{t.contacts.toLocaleString()}</TableCell>
+                  <TableCell className="tabular-nums font-medium text-foreground">{t.contacts.toLocaleString()}</TableCell>
                   <TableCell className="text-right">
                     <RowActions
                       items={[
@@ -245,8 +245,8 @@ export function TagsFieldsScreen() {
                 </TableRow>
               ))}
               {filteredTags.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                  <TableCell colSpan={3} className="py-14 text-center text-sm text-[#737373]">No tags found.</TableCell>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableCell colSpan={3} className="py-14 text-center text-sm text-text-secondary">No tags found.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -256,7 +256,7 @@ export function TagsFieldsScreen() {
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Field</TableHead>
                 <TableHead>API key</TableHead>
                 <TableHead>Type</TableHead>
@@ -266,21 +266,21 @@ export function TagsFieldsScreen() {
             </TableHeader>
             <TableBody>
               {filteredFields.map((f) => (
-                <TableRow key={f.id} className="border-[#2a2a2a]">
+                <TableRow key={f.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-[#ededed]">{f.label}</span>
+                      <span className="font-medium text-foreground">{f.label}</span>
                       {f.required && <Pill tone="amber" className="min-w-0">Required</Pill>}
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-[#a3a3a3]">{f.key}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{f.key}</TableCell>
                   <TableCell><Pill tone="blue">{f.type}</Pill></TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#2a2a2a]">
+                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-surface-hover">
                         <div className="h-full rounded-full bg-[#ededed]" style={{ width: `${f.filled}%` }} />
                       </div>
-                      <span className="text-xs tabular-nums text-[#737373]">{f.filled}%</span>
+                      <span className="text-xs tabular-nums text-text-secondary">{f.filled}%</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -294,8 +294,8 @@ export function TagsFieldsScreen() {
                 </TableRow>
               ))}
               {filteredFields.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                  <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No fields found.</TableCell>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No fields found.</TableCell>
                 </TableRow>
               )}
             </TableBody>

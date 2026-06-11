@@ -49,19 +49,19 @@ export function AppsScreen() {
         description="Connect Geiger to the tools your team already uses."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search apps…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-44">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
               {category === "All" ? "All categories" : category}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by category</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...CATEGORIES].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", category === c && "text-white")}>
+              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", category === c && "text-white")}>
                 {c === "All" ? "All categories" : c}
               </DropdownMenuItem>
             ))}
@@ -71,7 +71,7 @@ export function AppsScreen() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((a) => (
-          <div key={a.id} className="flex flex-col rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5 transition-colors hover:border-[#474747]">
+          <div key={a.id} className="flex flex-col rounded-xl border border-border bg-surface-subtle p-5 transition-colors hover:border-border-strong">
             <div className="flex items-start gap-3">
               <span
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-base font-semibold text-white/95"
@@ -80,30 +80,30 @@ export function AppsScreen() {
                 {a.name.charAt(0)}
               </span>
               <div className="flex min-w-0 flex-col">
-                <h3 className="truncate font-medium text-[#ededed]">{a.name}</h3>
-                <span className="mt-1 inline-flex w-fit items-center gap-1 rounded border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5 text-xs text-[#a3a3a3]">
+                <h3 className="truncate font-medium text-foreground">{a.name}</h3>
+                <span className="mt-1 inline-flex w-fit items-center gap-1 rounded border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">
                   <Blocks className="h-3 w-3" /> {a.category}
                 </span>
               </div>
             </div>
 
-            <p className="mt-3 text-sm text-[#a3a3a3]">{a.description}</p>
+            <p className="mt-3 text-sm text-muted-foreground">{a.description}</p>
 
-            <div className="mt-4 flex items-center justify-between border-t border-[#242424] pt-4">
+            <div className="mt-4 flex items-center justify-between border-t border-surface-active pt-4">
               {a.connected ? (
                 <>
                   <Pill tone="green">Connected</Pill>
                   <Button
                     variant="ghost"
                     onClick={() => setConnected(a.id, false)}
-                    className="h-8 text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+                    className="h-8 text-muted-foreground hover:bg-surface-active hover:text-foreground"
                   >
                     Disconnect
                   </Button>
                 </>
               ) : (
                 <>
-                  <span className="text-xs text-[#737373]">Not connected</span>
+                  <span className="text-xs text-text-secondary">Not connected</span>
                   <Button
                     onClick={() => setConnected(a.id, true)}
                     className="h-8 bg-white text-black hover:bg-[#e5e5e5]"
@@ -118,7 +118,7 @@ export function AppsScreen() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center text-sm text-[#737373]">
+        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
           No apps match your filters.
         </div>
       )}

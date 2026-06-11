@@ -116,10 +116,10 @@ export function ConversationsScreen() {
         description="Reply to customer email replies and inbound messages in one shared inbox."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[320px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[320px_1fr]">
         {/* Thread list */}
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-1 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-1">
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-surface-subtle p-1">
             {STATUS_FILTERS.map((s) => (
               <button
                 key={s}
@@ -127,7 +127,7 @@ export function ConversationsScreen() {
                 onClick={() => setStatusFilter(s)}
                 className={cn(
                   "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                  statusFilter === s ? "bg-[#2a2a2a] text-white" : "text-[#737373] hover:text-[#ededed]",
+                  statusFilter === s ? "bg-surface-hover text-white" : "text-text-secondary hover:text-foreground",
                 )}
               >
                 {s}
@@ -135,27 +135,27 @@ export function ConversationsScreen() {
             ))}
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a]">
+          <div className="overflow-hidden rounded-xl border border-border bg-surface-subtle">
             {filtered.map((t) => (
               <button
                 key={t.id}
                 type="button"
                 onClick={() => openThread(t.id)}
                 className={cn(
-                  "flex w-full items-start gap-3 border-b border-[#242424] px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#1d1d1d]",
-                  selectedId === t.id && "bg-[#202020]",
+                  "flex w-full items-start gap-3 border-b border-surface-active px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#1d1d1d]",
+                  selectedId === t.id && "bg-surface-card",
                 )}
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2a2a2a] bg-[#242424] text-xs font-medium text-[#a3a3a3]">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-active text-xs font-medium text-muted-foreground">
                   {t.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate font-medium text-[#ededed]">{t.name}</span>
-                    <span className="shrink-0 text-xs text-[#737373]">{t.time}</span>
+                    <span className="truncate font-medium text-foreground">{t.name}</span>
+                    <span className="shrink-0 text-xs text-text-secondary">{t.time}</span>
                   </div>
-                  <span className="truncate text-xs text-[#a3a3a3]">{t.subject}</span>
-                  <span className="truncate text-xs text-[#737373]">
+                  <span className="truncate text-xs text-muted-foreground">{t.subject}</span>
+                  <span className="truncate text-xs text-text-secondary">
                     {t.messages[t.messages.length - 1].body}
                   </span>
                 </div>
@@ -163,19 +163,19 @@ export function ConversationsScreen() {
               </button>
             ))}
             {filtered.length === 0 && (
-              <p className="py-14 text-center text-sm text-[#737373]">No conversations found.</p>
+              <p className="py-14 text-center text-sm text-text-secondary">No conversations found.</p>
             )}
           </div>
         </div>
 
         {/* Open conversation */}
-        <div className="flex h-[560px] flex-col rounded-xl border border-[#2a2a2a] bg-[#1a1a1a]">
+        <div className="flex h-[560px] flex-col rounded-xl border border-border bg-surface-subtle">
           {selected ? (
             <>
-              <div className="flex items-center justify-between gap-3 border-b border-[#242424] px-5 py-3">
+              <div className="flex items-center justify-between gap-3 border-b border-surface-active px-5 py-3">
                 <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-medium text-[#ededed]">{selected.subject}</span>
-                  <span className="inline-flex items-center gap-1.5 truncate text-xs text-[#737373]">
+                  <span className="truncate font-medium text-foreground">{selected.subject}</span>
+                  <span className="inline-flex items-center gap-1.5 truncate text-xs text-text-secondary">
                     <Mail className="h-3.5 w-3.5" /> {selected.name} · {selected.email}
                   </span>
                 </div>
@@ -187,25 +187,25 @@ export function ConversationsScreen() {
                   <div
                     key={m.id}
                     className={cn(
-                      "rounded-lg border border-[#2a2a2a] p-4",
-                      m.dir === "out" ? "bg-[#202020]" : "bg-[#161616]",
+                      "rounded-lg border border-border p-4",
+                      m.dir === "out" ? "bg-surface-card" : "bg-background",
                     )}
                   >
                     <div className="mb-1.5 flex items-center justify-between gap-2">
-                      <span className="text-sm font-medium text-[#ededed]">{m.from}</span>
-                      <span className="text-xs text-[#737373]">{m.time}</span>
+                      <span className="text-sm font-medium text-foreground">{m.from}</span>
+                      <span className="text-xs text-text-secondary">{m.time}</span>
                     </div>
-                    <p className="text-sm leading-6 text-[#a3a3a3]">{m.body}</p>
+                    <p className="text-sm leading-6 text-muted-foreground">{m.body}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-[#242424] p-3">
+              <div className="border-t border-surface-active p-3">
                 <Textarea
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder={`Reply to ${selected.name}…`}
-                  className="min-h-[80px] resize-none border-[#2a2a2a] bg-[#161616]"
+                  className="min-h-[80px] resize-none border-border bg-background"
                 />
                 <div className="mt-2 flex justify-end">
                   <Button onClick={sendReply} disabled={!draft.trim()} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
@@ -215,7 +215,7 @@ export function ConversationsScreen() {
               </div>
             </>
           ) : (
-            <div className="flex flex-1 items-center justify-center text-sm text-[#737373]">
+            <div className="flex flex-1 items-center justify-center text-sm text-text-secondary">
               Select a conversation to read it.
             </div>
           )}

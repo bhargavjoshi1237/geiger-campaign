@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/chart";
 
 const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
-const TOOLTIP_CLASS = "bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]";
+const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
 
 const TRENDS = [
   { week: "W1", delivered: 96.4, bounced: 2.4, complaint: 0.08 },
@@ -54,10 +54,10 @@ export function DeliverabilityReportsScreen() {
         description="Delivery, bounce, and complaint trends across your sends."
       />
 
-      <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="rounded-xl border border-border bg-surface-subtle p-5">
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-[#ededed]">Deliverability trends</h3>
-          <p className="text-xs text-[#737373]">Delivered, bounce, and complaint rates per week (%).</p>
+          <h3 className="text-sm font-semibold text-foreground">Deliverability trends</h3>
+          <p className="text-xs text-text-secondary">Delivered, bounce, and complaint rates per week (%).</p>
         </div>
         <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[280px] w-full">
           <LineChart data={TRENDS} margin={{ top: 8, right: 16, left: 4, bottom: 0 }}>
@@ -76,7 +76,7 @@ export function DeliverabilityReportsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Domain</TableHead>
               <TableHead className="text-right">Sent</TableHead>
               <TableHead className="text-right">Delivered</TableHead>
@@ -87,12 +87,12 @@ export function DeliverabilityReportsScreen() {
           </TableHeader>
           <TableBody>
             {DOMAINS.map((d) => (
-              <TableRow key={d.domain} className="border-[#2a2a2a]">
-                <TableCell className="font-mono text-xs text-[#a3a3a3]">{d.domain}</TableCell>
-                <TableCell className="text-right tabular-nums text-[#a3a3a3]">{d.sent.toLocaleString()}</TableCell>
+              <TableRow key={d.domain} className="border-border">
+                <TableCell className="font-mono text-xs text-muted-foreground">{d.domain}</TableCell>
+                <TableCell className="text-right tabular-nums text-muted-foreground">{d.sent.toLocaleString()}</TableCell>
                 <TableCell className="text-right tabular-nums font-medium text-emerald-400">{d.delivered}%</TableCell>
                 <TableCell className={`text-right tabular-nums ${d.bounce >= 5 ? "text-red-400" : "text-amber-400"}`}>{d.bounce}%</TableCell>
-                <TableCell className="text-right tabular-nums text-[#a3a3a3]">{d.complaint}%</TableCell>
+                <TableCell className="text-right tabular-nums text-muted-foreground">{d.complaint}%</TableCell>
                 <TableCell><Pill tone={d.tone}>{d.status}</Pill></TableCell>
               </TableRow>
             ))}

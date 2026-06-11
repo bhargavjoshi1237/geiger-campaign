@@ -88,11 +88,11 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-5 py-4">
           <Field label="Segment name" htmlFor="s-name">
-            <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Engaged — last 90 days" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Engaged — last 90 days" className="bg-background border-border" />
           </Field>
 
-          <div className="space-y-3 rounded-xl border border-[#2a2a2a] bg-[#202020] p-4">
-            <div className="flex items-center gap-2 text-sm text-[#a3a3a3]">
+          <div className="space-y-3 rounded-xl border border-border bg-surface-card p-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               Match
               <Select value={match} onValueChange={setMatch}>
                 <SelectTrigger size="sm" className="w-24"><SelectValue /></SelectTrigger>
@@ -123,13 +123,13 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
                     value={c.value}
                     onChange={(e) => updateCond(c.id, "value", e.target.value)}
                     placeholder="value"
-                    className="flex-1 bg-[#161616] border-[#2a2a2a]"
+                    className="flex-1 bg-background border-border"
                   />
                   <Button
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => setConditions((cs) => (cs.length > 1 ? cs.filter((x) => x.id !== c.id) : cs))}
-                    className="shrink-0 text-[#737373] hover:bg-[#2a2a2a] hover:text-white disabled:opacity-30"
+                    className="shrink-0 text-text-secondary hover:bg-surface-hover hover:text-foreground disabled:opacity-30"
                     disabled={conditions.length === 1}
                   >
                     <X className="h-4 w-4" />
@@ -142,14 +142,14 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
               variant="ghost"
               size="sm"
               onClick={() => setConditions((cs) => [...cs, emptyCondition()])}
-              className="text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white"
+              className="text-muted-foreground hover:bg-surface-hover hover:text-foreground"
             >
               <Plus className="h-4 w-4" /> Add condition
             </Button>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create segment</Button>
         </DialogFooter>
       </DialogContent>
@@ -176,14 +176,14 @@ export function SegmentsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search segments…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Segment</TableHead>
               <TableHead>Match</TableHead>
               <TableHead>Conditions</TableHead>
@@ -193,23 +193,23 @@ export function SegmentsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((s) => (
-              <TableRow key={s.id} className="border-[#2a2a2a]">
+              <TableRow key={s.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <Filter className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{s.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{s.description}</span>
+                      <span className="font-medium text-foreground">{s.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{s.description}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Pill tone={s.match === "all" ? "blue" : "amber"}>Match {s.match}</Pill>
                 </TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{s.conditions}</TableCell>
-                <TableCell className="tabular-nums font-medium text-[#ededed]">{s.contacts.toLocaleString()}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{s.conditions}</TableCell>
+                <TableCell className="tabular-nums font-medium text-foreground">{s.contacts.toLocaleString()}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -223,8 +223,8 @@ export function SegmentsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No segments found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No segments found.</TableCell>
               </TableRow>
             )}
           </TableBody>

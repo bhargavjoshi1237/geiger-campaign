@@ -23,7 +23,7 @@ const TYPE_META = {
   Call: { icon: Phone, color: "bg-blue-500/15 text-blue-300 border-blue-500/30" },
   Email: { icon: Mail, color: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
   Meeting: { icon: Calendar, color: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-  Note: { icon: StickyNote, color: "bg-zinc-500/15 text-zinc-300 border-zinc-500/30" },
+  Note: { icon: StickyNote, color: "bg-zinc-500/15 text-muted-foreground border-zinc-500/30" },
   Deal: { icon: Handshake, color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
 };
 
@@ -78,17 +78,17 @@ function LogActivityDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Summary" htmlFor="a-summary">
-            <Input id="a-summary" value={form.summary} onChange={(e) => set("summary")(e.target.value)} placeholder="e.g. logged a call with Northwind Logistics" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="a-summary" value={form.summary} onChange={(e) => set("summary")(e.target.value)} placeholder="e.g. logged a call with Northwind Logistics" className="bg-background border-border" />
           </Field>
           <Field label="Related to" htmlFor="a-related" hint="Deal, company, or contact.">
-            <Input id="a-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Northwind Logistics" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="a-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Northwind Logistics" className="bg-background border-border" />
           </Field>
           <Field label="Note">
-            <Textarea value={form.note} onChange={(e) => set("note")(e.target.value)} placeholder="Add context or next steps…" className="min-h-[80px] bg-[#161616] border-[#2a2a2a]" />
+            <Textarea value={form.note} onChange={(e) => set("note")(e.target.value)} placeholder="Add context or next steps…" className="min-h-[80px] bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Log activity</Button>
         </DialogFooter>
       </DialogContent>
@@ -116,21 +116,21 @@ export function ActivityScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {typeFilter === "All" ? "All types" : typeFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {TYPE_FILTERS.map((t) => (
               <DropdownMenuItem
                 key={t}
                 onSelect={() => setTypeFilter(t)}
-                className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", typeFilter === t && "text-white")}
+                className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}
               >
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
@@ -139,30 +139,30 @@ export function ActivityScreen() {
         </DropdownMenu>
       </div>
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <ol className="space-y-1">
           {filtered.map((a) => {
             const meta = TYPE_META[a.type] || TYPE_META.Note;
             const Icon = meta.icon;
             return (
-              <li key={a.id} className="flex gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-[#1a1a1a]">
+              <li key={a.id} className="flex gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-surface-subtle">
                 <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full border", meta.color)}>
                   <Icon className="h-4 w-4" />
                 </span>
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-sm text-[#ededed]">
+                    <p className="text-sm text-foreground">
                       <span className="font-semibold text-white">{a.who}</span> {a.action}
                     </p>
-                    <p className="mt-0.5 text-xs text-[#737373]">{a.detail}</p>
+                    <p className="mt-0.5 text-xs text-text-secondary">{a.detail}</p>
                   </div>
-                  <span className="shrink-0 whitespace-nowrap text-xs text-[#737373]">{a.when}</span>
+                  <span className="shrink-0 whitespace-nowrap text-xs text-text-secondary">{a.when}</span>
                 </div>
               </li>
             );
           })}
           {filtered.length === 0 && (
-            <li className="rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center text-sm text-[#737373]">No activity found.</li>
+            <li className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">No activity found.</li>
           )}
         </ol>
       </div>

@@ -52,7 +52,7 @@ function CreateWorkflowDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Workflow name" htmlFor="wf-name">
-            <Input id="wf-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome series" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="wf-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome series" className="bg-background border-border" />
           </Field>
           <Field label="Entry trigger">
             <Select value={form.trigger} onValueChange={set("trigger")}>
@@ -61,11 +61,11 @@ function CreateWorkflowDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Goal" htmlFor="wf-goal" hint="Optional — what should a contact do to count as converted?">
-            <Input id="wf-goal" value={form.goal} onChange={(e) => set("goal")(e.target.value)} placeholder="e.g. Completes a purchase" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="wf-goal" value={form.goal} onChange={(e) => set("goal")(e.target.value)} placeholder="e.g. Completes a purchase" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create workflow</Button>
         </DialogFooter>
       </DialogContent>
@@ -96,19 +96,19 @@ export function WorkflowsScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search workflows…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {statusFilter === "All" ? "All statuses" : statusFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", "Active", "Paused", "Draft"].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", statusFilter === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
                 {s === "All" ? "All statuses" : s}
               </DropdownMenuItem>
             ))}
@@ -119,7 +119,7 @@ export function WorkflowsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Workflow</TableHead>
               <TableHead>Trigger</TableHead>
               <TableHead>Steps</TableHead>
@@ -131,22 +131,22 @@ export function WorkflowsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((w) => (
-              <TableRow key={w.id} className={cn("border-[#2a2a2a]", w.status !== "Active" && "opacity-70")}>
+              <TableRow key={w.id} className={cn("border-border", w.status !== "Active" && "opacity-70")}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <Workflow className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{w.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{w.description}</span>
+                      <span className="font-medium text-foreground">{w.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{w.description}</span>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{w.trigger}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{w.steps}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{w.enrolled.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums font-medium text-[#ededed]">{w.conversion}%</TableCell>
+                <TableCell className="text-muted-foreground">{w.trigger}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{w.steps}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{w.enrolled.toLocaleString()}</TableCell>
+                <TableCell className="tabular-nums font-medium text-foreground">{w.conversion}%</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Switch checked={w.status === "Active"} onCheckedChange={() => toggle(w.id)} disabled={w.status === "Draft"} />
@@ -164,7 +164,7 @@ export function WorkflowsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent"><TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No workflows match your filters.</TableCell></TableRow>
+              <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No workflows match your filters.</TableCell></TableRow>
             )}
           </TableBody>
         </Table>

@@ -28,39 +28,39 @@ export function GeneralSettingsScreen() {
         description="Core settings for your Campaign workspace."
       />
 
-      <div className="space-y-4 border-t border-[#242424] pt-4">
+      <div className="space-y-4 border-t border-surface-active pt-4">
         {/* Workspace identity */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Workspace</h2>
+            <Building2 className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Workspace</h2>
           </div>
 
           <Field label="Workspace name" htmlFor="ws-name">
-            <Input id="ws-name" value={name} onChange={(e) => setName(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="ws-name" value={name} onChange={(e) => setName(e.target.value)} className="bg-background border-border" />
           </Field>
 
           <Field label="Workspace URL" hint="Your public subdomain. Lowercase letters, numbers and hyphens only.">
             <div className="flex items-center gap-2">
-              <span className="flex items-center gap-2 rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">
-                <Link2 className="h-4 w-4 text-[#737373]" />
+              <span className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">
+                <Link2 className="h-4 w-4 text-text-secondary" />
                 geiger.studio/{subdomain || "…"}
               </span>
               <Input
                 value={subdomain}
                 onChange={(e) => setSubdomain(e.target.value)}
                 placeholder="acme"
-                className="max-w-[180px] bg-[#161616] border-[#2a2a2a]"
+                className="max-w-[180px] bg-background border-border"
               />
             </div>
           </Field>
         </div>
 
         {/* Localization */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Localization</h2>
+            <Clock className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Localization</h2>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -105,24 +105,24 @@ export function GeneralSettingsScreen() {
         </div>
 
         {/* Notifications */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Languages className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Notifications</h2>
+            <Languages className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Notifications</h2>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Weekly summary email</p>
-              <p className="text-xs text-[#737373]">A digest of campaign performance every Monday.</p>
+              <p className="text-xs text-text-secondary">A digest of campaign performance every Monday.</p>
             </div>
             <Switch checked={weeklySummary} onCheckedChange={setWeeklySummary} />
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Product update announcements</p>
-              <p className="text-xs text-[#737373]">Occasional emails about new features and changes.</p>
+              <p className="text-xs text-text-secondary">Occasional emails about new features and changes.</p>
             </div>
             <Switch checked={productUpdates} onCheckedChange={setProductUpdates} />
           </div>

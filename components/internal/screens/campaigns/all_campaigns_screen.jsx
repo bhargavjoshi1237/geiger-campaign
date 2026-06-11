@@ -64,7 +64,7 @@ function CreateCampaignDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Campaign name" htmlFor="cmp-name">
-            <Input id="cmp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo 2026" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="cmp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo 2026" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -94,7 +94,7 @@ function CreateCampaignDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create campaign</Button>
         </DialogFooter>
       </DialogContent>
@@ -106,15 +106,15 @@ function FilterMenu({ label, value, options, onChange, width = "sm:w-40" }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className={cn("h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]", width)}>
+        <Button variant="outline" className={cn("h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle", width)}>
           {value === "All" ? label : value}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-        <DropdownMenuLabel className="text-[#737373]">{label}</DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+      <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+        <DropdownMenuLabel className="text-text-secondary">{label}</DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-surface-hover" />
         {options.map((o) => (
-          <DropdownMenuItem key={o} onSelect={() => onChange(o)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", value === o && "text-white")}>
+          <DropdownMenuItem key={o} onSelect={() => onChange(o)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", value === o && "text-white")}>
             {o === "All" ? label : o}
           </DropdownMenuItem>
         ))}
@@ -151,7 +151,7 @@ export function AllCampaignsScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search campaigns…" />
         <FilterMenu label="All statuses" value={status} options={STATUSES} onChange={setStatus} />
         <FilterMenu label="All types" value={type} options={TYPES} onChange={setType} />
@@ -160,7 +160,7 @@ export function AllCampaignsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Campaign</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Channel</TableHead>
@@ -175,30 +175,30 @@ export function AllCampaignsScreen() {
             {filtered.map((c) => {
               const ChannelIcon = CHANNEL_ICON[c.channel] || Mail;
               return (
-                <TableRow key={c.id} className="border-[#2a2a2a]">
+                <TableRow key={c.id} className="border-border">
                   <TableCell>
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-medium text-[#ededed]">{c.name}</span>
-                      <span className="line-clamp-1 text-xs text-[#737373]">{c.description}</span>
+                      <span className="font-medium text-foreground">{c.name}</span>
+                      <span className="line-clamp-1 text-xs text-text-secondary">{c.description}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-[#a3a3a3]">{c.type}</TableCell>
+                  <TableCell className="text-muted-foreground">{c.type}</TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center gap-1.5 text-sm text-[#a3a3a3]">
+                    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
                       <ChannelIcon className="h-3.5 w-3.5" /> {c.channel}
                     </span>
                   </TableCell>
                   <TableCell><Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill></TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{c.recipients ? c.recipients.toLocaleString() : "—"}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{c.recipients ? c.recipients.toLocaleString() : "—"}</TableCell>
                   <TableCell>
                     {c.openRate > 0 ? (
                       <div className="w-[120px] space-y-1.5">
-                        <Progress value={c.openRate} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                        <p className="text-xs text-[#737373]">{c.openRate}%</p>
+                        <Progress value={c.openRate} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                        <p className="text-xs text-text-secondary">{c.openRate}%</p>
                       </div>
-                    ) : <span className="text-[#737373]">—</span>}
+                    ) : <span className="text-text-secondary">—</span>}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{c.date}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{c.date}</TableCell>
                   <TableCell className="text-right">
                     <RowActions
                       items={[
@@ -214,8 +214,8 @@ export function AllCampaignsScreen() {
               );
             })}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={8} className="py-14 text-center text-sm text-[#737373]">No campaigns match your filters.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={8} className="py-14 text-center text-sm text-text-secondary">No campaigns match your filters.</TableCell>
               </TableRow>
             )}
           </TableBody>

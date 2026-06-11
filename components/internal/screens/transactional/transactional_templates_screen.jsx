@@ -67,7 +67,7 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Template name" htmlFor="t-name">
-            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Welcome email" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Welcome email" className="bg-background border-border" />
           </Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
@@ -78,14 +78,14 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Subject" htmlFor="t-subject">
-            <Input id="t-subject" value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} placeholder="Your order {{order_id}} is confirmed" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="t-subject" value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} placeholder="Your order {{order_id}} is confirmed" className="bg-background border-border" />
           </Field>
           <Field label="Body" htmlFor="t-body" hint="Supports merge tags like {{first_name}} and {{order_id}}.">
-            <Textarea id="t-body" value={form.body} onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))} placeholder="Hi {{first_name}}, …" className="bg-[#161616] border-[#2a2a2a]" />
+            <Textarea id="t-body" value={form.body} onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))} placeholder="Hi {{first_name}}, …" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create template</Button>
         </DialogFooter>
       </DialogContent>
@@ -122,19 +122,19 @@ export function TransactionalTemplatesScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search templates…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-44">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
               {typeFilter === "All" ? "All types" : typeFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", typeFilter === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
@@ -145,7 +145,7 @@ export function TransactionalTemplatesScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Template</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Last updated</TableHead>
@@ -155,20 +155,20 @@ export function TransactionalTemplatesScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((t) => (
-              <TableRow key={t.id} className="border-[#2a2a2a]">
+              <TableRow key={t.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <FileCode className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{t.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{t.subject}</span>
+                      <span className="font-medium text-foreground">{t.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{t.subject}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={TYPE_TONE[t.type]}>{t.type}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{t.updated}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{t.updated}</TableCell>
                 <TableCell>
                   <Switch checked={t.active} onCheckedChange={() => toggle(t.id)} />
                 </TableCell>
@@ -185,8 +185,8 @@ export function TransactionalTemplatesScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No templates found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No templates found.</TableCell>
               </TableRow>
             )}
           </TableBody>

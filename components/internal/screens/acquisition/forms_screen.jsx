@@ -62,7 +62,7 @@ function CreateFormDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Form name" htmlFor="form-name">
-            <Input id="form-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Homepage Hero Signup" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="form-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Homepage Hero Signup" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -80,7 +80,7 @@ function CreateFormDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create form</Button>
         </DialogFooter>
       </DialogContent>
@@ -114,19 +114,19 @@ export function FormsScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search forms…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {type === "All" ? "All types" : type}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {TYPES.map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", type === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", type === t && "text-white")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
@@ -137,7 +137,7 @@ export function FormsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Form</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Submissions</TableHead>
@@ -148,25 +148,25 @@ export function FormsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((f) => (
-              <TableRow key={f.id} className="border-[#2a2a2a]">
+              <TableRow key={f.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]"><FileText className="h-4 w-4" /></span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><FileText className="h-4 w-4" /></span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{f.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{f.purpose}</span>
+                      <span className="font-medium text-foreground">{f.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{f.purpose}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={TYPE_TONE[f.type]}>{f.type}</Pill></TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{f.submissions ? f.submissions.toLocaleString() : "—"}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{f.submissions ? f.submissions.toLocaleString() : "—"}</TableCell>
                 <TableCell>
                   {f.conversion > 0 ? (
                     <div className="w-[120px] space-y-1.5">
-                      <Progress value={f.conversion} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                      <p className="text-xs text-[#737373]">{f.conversion}%</p>
+                      <Progress value={f.conversion} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                      <p className="text-xs text-text-secondary">{f.conversion}%</p>
                     </div>
-                  ) : <span className="text-[#737373]">—</span>}
+                  ) : <span className="text-text-secondary">—</span>}
                 </TableCell>
                 <TableCell><Pill tone={STATUS_TONE[f.status]}>{f.status}</Pill></TableCell>
                 <TableCell className="text-right">
@@ -182,8 +182,8 @@ export function FormsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No forms match your filters.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No forms match your filters.</TableCell>
               </TableRow>
             )}
           </TableBody>

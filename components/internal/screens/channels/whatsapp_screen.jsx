@@ -62,7 +62,7 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Template name" htmlFor="wa-name">
-            <Input id="wa-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. order_confirmation" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="wa-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. order_confirmation" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Category">
@@ -83,7 +83,7 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create template</Button>
         </DialogFooter>
       </DialogContent>
@@ -117,22 +117,22 @@ export function WhatsAppScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="border-t border-surface-active pt-4">
+        <div className="rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                 <MessageCircle className="h-5 w-5" />
               </span>
               <div className="flex min-w-0 flex-col">
-                <span className="font-medium text-[#ededed]">Geiger Studio</span>
-                <span className="text-xs text-[#737373]">+1 415 555 0142</span>
+                <span className="font-medium text-foreground">Geiger Studio</span>
+                <span className="text-xs text-text-secondary">+1 415 555 0142</span>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-[#a3a3a3]">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">Status <Pill tone="green">Connected</Pill></span>
               <span className="inline-flex items-center gap-1.5">Quality: <Pill tone="green">High</Pill></span>
-              <span className="text-xs text-[#737373]">Messaging limit · 10K / 24h</span>
+              <span className="text-xs text-text-secondary">Messaging limit · 10K / 24h</span>
             </div>
           </div>
         </div>
@@ -142,15 +142,15 @@ export function WhatsAppScreen() {
         <SearchInput value={query} onChange={setQuery} placeholder="Search templates…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {category === "All" ? "All categories" : category}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by category</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...CATEGORIES].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", category === c && "text-white")}>
+              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", category === c && "text-white")}>
                 {c === "All" ? "All categories" : c}
               </DropdownMenuItem>
             ))}
@@ -161,7 +161,7 @@ export function WhatsAppScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Template</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Language</TableHead>
@@ -172,19 +172,19 @@ export function WhatsAppScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((t) => (
-              <TableRow key={t.id} className="border-[#2a2a2a]">
+              <TableRow key={t.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <MessageCircle className="h-4 w-4" />
                     </span>
-                    <span className="font-medium text-[#ededed]">{t.name}</span>
+                    <span className="font-medium text-foreground">{t.name}</span>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={CATEGORY_TONE[t.category]}>{t.category}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{t.language}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{t.language}</TableCell>
                 <TableCell><Pill tone={STATUS_TONE[t.status]}>{t.status}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{t.updated}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{t.updated}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -197,8 +197,8 @@ export function WhatsAppScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No templates found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No templates found.</TableCell>
               </TableRow>
             )}
           </TableBody>

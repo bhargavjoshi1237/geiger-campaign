@@ -55,7 +55,7 @@ function CanvasBlock({ block, selected, onSelect }) {
       onClick={onSelect}
       className={cn(
         "relative block w-full rounded-lg border px-4 py-3 text-left transition-colors",
-        selected ? "border-white/80 bg-[#202020]" : "border-transparent hover:border-[#2a2a2a] hover:bg-[#1d1d1d]",
+        selected ? "border-white/80 bg-surface-card" : "border-transparent hover:border-border hover:bg-[#1d1d1d]",
       )}
     >
       <span className="absolute left-1 top-1/2 -translate-y-1/2 text-[#3a3a3a]"><GripVertical className="h-4 w-4" /></span>
@@ -66,7 +66,7 @@ function CanvasBlock({ block, selected, onSelect }) {
           <span className="inline-block rounded-md bg-[#0b0b0b] px-4 py-2 text-sm font-medium text-white">{block.content.text}</span>
         )}
         {block.type === "Image" && (
-          <span className="flex h-20 items-center justify-center rounded-md bg-[#d4d4d4] text-xs text-[#525252]">{block.content.text}</span>
+          <span className="flex h-20 items-center justify-center rounded-md bg-[#d4d4d4] text-xs text-text-tertiary">{block.content.text}</span>
         )}
         {block.type === "Divider" && <span className="block h-px w-full bg-[#d4d4d4]" />}
         {block.type === "Spacer" && <span className="block h-6 w-full" />}
@@ -76,7 +76,7 @@ function CanvasBlock({ block, selected, onSelect }) {
           </span>
         )}
         {block.type === "Social" && (
-          <span className="flex justify-center gap-2 text-[#525252]"><Share2 className="h-4 w-4" /><Share2 className="h-4 w-4" /><Share2 className="h-4 w-4" /></span>
+          <span className="flex justify-center gap-2 text-text-tertiary"><Share2 className="h-4 w-4" /><Share2 className="h-4 w-4" /><Share2 className="h-4 w-4" /></span>
         )}
       </div>
     </button>
@@ -110,62 +110,62 @@ export function EmailBuilderScreen() {
         description="Compose your email by stacking content blocks — no code required."
         actions={
           <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-1">
-              <Button variant="ghost" size="icon-sm" onClick={() => setDevice("desktop")} className={cn("text-[#737373]", device === "desktop" && "bg-[#2a2a2a] text-white")}><Monitor className="h-4 w-4" /></Button>
-              <Button variant="ghost" size="icon-sm" onClick={() => setDevice("mobile")} className={cn("text-[#737373]", device === "mobile" && "bg-[#2a2a2a] text-white")}><Smartphone className="h-4 w-4" /></Button>
+            <div className="flex items-center rounded-lg border border-border bg-surface-subtle p-1">
+              <Button variant="ghost" size="icon-sm" onClick={() => setDevice("desktop")} className={cn("text-text-secondary", device === "desktop" && "bg-surface-hover text-white")}><Monitor className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon-sm" onClick={() => setDevice("mobile")} className={cn("text-text-secondary", device === "mobile" && "bg-surface-hover text-white")}><Smartphone className="h-4 w-4" /></Button>
             </div>
-            <Button variant="outline" className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]"><Eye className="h-4 w-4" /> Preview</Button>
-            <Button variant="outline" className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]"><Send className="h-4 w-4" /> Send test</Button>
+            <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle"><Eye className="h-4 w-4" /> Preview</Button>
+            <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle"><Send className="h-4 w-4" /> Send test</Button>
             <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Save className="h-4 w-4" /> Save</Button>
           </div>
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <Field label="Subject line" htmlFor="eb-subject">
-          <Input id="eb-subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+          <Input id="eb-subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="bg-background border-border" />
         </Field>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[200px_1fr_280px]">
         {/* Block library */}
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-          <p className="px-1 pb-2 text-[11px] font-medium uppercase tracking-wider text-[#737373]">Blocks</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-3">
+          <p className="px-1 pb-2 text-[11px] font-medium uppercase tracking-wider text-text-secondary">Blocks</p>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
             {BLOCK_LIBRARY.map((b) => (
               <button
                 key={b.type}
                 type="button"
                 onClick={() => addBlock(b.type)}
-                className="flex items-center gap-2 rounded-lg border border-[#2a2a2a] bg-[#202020] px-3 py-2 text-sm text-[#ededed] transition-colors hover:border-[#474747] hover:bg-[#242424]"
+                className="flex items-center gap-2 rounded-lg border border-border bg-surface-card px-3 py-2 text-sm text-foreground transition-colors hover:border-border-strong hover:bg-surface-active"
               >
-                <b.icon className="h-4 w-4 text-[#a3a3a3]" /> {b.type}
+                <b.icon className="h-4 w-4 text-muted-foreground" /> {b.type}
               </button>
             ))}
           </div>
         </div>
 
         {/* Canvas */}
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#202020] p-6">
+        <div className="rounded-xl border border-border bg-surface-card p-6">
           <div className={cn("mx-auto rounded-xl bg-white p-4 shadow-2xl transition-all", device === "mobile" ? "max-w-[360px]" : "max-w-[600px]")}>
             <div className="space-y-1">
               {blocks.map((b) => (
                 <CanvasBlock key={b.id} block={b} selected={b.id === selectedId} onSelect={() => setSelectedId(b.id)} />
               ))}
               {blocks.length === 0 && (
-                <p className="py-16 text-center text-sm text-[#737373]">Add blocks from the left to start building.</p>
+                <p className="py-16 text-center text-sm text-text-secondary">Add blocks from the left to start building.</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Properties */}
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-          <p className="pb-3 text-[11px] font-medium uppercase tracking-wider text-[#737373]">Properties</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-4">
+          <p className="pb-3 text-[11px] font-medium uppercase tracking-wider text-text-secondary">Properties</p>
           {selected ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="rounded border border-[#2a2a2a] bg-[#242424] px-2 py-0.5 text-xs text-[#a3a3a3]">{selected.type}</span>
+                <span className="rounded border border-border bg-surface-active px-2 py-0.5 text-xs text-muted-foreground">{selected.type}</span>
                 <Button variant="ghost" size="icon-sm" onClick={removeSelected} className="text-red-400 hover:bg-red-500/10 hover:text-red-300"><Trash2 className="h-4 w-4" /></Button>
               </div>
               {["Heading", "Text", "Button", "Image", "Social"].includes(selected.type) && (
@@ -187,7 +187,7 @@ export function EmailBuilderScreen() {
               )}
             </div>
           ) : (
-            <p className="text-sm text-[#737373]">Select a block in the canvas to edit its content.</p>
+            <p className="text-sm text-text-secondary">Select a block in the canvas to edit its content.</p>
           )}
         </div>
       </div>

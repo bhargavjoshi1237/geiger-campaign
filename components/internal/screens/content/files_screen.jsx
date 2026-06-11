@@ -57,7 +57,7 @@ function UploadFileDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="File name" htmlFor="f-name">
-            <Input id="f-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. june-recap.pdf" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="f-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. june-recap.pdf" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -75,7 +75,7 @@ function UploadFileDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Upload file</Button>
         </DialogFooter>
       </DialogContent>
@@ -103,20 +103,20 @@ export function FilesScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
-        <p className="text-xs text-[#737373]">
-          <span className="text-[#a3a3a3]">All files</span> / Campaign Assets
+      <div className="border-t border-surface-active pt-4">
+        <p className="text-xs text-text-secondary">
+          <span className="text-muted-foreground">All files</span> / Campaign Assets
         </p>
       </div>
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search files…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Size</TableHead>
@@ -128,16 +128,16 @@ export function FilesScreen() {
             {filtered.map((f) => {
               const Icon = TYPE_META[f.type].icon;
               return (
-                <TableRow key={f.id} className="border-[#2a2a2a]">
+                <TableRow key={f.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]"><Icon className="h-4 w-4" /></span>
-                      <span className="font-medium text-[#ededed]">{f.name}</span>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><Icon className="h-4 w-4" /></span>
+                      <span className="font-medium text-foreground">{f.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-[#a3a3a3]">{f.type}</TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{f.size}</TableCell>
-                  <TableCell className="text-[#a3a3a3]">{f.modified}</TableCell>
+                  <TableCell className="text-muted-foreground">{f.type}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{f.size}</TableCell>
+                  <TableCell className="text-muted-foreground">{f.modified}</TableCell>
                   <TableCell className="text-right">
                     <RowActions items={[
                       { label: "Download", icon: Download },
@@ -150,8 +150,8 @@ export function FilesScreen() {
               );
             })}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No files found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No files found.</TableCell>
               </TableRow>
             )}
           </TableBody>

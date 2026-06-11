@@ -61,10 +61,10 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Task title" htmlFor="t-title">
-            <Input id="t-title" value={form.title} onChange={(e) => set("title")(e.target.value)} placeholder="e.g. Send pricing proposal" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="t-title" value={form.title} onChange={(e) => set("title")(e.target.value)} placeholder="e.g. Send pricing proposal" className="bg-background border-border" />
           </Field>
           <Field label="Related to" htmlFor="t-related" hint="Deal or contact name.">
-            <Input id="t-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Annual platform license" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="t-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Annual platform license" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Priority">
@@ -76,7 +76,7 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
             <Field label="Due date" htmlFor="t-due">
-              <Input id="t-due" type="date" value={form.due} onChange={(e) => set("due")(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="t-due" type="date" value={form.due} onChange={(e) => set("due")(e.target.value)} className="bg-background border-border" />
             </Field>
           </div>
           <Field label="Assignee">
@@ -89,7 +89,7 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add task</Button>
         </DialogFooter>
       </DialogContent>
@@ -117,7 +117,7 @@ export function TasksScreen() {
       <TableShell className="mt-4">
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead className="w-10 pr-0" />
               <TableHead>Task</TableHead>
               <TableHead>Related to</TableHead>
@@ -129,17 +129,17 @@ export function TasksScreen() {
           </TableHeader>
           <TableBody>
             {tasks.map((t) => (
-              <TableRow key={t.id} className={cn("border-[#2a2a2a]", t.done && "opacity-50")}>
+              <TableRow key={t.id} className={cn("border-border", t.done && "opacity-50")}>
                 <TableCell className="pr-0">
                   <Checkbox checked={t.done} onCheckedChange={() => toggleDone(t.id)} aria-label={`Complete ${t.title}`} />
                 </TableCell>
                 <TableCell>
-                  <span className={cn("font-medium text-[#ededed]", t.done && "line-through")}>{t.title}</span>
+                  <span className={cn("font-medium text-foreground", t.done && "line-through")}>{t.title}</span>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{t.related}</TableCell>
+                <TableCell className="text-muted-foreground">{t.related}</TableCell>
                 <TableCell><Pill tone={PRIORITY_TONE[t.priority]}>{t.priority}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{t.due}</TableCell>
-                <TableCell className="text-[#a3a3a3]">{t.assignee}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{t.due}</TableCell>
+                <TableCell className="text-muted-foreground">{t.assignee}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -151,8 +151,8 @@ export function TasksScreen() {
               </TableRow>
             ))}
             {tasks.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No tasks found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No tasks found.</TableCell>
               </TableRow>
             )}
           </TableBody>

@@ -61,10 +61,10 @@ function NewPageDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Page name" htmlFor="lp-name">
-            <Input id="lp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Holiday Promo" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="lp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Holiday Promo" className="bg-background border-border" />
           </Field>
           <Field label="URL slug" htmlFor="lp-slug" hint="Leave blank to generate one from the name.">
-            <Input id="lp-slug" value={form.slug} onChange={(e) => set("slug")(e.target.value)} placeholder="/lp/holiday-promo" className="bg-[#161616] border-[#2a2a2a] font-mono" />
+            <Input id="lp-slug" value={form.slug} onChange={(e) => set("slug")(e.target.value)} placeholder="/lp/holiday-promo" className="bg-background border-border font-mono" />
           </Field>
           <Field label="Template">
             <Select value={form.template} onValueChange={set("template")}>
@@ -74,7 +74,7 @@ function NewPageDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create page</Button>
         </DialogFooter>
       </DialogContent>
@@ -108,19 +108,19 @@ export function LandingPagesScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search pages…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {status === "All" ? "All statuses" : status}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {STATUSES.map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", status === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", status === s && "text-white")}>
                 {s === "All" ? "All statuses" : s}
               </DropdownMenuItem>
             ))}
@@ -133,7 +133,7 @@ export function LandingPagesScreen() {
           const meta = TEMPLATE_META[p.template];
           const Icon = meta.icon;
           return (
-            <div key={p.id} className="group overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-colors hover:border-[#474747]">
+            <div key={p.id} className="group overflow-hidden rounded-xl border border-border bg-surface-subtle transition-colors hover:border-border-strong">
               <div className="relative flex h-28 items-center justify-center" style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}>
                 <Icon className="h-9 w-9 text-white/90" />
                 <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
@@ -147,18 +147,18 @@ export function LandingPagesScreen() {
               </div>
               <div className="p-4">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="truncate font-medium text-[#ededed]">{p.name}</h3>
+                  <h3 className="truncate font-medium text-foreground">{p.name}</h3>
                   <Pill tone={STATUS_TONE[p.status]}>{p.status}</Pill>
                 </div>
-                <p className="mt-1 truncate font-mono text-xs text-[#737373]">{p.slug}</p>
-                <div className="mt-3 flex items-center gap-5 border-t border-[#242424] pt-3 text-xs">
+                <p className="mt-1 truncate font-mono text-xs text-text-secondary">{p.slug}</p>
+                <div className="mt-3 flex items-center gap-5 border-t border-surface-active pt-3 text-xs">
                   <div className="flex flex-col">
-                    <span className="tabular-nums text-[#ededed]">{p.visits.toLocaleString()}</span>
-                    <span className="text-[#737373]">Visits</span>
+                    <span className="tabular-nums text-foreground">{p.visits.toLocaleString()}</span>
+                    <span className="text-text-secondary">Visits</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="tabular-nums text-[#ededed]">{p.conversion}%</span>
-                    <span className="text-[#737373]">Conv.</span>
+                    <span className="tabular-nums text-foreground">{p.conversion}%</span>
+                    <span className="text-text-secondary">Conv.</span>
                   </div>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export function LandingPagesScreen() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center text-sm text-[#737373]">
+        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
           No pages match your filters.
         </div>
       )}

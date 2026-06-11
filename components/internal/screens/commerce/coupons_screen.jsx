@@ -73,7 +73,7 @@ function CreateCouponDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Code" htmlFor="c-code">
-            <Input id="c-code" value={form.code} onChange={(e) => set("code")(e.target.value.toUpperCase())} placeholder="SUMMER20" className="bg-[#161616] border-[#2a2a2a] font-mono uppercase" />
+            <Input id="c-code" value={form.code} onChange={(e) => set("code")(e.target.value.toUpperCase())} placeholder="SUMMER20" className="bg-background border-border font-mono uppercase" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -85,20 +85,20 @@ function CreateCouponDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
             <Field label="Value" hint={form.type === "Free shipping" ? "Not needed for free shipping." : 'e.g. "20" or "15"'}>
-              <Input value={form.value} onChange={(e) => set("value")(e.target.value)} disabled={form.type === "Free shipping"} placeholder={form.type === "Percentage" ? "20" : "15"} className="bg-[#161616] border-[#2a2a2a] disabled:opacity-50" />
+              <Input value={form.value} onChange={(e) => set("value")(e.target.value)} disabled={form.type === "Free shipping"} placeholder={form.type === "Percentage" ? "20" : "15"} className="bg-background border-border disabled:opacity-50" />
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Usage limit" htmlFor="c-limit">
-              <Input id="c-limit" type="number" min="0" value={form.limit} onChange={(e) => set("limit")(e.target.value)} placeholder="500" className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="c-limit" type="number" min="0" value={form.limit} onChange={(e) => set("limit")(e.target.value)} placeholder="500" className="bg-background border-border" />
             </Field>
             <Field label="Expiry" htmlFor="c-expiry">
-              <Input id="c-expiry" type="date" value={form.expires} onChange={(e) => set("expires")(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="c-expiry" type="date" value={form.expires} onChange={(e) => set("expires")(e.target.value)} className="bg-background border-border" />
             </Field>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Create coupon</Button>
         </DialogFooter>
       </DialogContent>
@@ -131,18 +131,18 @@ export function CouponsScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {statusFilter === "All" ? "All statuses" : statusFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...STATUSES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", statusFilter === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
                 {s === "All" ? "All statuses" : s}
               </DropdownMenuItem>
             ))}
@@ -153,7 +153,7 @@ export function CouponsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Code</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Value</TableHead>
@@ -167,17 +167,17 @@ export function CouponsScreen() {
             {filtered.map((c) => {
               const pct = c.limit > 0 ? Math.min(100, Math.round((c.used / c.limit) * 100)) : 0;
               return (
-                <TableRow key={c.id} className="border-[#2a2a2a]">
-                  <TableCell className="font-mono font-medium uppercase text-[#ededed]">{c.code}</TableCell>
+                <TableRow key={c.id} className="border-border">
+                  <TableCell className="font-mono font-medium uppercase text-foreground">{c.code}</TableCell>
                   <TableCell><Pill tone={TYPE_TONE[c.type]}>{c.type}</Pill></TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{formatValue(c.type, c.value)}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{formatValue(c.type, c.value)}</TableCell>
                   <TableCell>
                     <div className="w-[120px] space-y-1.5">
-                      <p className="text-xs tabular-nums text-[#a3a3a3]">{c.used.toLocaleString()} / {c.limit.toLocaleString()}</p>
-                      <Progress value={pct} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                      <p className="text-xs tabular-nums text-muted-foreground">{c.used.toLocaleString()} / {c.limit.toLocaleString()}</p>
+                      <Progress value={pct} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
                     </div>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{c.expires}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{c.expires}</TableCell>
                   <TableCell><Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill></TableCell>
                   <TableCell className="text-right">
                     <RowActions
@@ -193,8 +193,8 @@ export function CouponsScreen() {
               );
             })}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No coupons found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No coupons found.</TableCell>
               </TableRow>
             )}
           </TableBody>

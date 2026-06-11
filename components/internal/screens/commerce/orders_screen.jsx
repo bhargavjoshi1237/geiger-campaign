@@ -45,8 +45,8 @@ const INITIAL = [
 function LabeledRow({ label, children }) {
   return (
     <div className="grid grid-cols-[110px_1fr] items-start gap-3 py-1.5">
-      <span className="text-xs font-medium uppercase tracking-wider text-[#737373]">{label}</span>
-      <div className="min-w-0 text-sm text-[#ededed]">{children}</div>
+      <span className="text-xs font-medium uppercase tracking-wider text-text-secondary">{label}</span>
+      <div className="min-w-0 text-sm text-foreground">{children}</div>
     </div>
   );
 }
@@ -60,29 +60,29 @@ function OrderDetailDialog({ order, onOpenChange }) {
           <DialogTitle>Order {order.number}</DialogTitle>
         </DialogHeader>
         <DialogBody className="py-4">
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-            <LabeledRow label="Order #"><span className="font-mono text-[#a3a3a3]">{order.number}</span></LabeledRow>
+          <div className="rounded-xl border border-border bg-surface-subtle p-4">
+            <LabeledRow label="Order #"><span className="font-mono text-muted-foreground">{order.number}</span></LabeledRow>
             <LabeledRow label="Customer">{order.customer}</LabeledRow>
-            <LabeledRow label="Email"><span className="break-all text-[#a3a3a3]">{order.email}</span></LabeledRow>
+            <LabeledRow label="Email"><span className="break-all text-muted-foreground">{order.email}</span></LabeledRow>
             <LabeledRow label="Status"><Pill tone={STATUS_TONE[order.status]}>{order.status}</Pill></LabeledRow>
             <LabeledRow label="Total"><span className="tabular-nums">{money(order.total)}</span></LabeledRow>
-            <LabeledRow label="Date"><span className="text-[#a3a3a3]">{order.date}</span></LabeledRow>
+            <LabeledRow label="Date"><span className="text-muted-foreground">{order.date}</span></LabeledRow>
           </div>
 
           <div className="mt-4">
-            <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#737373]">Line items</h3>
+            <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-secondary">Line items</h3>
             <ul className="space-y-2">
               {order.lineItems.map((li, i) => (
-                <li key={i} className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-3 py-2 text-sm">
-                  <span className="text-[#ededed]">{li.name} <span className="text-[#737373]">× {li.qty}</span></span>
-                  <span className="tabular-nums text-[#a3a3a3]">{money(li.price)}</span>
+                <li key={i} className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-3 py-2 text-sm">
+                  <span className="text-foreground">{li.name} <span className="text-text-secondary">× {li.qty}</span></span>
+                  <span className="tabular-nums text-muted-foreground">{money(li.price)}</span>
                 </li>
               ))}
             </ul>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Close</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -109,19 +109,19 @@ export function OrdersScreen() {
         description="Every order flowing in from your connected stores."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search order, customer, or email…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {statusFilter === "All" ? "All statuses" : statusFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...STATUSES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", statusFilter === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
                 {s === "All" ? "All statuses" : s}
               </DropdownMenuItem>
             ))}
@@ -132,7 +132,7 @@ export function OrdersScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Order</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Items</TableHead>
@@ -144,18 +144,18 @@ export function OrdersScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((o) => (
-              <TableRow key={o.id} className="border-[#2a2a2a]">
-                <TableCell className="font-mono font-medium text-[#ededed]">{o.number}</TableCell>
+              <TableRow key={o.id} className="border-border">
+                <TableCell className="font-mono font-medium text-foreground">{o.number}</TableCell>
                 <TableCell>
                   <div className="flex min-w-0 flex-col">
-                    <span className="font-medium text-[#ededed]">{o.customer}</span>
-                    <span className="truncate text-xs text-[#737373]">{o.email}</span>
+                    <span className="font-medium text-foreground">{o.customer}</span>
+                    <span className="truncate text-xs text-text-secondary">{o.email}</span>
                   </div>
                 </TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{o.lineItems.reduce((s, li) => s + li.qty, 0)}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{money(o.total)}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{o.lineItems.reduce((s, li) => s + li.qty, 0)}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{money(o.total)}</TableCell>
                 <TableCell><Pill tone={STATUS_TONE[o.status]}>{o.status}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{o.date}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{o.date}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -166,8 +166,8 @@ export function OrdersScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No orders found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No orders found.</TableCell>
               </TableRow>
             )}
           </TableBody>

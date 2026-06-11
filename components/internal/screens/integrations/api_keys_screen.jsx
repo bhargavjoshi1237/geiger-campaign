@@ -54,7 +54,7 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Key name" htmlFor="k-name">
-            <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production backend" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production backend" className="bg-background border-border" />
           </Field>
           <Field label="Permissions">
             <Select value={form.permission} onValueChange={(v) => setForm((f) => ({ ...f, permission: v }))}>
@@ -77,7 +77,7 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create key</Button>
         </DialogFooter>
       </DialogContent>
@@ -103,11 +103,11 @@ export function ApiKeysScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Name</TableHead>
                 <TableHead>Key</TableHead>
                 <TableHead>Permissions</TableHead>
@@ -118,12 +118,12 @@ export function ApiKeysScreen() {
             </TableHeader>
             <TableBody>
               {keys.map((k) => (
-                <TableRow key={k.id} className="border-[#2a2a2a]">
-                  <TableCell className="font-medium text-[#ededed]">{k.name}</TableCell>
-                  <TableCell className="font-mono text-[#a3a3a3]">{k.key}</TableCell>
+                <TableRow key={k.id} className="border-border">
+                  <TableCell className="font-medium text-foreground">{k.name}</TableCell>
+                  <TableCell className="font-mono text-muted-foreground">{k.key}</TableCell>
                   <TableCell><Pill tone={PERMISSION_TONE[k.permission]}>{k.permission}</Pill></TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{k.created}</TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{k.lastUsed}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{k.created}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{k.lastUsed}</TableCell>
                   <TableCell className="text-right">
                     <RowActions
                       items={[
@@ -136,8 +136,8 @@ export function ApiKeysScreen() {
                 </TableRow>
               ))}
               {keys.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                  <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No API keys found.</TableCell>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No API keys found.</TableCell>
                 </TableRow>
               )}
             </TableBody>

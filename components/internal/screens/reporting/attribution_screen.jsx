@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/chart";
 
 const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
-const TOOLTIP_CLASS = "bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]";
+const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
 
 const CHANNELS = [
   { channel: "Email", revenue: 84200, touchpoints: 31200, share: 54.1, fill: SERIES[0] },
@@ -57,9 +57,9 @@ export function AttributionScreen() {
         description="Connect revenue back to the campaigns and channels that earned it."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <Select value={model} onValueChange={setModel}>
-          <SelectTrigger size="sm" className="bg-[#161616] border-[#2a2a2a] sm:w-52">
+          <SelectTrigger size="sm" className="bg-background border-border sm:w-52">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -71,14 +71,14 @@ export function AttributionScreen() {
         </Select>
       </div>
 
-      <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="rounded-xl border border-border bg-surface-subtle p-5">
         <div className="mb-2">
-          <h3 className="text-sm font-semibold text-[#ededed]">Revenue by channel</h3>
-          <p className="text-xs text-[#737373]">Attributed revenue split across channels.</p>
+          <h3 className="text-sm font-semibold text-foreground">Revenue by channel</h3>
+          <p className="text-xs text-text-secondary">Attributed revenue split across channels.</p>
         </div>
         <ChartContainer
           config={CHART_CONFIG}
-          className="[&_.recharts-text]:fill-[#e7e7e7] mx-auto aspect-square max-h-[240px]"
+          className="[&_.recharts-text]:fill-foreground mx-auto aspect-square max-h-[240px]"
         >
           <PieChart>
             <ChartTooltip
@@ -95,7 +95,7 @@ export function AttributionScreen() {
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.fill }} />
                 {c.channel}
               </span>
-              <span className="tabular-nums font-medium text-[#ededed]">{c.share}%</span>
+              <span className="tabular-nums font-medium text-foreground">{c.share}%</span>
             </div>
           ))}
         </div>
@@ -104,7 +104,7 @@ export function AttributionScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Channel</TableHead>
               <TableHead className="text-right">Touchpoints</TableHead>
               <TableHead className="text-right">Attributed revenue</TableHead>
@@ -113,19 +113,19 @@ export function AttributionScreen() {
           </TableHeader>
           <TableBody>
             {CHANNELS.map((c) => (
-              <TableRow key={c.channel} className="border-[#2a2a2a]">
+              <TableRow key={c.channel} className="border-border">
                 <TableCell>
-                  <span className="flex items-center gap-2 font-medium text-[#ededed]">
+                  <span className="flex items-center gap-2 font-medium text-foreground">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.fill }} />
                     {c.channel}
                   </span>
                 </TableCell>
-                <TableCell className="text-right tabular-nums text-[#a3a3a3]">{c.touchpoints.toLocaleString()}</TableCell>
-                <TableCell className="text-right tabular-nums font-medium text-[#ededed]">${c.revenue.toLocaleString()}</TableCell>
+                <TableCell className="text-right tabular-nums text-muted-foreground">{c.touchpoints.toLocaleString()}</TableCell>
+                <TableCell className="text-right tabular-nums font-medium text-foreground">${c.revenue.toLocaleString()}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <Progress value={c.share} className="h-1.5 w-28 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                    <span className="tabular-nums text-xs text-[#a3a3a3]">{c.share}%</span>
+                    <Progress value={c.share} className="h-1.5 w-28 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                    <span className="tabular-nums text-xs text-muted-foreground">{c.share}%</span>
                   </div>
                 </TableCell>
               </TableRow>

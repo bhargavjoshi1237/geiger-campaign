@@ -19,7 +19,7 @@ export function CampaignPlayground() {
     projectNav.find((item) => item.title === currentTab) || projectNav[0];
 
   return (
-    <div className="flex-col h-full w-full bg-[#161616] text-[#ededed] font-sans overflow-hidden selection:bg-[#333333] flex">
+    <div className="flex-col h-full w-full bg-background text-foreground font-sans overflow-hidden selection:bg-surface-strong flex">
       <SidebarProvider
         className="flex-col !flex h-full min-w-0"
         style={{ flexDirection: "column" }}

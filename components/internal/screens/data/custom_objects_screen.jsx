@@ -66,19 +66,19 @@ function CreateObjectDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Object name" htmlFor="o-name" hint="Singular, e.g. Subscription.">
-            <Input id="o-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Subscription" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="o-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Subscription" className="bg-background border-border" />
           </Field>
           <Field label="API name" hint="Auto-derived from the object name; used in code and integrations.">
-            <div className="rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">
+            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">
               {apiName || "—"}
             </div>
           </Field>
           <Field label="Primary field label" htmlFor="o-primary" hint="The human-readable field shown when referencing a record.">
-            <Input id="o-primary" value={primaryField} onChange={(e) => setPrimaryField(e.target.value)} placeholder="e.g. Plan name" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="o-primary" value={primaryField} onChange={(e) => setPrimaryField(e.target.value)} placeholder="e.g. Plan name" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim() || !apiName} className="bg-white text-black hover:bg-[#e5e5e5]">Create object</Button>
         </DialogFooter>
       </DialogContent>
@@ -111,14 +111,14 @@ export function CustomObjectsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search objects…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Object</TableHead>
               <TableHead>Records</TableHead>
               <TableHead>Fields</TableHead>
@@ -129,22 +129,22 @@ export function CustomObjectsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((o) => (
-              <TableRow key={o.id} className="border-[#2a2a2a]">
+              <TableRow key={o.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <Boxes className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{o.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{o.plural}</span>
+                      <span className="font-medium text-foreground">{o.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{o.plural}</span>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{o.records.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{o.fields}</TableCell>
-                <TableCell className="font-mono text-[#a3a3a3]">{o.api}</TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{o.updated}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{o.records.toLocaleString()}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{o.fields}</TableCell>
+                <TableCell className="font-mono text-muted-foreground">{o.api}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{o.updated}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -157,8 +157,8 @@ export function CustomObjectsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No custom objects found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No custom objects found.</TableCell>
               </TableRow>
             )}
           </TableBody>

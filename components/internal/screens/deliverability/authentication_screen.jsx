@@ -60,12 +60,12 @@ export function AuthenticationScreen() {
         description="Configure SPF, DKIM, and DMARC so mailbox providers trust your mail."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Policy</h2>
+            <ShieldCheck className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Policy</h2>
           </div>
           <Field label="Domain">
             <Select value={domain} onValueChange={setDomain}>
@@ -85,10 +85,10 @@ export function AuthenticationScreen() {
               </SelectContent>
             </Select>
           </Field>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Enforce alignment</p>
-              <p className="text-xs text-[#737373]">Require strict SPF and DKIM alignment.</p>
+              <p className="text-xs text-text-secondary">Require strict SPF and DKIM alignment.</p>
             </div>
             <Switch checked={alignment} onCheckedChange={setAlignment} />
           </div>
@@ -97,15 +97,15 @@ export function AuthenticationScreen() {
         {/* DNS records */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#ededed]">DNS records</h2>
-            <Button variant="outline" className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+            <h2 className="text-sm font-semibold text-foreground">DNS records</h2>
+            <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
               <RefreshCw className="h-4 w-4" /> Re-check DNS
             </Button>
           </div>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Type</TableHead>
                   <TableHead>Host</TableHead>
                   <TableHead>Value</TableHead>
@@ -115,10 +115,10 @@ export function AuthenticationScreen() {
               </TableHeader>
               <TableBody>
                 {records.map((r) => (
-                  <TableRow key={r.id} className="border-[#2a2a2a]">
+                  <TableRow key={r.id} className="border-border">
                     <TableCell><Pill tone={TYPE_TONE[r.type]}>{r.type}</Pill></TableCell>
-                    <TableCell className="max-w-[220px] truncate font-mono text-xs text-[#a3a3a3]">{r.host}</TableCell>
-                    <TableCell className="max-w-[260px] truncate font-mono text-xs text-[#a3a3a3]">{r.value}</TableCell>
+                    <TableCell className="max-w-[220px] truncate font-mono text-xs text-muted-foreground">{r.host}</TableCell>
+                    <TableCell className="max-w-[260px] truncate font-mono text-xs text-muted-foreground">{r.value}</TableCell>
                     <TableCell><Pill tone={r.status === "Verified" ? "green" : "amber"}>{r.status}</Pill></TableCell>
                     <TableCell className="text-right">
                       <RowActions items={[{ label: "Copy value", icon: Copy }]} />

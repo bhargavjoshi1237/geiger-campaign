@@ -73,22 +73,22 @@ export function CampaignHealthScreen() {
       />
 
       {/* Overall score */}
-      <div className="flex flex-col gap-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-baseline gap-3">
           <span className="text-4xl font-bold tabular-nums text-white">82</span>
-          <span className="text-lg text-[#737373]">/ 100</span>
+          <span className="text-lg text-text-secondary">/ 100</span>
           <Pill tone="green">Good</Pill>
         </div>
-        <p className="max-w-md text-sm text-[#a3a3a3]">
+        <p className="max-w-md text-sm text-muted-foreground">
           Your sending is healthy overall. Fixing authentication and easing send frequency
           would push you into excellent territory.
         </p>
       </div>
 
       {/* Health checks */}
-      <div className="flex items-center gap-2 border-t border-[#242424] pt-4">
-        <h2 className="text-sm font-semibold text-[#ededed]">Health checks</h2>
-        <span className="text-xs text-[#737373]">{CHECKS.length} checks</span>
+      <div className="flex items-center gap-2 border-t border-surface-active pt-4">
+        <h2 className="text-sm font-semibold text-foreground">Health checks</h2>
+        <span className="text-xs text-text-secondary">{CHECKS.length} checks</span>
       </div>
 
       <div className="space-y-3">
@@ -96,16 +96,16 @@ export function CampaignHealthScreen() {
           const s = STATUS[c.status];
           const Icon = s.icon;
           return (
-            <div key={c.id} className="flex flex-col gap-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5 sm:flex-row sm:items-start">
+            <div key={c.id} className="flex flex-col gap-3 rounded-xl border border-border bg-surface-subtle p-5 sm:flex-row sm:items-start">
               <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border", s.bg)}>
                 <Icon className={cn("h-4 w-4", s.color)} />
               </span>
               <div className="min-w-0 flex-1">
-                <h3 className="font-medium text-[#ededed]">{c.name}</h3>
-                <p className="mt-1 text-sm text-[#a3a3a3]">{c.finding}</p>
-                <p className="mt-1 text-sm text-[#737373]">{c.recommendation}</p>
+                <h3 className="font-medium text-foreground">{c.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{c.finding}</p>
+                <p className="mt-1 text-sm text-text-secondary">{c.recommendation}</p>
               </div>
-              <Button size="sm" variant="ghost" className="h-8 shrink-0 text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+              <Button size="sm" variant="ghost" className="h-8 shrink-0 text-muted-foreground hover:bg-surface-active hover:text-foreground">
                 {s.action}
               </Button>
             </div>

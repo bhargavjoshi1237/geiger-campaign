@@ -69,13 +69,13 @@ export function ScreenHeader({ title, tag, description, stats, actions }) {
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-white">{title}</h1>
             {tag && (
-              <span className="shrink-0 rounded border border-[#2a2a2a] bg-[#1a1a1a] px-1.5 py-0.5 font-mono text-[9px] tracking-widest text-[#737373]">
+              <span className="shrink-0 rounded border border-border bg-surface-subtle px-1.5 py-0.5 font-mono text-[9px] tracking-widest text-text-secondary">
                 {tag}
               </span>
             )}
           </div>
           {description && (
-            <p className="mt-2 max-w-xl text-sm text-zinc-500">{description}</p>
+            <p className="mt-2 max-w-xl text-sm text-foreground0">{description}</p>
           )}
         </div>
 
@@ -87,10 +87,10 @@ export function ScreenHeader({ title, tag, description, stats, actions }) {
                   key={stat.label}
                   className={cn(
                     "flex flex-1 flex-col items-center sm:flex-none sm:px-6",
-                    i > 0 && "border-l border-[#2a2a2a]",
+                    i > 0 && "border-l border-border",
                   )}
                 >
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-[#737373]">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-text-secondary">
                     {stat.label}
                   </span>
                   <RollingNumber value={stat.value} className="mt-0.5 text-2xl font-bold text-white" />

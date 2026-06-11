@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/chart";
 
 const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
-const TOOLTIP_CLASS = "bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]";
+const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
 
 const CAMPAIGNS = [
   { key: "summer", name: "Summer Sale" },
@@ -57,16 +57,16 @@ export function CampaignComparisonScreen() {
         description="Put campaigns side by side to see what worked."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
-        <p className="text-sm text-[#a3a3a3]">
-          Comparing <span className="font-medium text-[#ededed]">{CAMPAIGNS.length}</span> campaigns
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+        <p className="text-sm text-muted-foreground">
+          Comparing <span className="font-medium text-foreground">{CAMPAIGNS.length}</span> campaigns
         </p>
       </div>
 
-      <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="rounded-xl border border-border bg-surface-subtle p-5">
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-[#ededed]">Open rate vs click rate</h3>
-          <p className="text-xs text-[#737373]">Grouped comparison across selected campaigns (%).</p>
+          <h3 className="text-sm font-semibold text-foreground">Open rate vs click rate</h3>
+          <p className="text-xs text-text-secondary">Grouped comparison across selected campaigns (%).</p>
         </div>
         <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[280px] w-full">
           <BarChart data={CHART_DATA} margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
@@ -84,7 +84,7 @@ export function CampaignComparisonScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Metric</TableHead>
               {CAMPAIGNS.map((c) => (
                 <TableHead key={c.key} className="text-right">{c.name}</TableHead>
@@ -93,10 +93,10 @@ export function CampaignComparisonScreen() {
           </TableHeader>
           <TableBody>
             {METRICS.map((row) => (
-              <TableRow key={row.metric} className="border-[#2a2a2a]">
-                <TableCell className="font-medium text-[#ededed]">{row.metric}</TableCell>
+              <TableRow key={row.metric} className="border-border">
+                <TableCell className="font-medium text-foreground">{row.metric}</TableCell>
                 {CAMPAIGNS.map((c) => (
-                  <TableCell key={c.key} className="text-right tabular-nums text-[#a3a3a3]">
+                  <TableCell key={c.key} className="text-right tabular-nums text-muted-foreground">
                     {row[c.key]}
                   </TableCell>
                 ))}

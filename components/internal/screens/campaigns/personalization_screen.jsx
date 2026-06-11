@@ -56,14 +56,14 @@ function AddTokenDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Token" hint="Use this in content to insert the value.">
-            <div className="rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">{`{{ ${token} }}`}</div>
+            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{`{{ ${token} }}`}</div>
           </Field>
           <Field label="Fallback value" htmlFor="p-fallback" hint="Shown when a contact has no value for this field.">
-            <Input id="p-fallback" value={form.fallback} onChange={(e) => setForm((f) => ({ ...f, fallback: e.target.value }))} placeholder="e.g. there" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="p-fallback" value={form.fallback} onChange={(e) => setForm((f) => ({ ...f, fallback: e.target.value }))} placeholder="e.g. there" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Create tag</Button>
         </DialogFooter>
       </DialogContent>
@@ -89,7 +89,7 @@ export function PersonalizationScreen() {
         description="Merge tags and conditional content that tailor every message to the recipient."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
         <SegmentedTabs
           value={tab}
           onChange={setTab}
@@ -112,7 +112,7 @@ export function PersonalizationScreen() {
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Token</TableHead>
                 <TableHead>Source field</TableHead>
                 <TableHead>Fallback</TableHead>
@@ -122,11 +122,11 @@ export function PersonalizationScreen() {
             </TableHeader>
             <TableBody>
               {fTags.map((t) => (
-                <TableRow key={t.id} className="border-[#2a2a2a]">
-                  <TableCell className="font-mono text-xs text-[#ededed]">{`{{ ${t.token} }}`}</TableCell>
-                  <TableCell className="text-[#a3a3a3]">{t.source}</TableCell>
-                  <TableCell className="text-[#a3a3a3]">{t.fallback}</TableCell>
-                  <TableCell className="text-[#a3a3a3]">{t.sample}</TableCell>
+                <TableRow key={t.id} className="border-border">
+                  <TableCell className="font-mono text-xs text-foreground">{`{{ ${t.token} }}`}</TableCell>
+                  <TableCell className="text-muted-foreground">{t.source}</TableCell>
+                  <TableCell className="text-muted-foreground">{t.fallback}</TableCell>
+                  <TableCell className="text-muted-foreground">{t.sample}</TableCell>
                   <TableCell className="text-right">
                     <RowActions items={[
                       { label: "Edit", icon: Pencil },
@@ -137,7 +137,7 @@ export function PersonalizationScreen() {
                 </TableRow>
               ))}
               {fTags.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No merge tags found.</TableCell></TableRow>
+                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No merge tags found.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -146,7 +146,7 @@ export function PersonalizationScreen() {
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Rule</TableHead>
                 <TableHead>Condition</TableHead>
                 <TableHead>Variants</TableHead>
@@ -156,10 +156,10 @@ export function PersonalizationScreen() {
             </TableHeader>
             <TableBody>
               {fRules.map((r) => (
-                <TableRow key={r.id} className="border-[#2a2a2a]">
-                  <TableCell className="font-medium text-[#ededed]">{r.name}</TableCell>
-                  <TableCell className="text-[#a3a3a3]">{r.condition}</TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{r.variants}</TableCell>
+                <TableRow key={r.id} className="border-border">
+                  <TableCell className="font-medium text-foreground">{r.name}</TableCell>
+                  <TableCell className="text-muted-foreground">{r.condition}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{r.variants}</TableCell>
                   <TableCell><Pill tone={r.status === "Active" ? "green" : "zinc"}>{r.status}</Pill></TableCell>
                   <TableCell className="text-right">
                     <RowActions items={[
@@ -171,7 +171,7 @@ export function PersonalizationScreen() {
                 </TableRow>
               ))}
               {fRules.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No dynamic content rules found.</TableCell></TableRow>
+                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No dynamic content rules found.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

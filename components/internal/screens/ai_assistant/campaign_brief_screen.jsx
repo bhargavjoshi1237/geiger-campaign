@@ -77,9 +77,9 @@ export function CampaignBriefScreen() {
         description="Turn a few inputs into a structured, ready-to-run campaign brief."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[380px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[380px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <Field label="Objective">
             <Select value={objective} onValueChange={setObjective}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -118,7 +118,7 @@ export function CampaignBriefScreen() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="e.g. Our spring collection is 25% off for the next 48 hours."
-              className="min-h-24 bg-[#161616] border-[#2a2a2a]"
+              className="min-h-24 bg-background border-border"
             />
           </Field>
           <Button onClick={generate} className="h-9 w-full bg-white text-black hover:bg-[#e5e5e5]">
@@ -128,33 +128,33 @@ export function CampaignBriefScreen() {
 
         {/* Result */}
         {!brief ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-20 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle py-20 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface-active text-muted-foreground">
               <Sparkles className="h-6 w-6" />
             </span>
-            <p className="mt-4 text-sm text-[#a3a3a3]">Fill in the details and generate your brief.</p>
-            <p className="mt-1 text-xs text-[#737373]">Your structured campaign brief will appear here.</p>
+            <p className="mt-4 text-sm text-muted-foreground">Fill in the details and generate your brief.</p>
+            <p className="mt-1 text-xs text-text-secondary">Your structured campaign brief will appear here.</p>
           </div>
         ) : (
-          <div className="space-y-5 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+          <div className="space-y-5 rounded-xl border border-border bg-surface-subtle p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[#ededed]">Generated campaign brief</h2>
-              <Button onClick={generate} size="sm" variant="outline" className="h-8 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+              <h2 className="text-base font-semibold text-foreground">Generated campaign brief</h2>
+              <Button onClick={generate} size="sm" variant="outline" className="h-8 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
                 <RotateCcw className="h-3.5 w-3.5" /> Regenerate
               </Button>
             </div>
 
             <Section icon={Target} title="Goal">
-              <p className="text-sm text-[#a3a3a3]">{brief.goal}</p>
+              <p className="text-sm text-muted-foreground">{brief.goal}</p>
             </Section>
             <Section icon={Users} title="Target audience">
-              <p className="text-sm text-[#a3a3a3]">{brief.audience}</p>
+              <p className="text-sm text-muted-foreground">{brief.audience}</p>
             </Section>
             <Section icon={Mail} title="Suggested subject lines">
               <ul className="space-y-1.5">
                 {brief.subjects.map((s) => (
-                  <li key={s} className="flex gap-2 text-sm text-[#a3a3a3]">
-                    <span className="text-[#737373]">•</span><span>{s}</span>
+                  <li key={s} className="flex gap-2 text-sm text-muted-foreground">
+                    <span className="text-text-secondary">•</span><span>{s}</span>
                   </li>
                 ))}
               </ul>
@@ -162,17 +162,17 @@ export function CampaignBriefScreen() {
             <Section icon={Lightbulb} title="Key talking points">
               <ul className="space-y-1.5">
                 {brief.talkingPoints.map((p) => (
-                  <li key={p} className="flex gap-2 text-sm text-[#a3a3a3]">
-                    <span className="text-[#737373]">•</span><span>{p}</span>
+                  <li key={p} className="flex gap-2 text-sm text-muted-foreground">
+                    <span className="text-text-secondary">•</span><span>{p}</span>
                   </li>
                 ))}
               </ul>
             </Section>
             <Section icon={Clock} title="Recommended send time">
-              <p className="text-sm text-[#a3a3a3]">{brief.sendTime}</p>
+              <p className="text-sm text-muted-foreground">{brief.sendTime}</p>
             </Section>
             <Section icon={MousePointerClick} title="Call to action">
-              <span className="inline-flex rounded-md border border-[#2a2a2a] bg-[#202020] px-3 py-1.5 text-sm font-medium text-[#ededed]">
+              <span className="inline-flex rounded-md border border-border bg-surface-card px-3 py-1.5 text-sm font-medium text-foreground">
                 {brief.cta}
               </span>
             </Section>
@@ -185,10 +185,10 @@ export function CampaignBriefScreen() {
 
 function Section({ icon: Icon, title, children }) {
   return (
-    <div className="border-t border-[#242424] pt-4 first:border-t-0 first:pt-0">
+    <div className="border-t border-surface-active pt-4 first:border-t-0 first:pt-0">
       <div className="mb-2 flex items-center gap-2">
-        <Icon className="h-4 w-4 text-[#737373]" />
-        <h3 className="text-sm font-semibold text-[#ededed]">{title}</h3>
+        <Icon className="h-4 w-4 text-text-secondary" />
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       </div>
       {children}
     </div>

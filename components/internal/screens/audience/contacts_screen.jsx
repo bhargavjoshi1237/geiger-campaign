@@ -113,14 +113,14 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
         <DialogBody className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-3">
             <Field label="First name" htmlFor="c-first">
-              <Input id="c-first" value={form.first} onChange={(e) => set("first")(e.target.value)} placeholder="Amara" className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="c-first" value={form.first} onChange={(e) => set("first")(e.target.value)} placeholder="Amara" className="bg-background border-border" />
             </Field>
             <Field label="Last name" htmlFor="c-last">
-              <Input id="c-last" value={form.last} onChange={(e) => set("last")(e.target.value)} placeholder="Okafor" className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="c-last" value={form.last} onChange={(e) => set("last")(e.target.value)} placeholder="Okafor" className="bg-background border-border" />
             </Field>
           </div>
           <Field label="Email address" htmlFor="c-email" hint="Used as the unique identifier for this contact.">
-            <Input id="c-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} placeholder="name@company.com" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="c-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} placeholder="name@company.com" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
@@ -146,7 +146,7 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">
             Cancel
           </Button>
           <Button onClick={submit} disabled={!form.email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">
@@ -212,23 +212,23 @@ export function ContactsScreen() {
       />
 
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <SearchInput value={query} onChange={setQuery} placeholder="Search name or email…" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+              <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
                 {statusFilter === "All" ? "All statuses" : statusFilter}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-              <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+            <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
               {STATUS_FILTERS.map((s) => (
                 <DropdownMenuItem
                   key={s}
                   onSelect={() => setStatusFilter(s)}
-                  className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", statusFilter === s && "text-white")}
+                  className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}
                 >
                   {s === "All" ? "All statuses" : s}
                 </DropdownMenuItem>
@@ -240,15 +240,15 @@ export function ContactsScreen() {
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+              <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
                 <Upload className="h-4 w-4" /> Import
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-              <DropdownMenuItem className="cursor-pointer focus:bg-[#2a2a2a] focus:text-white">
+            <DropdownMenuContent align="end" className="w-52 border-border bg-surface-card text-foreground">
+              <DropdownMenuItem className="cursor-pointer focus:bg-surface-hover focus:text-foreground">
                 <FileUp className="mr-2 h-4 w-4" /> Upload CSV file
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer focus:bg-[#2a2a2a] focus:text-white">
+              <DropdownMenuItem className="cursor-pointer focus:bg-surface-hover focus:text-foreground">
                 <Cloud className="mr-2 h-4 w-4" /> Import from integration
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -261,21 +261,21 @@ export function ContactsScreen() {
 
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="flex items-center justify-between rounded-xl border border-[#2a2a2a] bg-[#202020] px-4 py-2.5">
-          <span className="text-sm text-[#ededed]">
+        <div className="flex items-center justify-between rounded-xl border border-border bg-surface-card px-4 py-2.5">
+          <span className="text-sm text-foreground">
             <span className="font-semibold text-white">{selected.size}</span> selected
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:bg-surface-hover hover:text-foreground">
               <Tag className="h-4 w-4" /> Tag
             </Button>
-            <Button variant="ghost" size="sm" className="text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:bg-surface-hover hover:text-foreground">
               <Mail className="h-4 w-4" /> Add to list
             </Button>
             <Button variant="ghost" size="sm" onClick={removeSelected} className="text-red-400 hover:bg-red-500/10 hover:text-red-300">
               <Trash2 className="h-4 w-4" /> Delete
             </Button>
-            <Button variant="ghost" size="icon-sm" onClick={() => setSelected(new Set())} className="text-[#737373] hover:bg-[#2a2a2a] hover:text-white">
+            <Button variant="ghost" size="icon-sm" onClick={() => setSelected(new Set())} className="text-text-secondary hover:bg-surface-hover hover:text-foreground">
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -286,7 +286,7 @@ export function ContactsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead className="w-10 pr-0">
                 <Checkbox checked={allVisibleSelected} onCheckedChange={toggleAll} aria-label="Select all" />
               </TableHead>
@@ -300,18 +300,18 @@ export function ContactsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((c) => (
-              <TableRow key={c.id} data-state={selected.has(c.id) ? "selected" : undefined} className="border-[#2a2a2a]">
+              <TableRow key={c.id} data-state={selected.has(c.id) ? "selected" : undefined} className="border-border">
                 <TableCell className="pr-0">
                   <Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggleOne(c.id)} aria-label={`Select ${c.first}`} />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2a2a2a] bg-[#242424] text-xs font-semibold text-[#e7e7e7]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-active text-xs font-semibold text-foreground">
                       {initials(c.first, c.last)}
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{c.first} {c.last}</span>
-                      <span className="truncate text-xs text-[#737373]">{c.email}</span>
+                      <span className="font-medium text-foreground">{c.first} {c.last}</span>
+                      <span className="truncate text-xs text-text-secondary">{c.email}</span>
                     </div>
                   </div>
                 </TableCell>
@@ -321,14 +321,14 @@ export function ContactsScreen() {
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {c.lists.map((l) => (
-                      <span key={l} className="rounded-md border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5 text-xs text-[#a3a3a3]">
+                      <span key={l} className="rounded-md border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">
                         {l}
                       </span>
                     ))}
                   </div>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{c.location}</TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{c.added}</TableCell>
+                <TableCell className="text-muted-foreground">{c.location}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{c.added}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -342,8 +342,8 @@ export function ContactsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">
                   No contacts match your filters.
                 </TableCell>
               </TableRow>
@@ -352,7 +352,7 @@ export function ContactsScreen() {
         </Table>
       </TableShell>
 
-      <p className="text-xs text-[#737373]">
+      <p className="text-xs text-text-secondary">
         Showing {filtered.length} of {contacts.length} contacts
       </p>
 

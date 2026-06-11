@@ -69,7 +69,7 @@ function CreateEventDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Event name" htmlFor="e-name" hint="Lowercase with underscores, e.g. product_viewed.">
-            <Input id="e-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. product_viewed" className="bg-[#161616] border-[#2a2a2a] font-mono" />
+            <Input id="e-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. product_viewed" className="bg-background border-border font-mono" />
           </Field>
           <Field label="Source">
             <Select value={form.source} onValueChange={(v) => setForm((f) => ({ ...f, source: v }))}>
@@ -78,11 +78,11 @@ function CreateEventDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Description" htmlFor="e-desc">
-            <Input id="e-desc" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="What does this event represent?" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="e-desc" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="What does this event represent?" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create event</Button>
         </DialogFooter>
       </DialogContent>
@@ -118,32 +118,32 @@ export function EventTrackingScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
-        <div className="space-y-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="border-t border-surface-active pt-4">
+        <div className="space-y-3 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Code2 className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Send an event</h2>
+            <Code2 className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Send an event</h2>
           </div>
-          <p className="text-xs text-[#737373]">Drop the SDK on your site, then call <span className="font-mono text-[#a3a3a3]">geiger.track()</span> wherever a user does something worth tracking.</p>
-          <pre className="overflow-x-auto rounded-lg border border-[#2a2a2a] bg-[#161616] p-4 text-xs leading-relaxed text-[#a3a3a3] font-mono">
+          <p className="text-xs text-text-secondary">Drop the SDK on your site, then call <span className="font-mono text-muted-foreground">geiger.track()</span> wherever a user does something worth tracking.</p>
+          <pre className="overflow-x-auto rounded-lg border border-border bg-background p-4 text-xs leading-relaxed text-muted-foreground font-mono">
 {TRACK_SNIPPET}
           </pre>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search events…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {sourceFilter === "All" ? "All sources" : sourceFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by source</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by source</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...SOURCES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setSourceFilter(s)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", sourceFilter === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setSourceFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", sourceFilter === s && "text-white")}>
                 {s === "All" ? "All sources" : s}
               </DropdownMenuItem>
             ))}
@@ -154,7 +154,7 @@ export function EventTrackingScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Event</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Last 24h</TableHead>
@@ -166,12 +166,12 @@ export function EventTrackingScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((e) => (
-              <TableRow key={e.id} className="border-[#2a2a2a]">
-                <TableCell className="font-mono text-[#ededed]">{e.name}</TableCell>
-                <TableCell className="text-[#a3a3a3]">{e.source}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{e.last24h.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{e.total.toLocaleString()}</TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{e.lastSeen}</TableCell>
+              <TableRow key={e.id} className="border-border">
+                <TableCell className="font-mono text-foreground">{e.name}</TableCell>
+                <TableCell className="text-muted-foreground">{e.source}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{e.last24h.toLocaleString()}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{e.total.toLocaleString()}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{e.lastSeen}</TableCell>
                 <TableCell><Pill tone={STATUSES[e.status]}>{e.status}</Pill></TableCell>
                 <TableCell className="text-right">
                   <RowActions
@@ -185,8 +185,8 @@ export function EventTrackingScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No events found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No events found.</TableCell>
               </TableRow>
             )}
           </TableBody>

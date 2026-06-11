@@ -44,7 +44,7 @@ export function AbandonedCartsScreen() {
       <TableShell className="mt-4">
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Customer</TableHead>
               <TableHead>Items</TableHead>
               <TableHead>Cart value</TableHead>
@@ -55,16 +55,16 @@ export function AbandonedCartsScreen() {
           </TableHeader>
           <TableBody>
             {carts.map((c) => (
-              <TableRow key={c.id} className="border-[#2a2a2a]">
+              <TableRow key={c.id} className="border-border">
                 <TableCell>
                   <div className="flex min-w-0 flex-col">
-                    <span className="font-medium text-[#ededed]">{c.customer}</span>
-                    <span className="truncate text-xs text-[#737373]">{c.email}</span>
+                    <span className="font-medium text-foreground">{c.customer}</span>
+                    <span className="truncate text-xs text-text-secondary">{c.email}</span>
                   </div>
                 </TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{c.items}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{money(c.value)}</TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{c.abandoned}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{c.items}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{money(c.value)}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{c.abandoned}</TableCell>
                 <TableCell><Pill tone={RECOVERY_TONE[c.recovery]}>{c.recovery}</Pill></TableCell>
                 <TableCell className="text-right">
                   <RowActions
@@ -77,8 +77,8 @@ export function AbandonedCartsScreen() {
               </TableRow>
             ))}
             {carts.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No abandoned carts found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No abandoned carts found.</TableCell>
               </TableRow>
             )}
           </TableBody>

@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/chart";
 
 const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
-const TOOLTIP_CLASS = "bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]";
+const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
 
 const WEEKLY = [
   { week: "W1", sends: 18400, opens: 7820, revenue: 9120 },
@@ -70,10 +70,10 @@ const REVENUE_CONFIG = {
 
 function Panel({ title, subtitle, children }) {
   return (
-    <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+    <div className="rounded-xl border border-border bg-surface-subtle p-5">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-[#ededed]">{title}</h3>
-        <p className="text-xs text-[#737373]">{subtitle}</p>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <p className="text-xs text-text-secondary">{subtitle}</p>
       </div>
       {children}
     </div>
@@ -82,8 +82,8 @@ function Panel({ title, subtitle, children }) {
 
 function KpiCard({ label, value, delta, positive }) {
   return (
-    <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-[#737373]">{label}</p>
+    <div className="rounded-xl border border-border bg-surface-subtle p-5">
+      <p className="text-[11px] font-medium uppercase tracking-wider text-text-secondary">{label}</p>
       <p className="mt-2 text-3xl font-bold leading-none text-white">{value}</p>
       <p
         className={cn(
@@ -120,9 +120,9 @@ export function DashboardsScreen() {
         description="Your at-a-glance view of campaign performance."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <Select value={dashboard} onValueChange={setDashboard}>
-          <SelectTrigger size="sm" className="bg-[#161616] border-[#2a2a2a] sm:w-44">
+          <SelectTrigger size="sm" className="bg-background border-border sm:w-44">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -134,18 +134,18 @@ export function DashboardsScreen() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-44">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
               {rangeLabel}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Date range</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Date range</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {RANGE_OPTIONS.map((o) => (
               <DropdownMenuItem
                 key={o.value}
                 onSelect={() => setRange(o.value)}
-                className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", range === o.value && "text-white")}
+                className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", range === o.value && "text-white")}
               >
                 {o.label}
               </DropdownMenuItem>

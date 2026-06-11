@@ -54,14 +54,14 @@ export function SubjectLinesScreen() {
       />
 
       {/* Config */}
-      <div className="flex flex-col gap-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5 sm:flex-row sm:items-end">
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-subtle p-5 sm:flex-row sm:items-end">
         <Field label="Describe your email" htmlFor="sl-desc" className="flex-1">
           <Input
             id="sl-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Spring sale — 25% off all outerwear this weekend"
-            className="bg-[#161616] border-[#2a2a2a]"
+            className="bg-background border-border"
           />
         </Field>
         <Field label="Tone" className="sm:w-44">
@@ -79,38 +79,38 @@ export function SubjectLinesScreen() {
 
       {/* Results */}
       {!results ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface-active text-muted-foreground">
             <Sparkles className="h-6 w-6" />
           </span>
-          <p className="mt-4 text-sm text-[#a3a3a3]">Describe your email and generate subject lines.</p>
-          <p className="mt-1 text-xs text-[#737373]">Each line comes with a predicted open rate.</p>
+          <p className="mt-4 text-sm text-muted-foreground">Describe your email and generate subject lines.</p>
+          <p className="mt-1 text-xs text-text-secondary">Each line comes with a predicted open rate.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {results.map((r) => (
-            <div key={r.id} className="flex flex-col gap-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4 sm:flex-row sm:items-center">
+            <div key={r.id} className="flex flex-col gap-3 rounded-xl border border-border bg-surface-subtle p-4 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-[#ededed]">{r.text}</p>
+                <p className="font-medium text-foreground">{r.text}</p>
                 <Progress
                   value={r.score}
-                  className="mt-2 h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                  className="mt-2 h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]"
                 />
               </div>
               <Pill tone={scoreTone(r.score)} className="shrink-0">{r.score}% predicted open</Pill>
               <div className="flex shrink-0 items-center gap-2">
-                <Button onClick={() => copy(r.id)} size="sm" variant="ghost" className="h-8 text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+                <Button onClick={() => copy(r.id)} size="sm" variant="ghost" className="h-8 text-muted-foreground hover:bg-surface-active hover:text-foreground">
                   {copied === r.id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                   {copied === r.id ? "Copied" : "Copy"}
                 </Button>
-                <Button size="sm" variant="outline" className="h-8 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+                <Button size="sm" variant="outline" className="h-8 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
                   Use
                 </Button>
               </div>
             </div>
           ))}
           <div className="pt-1">
-            <Button onClick={generate} size="sm" variant="outline" className="h-8 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+            <Button onClick={generate} size="sm" variant="outline" className="h-8 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
               <RotateCcw className="h-3.5 w-3.5" /> Regenerate
             </Button>
           </div>

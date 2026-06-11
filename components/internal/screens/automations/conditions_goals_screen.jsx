@@ -55,9 +55,9 @@ function CreateConditionDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Condition name" htmlFor="cd-name">
-            <Input id="cd-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. High lead score" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="cd-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. High lead score" className="bg-background border-border" />
           </Field>
-          <div className="flex flex-col gap-2 rounded-lg border border-[#2a2a2a] bg-[#202020] p-3 sm:flex-row">
+          <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface-card p-3 sm:flex-row">
             <Select value={form.field} onValueChange={set("field")}>
               <SelectTrigger className="sm:w-44"><SelectValue /></SelectTrigger>
               <SelectContent>{COND_FIELDS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
@@ -66,11 +66,11 @@ function CreateConditionDialog({ open, onOpenChange, onCreate }) {
               <SelectTrigger className="sm:w-40"><SelectValue /></SelectTrigger>
               <SelectContent>{COND_OPS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>
-            <Input value={form.value} onChange={(e) => set("value")(e.target.value)} placeholder="value" className="flex-1 bg-[#161616] border-[#2a2a2a]" />
+            <Input value={form.value} onChange={(e) => set("value")(e.target.value)} placeholder="value" className="flex-1 bg-background border-border" />
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create condition</Button>
         </DialogFooter>
       </DialogContent>
@@ -96,7 +96,7 @@ function CreateGoalDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Goal name" htmlFor="gl-name">
-            <Input id="gl-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Completed checkout" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="gl-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Completed checkout" className="bg-background border-border" />
           </Field>
           <Field label="Conversion metric">
             <Select value={form.metric} onValueChange={set("metric")}>
@@ -105,11 +105,11 @@ function CreateGoalDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Target definition" htmlFor="gl-target" hint="What exactly counts as a conversion?">
-            <Input id="gl-target" value={form.target} onChange={(e) => set("target")(e.target.value)} placeholder="e.g. Order value > $0" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="gl-target" value={form.target} onChange={(e) => set("target")(e.target.value)} placeholder="e.g. Order value > $0" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create goal</Button>
         </DialogFooter>
       </DialogContent>
@@ -136,7 +136,7 @@ export function ConditionsGoalsScreen() {
         description="Reusable branching rules and the outcomes your automations optimize for."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
         <SegmentedTabs
           value={tab}
           onChange={setTab}
@@ -159,7 +159,7 @@ export function ConditionsGoalsScreen() {
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Condition</TableHead>
                 <TableHead>Logic</TableHead>
                 <TableHead>Used in</TableHead>
@@ -168,10 +168,10 @@ export function ConditionsGoalsScreen() {
             </TableHeader>
             <TableBody>
               {fConditions.map((c) => (
-                <TableRow key={c.id} className="border-[#2a2a2a]">
-                  <TableCell className="font-medium text-[#ededed]">{c.name}</TableCell>
-                  <TableCell className="font-mono text-xs text-[#a3a3a3]">{c.logic}</TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{c.usedIn} automations</TableCell>
+                <TableRow key={c.id} className="border-border">
+                  <TableCell className="font-medium text-foreground">{c.name}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{c.logic}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{c.usedIn} automations</TableCell>
                   <TableCell className="text-right">
                     <RowActions items={[
                       { label: "Edit", icon: Pencil },
@@ -182,7 +182,7 @@ export function ConditionsGoalsScreen() {
                 </TableRow>
               ))}
               {fConditions.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent"><TableCell colSpan={4} className="py-14 text-center text-sm text-[#737373]">No conditions found.</TableCell></TableRow>
+                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={4} className="py-14 text-center text-sm text-text-secondary">No conditions found.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -191,7 +191,7 @@ export function ConditionsGoalsScreen() {
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Goal</TableHead>
                 <TableHead>Metric</TableHead>
                 <TableHead>Target</TableHead>
@@ -201,11 +201,11 @@ export function ConditionsGoalsScreen() {
             </TableHeader>
             <TableBody>
               {fGoals.map((g) => (
-                <TableRow key={g.id} className="border-[#2a2a2a]">
-                  <TableCell className="font-medium text-[#ededed]">{g.name}</TableCell>
+                <TableRow key={g.id} className="border-border">
+                  <TableCell className="font-medium text-foreground">{g.name}</TableCell>
                   <TableCell><Pill tone={METRIC_TONE[g.metric]}>{g.metric}</Pill></TableCell>
-                  <TableCell className="font-mono text-xs text-[#a3a3a3]">{g.target}</TableCell>
-                  <TableCell className="tabular-nums font-medium text-[#ededed]">{g.conversions.toLocaleString()}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{g.target}</TableCell>
+                  <TableCell className="tabular-nums font-medium text-foreground">{g.conversions.toLocaleString()}</TableCell>
                   <TableCell className="text-right">
                     <RowActions items={[
                       { label: "Edit", icon: Pencil },
@@ -216,7 +216,7 @@ export function ConditionsGoalsScreen() {
                 </TableRow>
               ))}
               {fGoals.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No goals found.</TableCell></TableRow>
+                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No goals found.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

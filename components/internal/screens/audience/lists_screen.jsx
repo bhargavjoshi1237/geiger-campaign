@@ -83,7 +83,7 @@ function CreateListDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="List name" htmlFor="l-name">
-            <Input id="l-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring Promo" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="l-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring Promo" className="bg-background border-border" />
           </Field>
           <Field label="Description" htmlFor="l-desc">
             <Textarea id="l-desc" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="What is this list for?" />
@@ -97,16 +97,16 @@ function CreateListDialog({ open, onOpenChange, onCreate }) {
               </SelectContent>
             </Select>
           </Field>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Require double opt-in</p>
-              <p className="text-xs text-[#737373]">New subscribers confirm via email before joining.</p>
+              <p className="text-xs text-text-secondary">New subscribers confirm via email before joining.</p>
             </div>
             <Switch checked={form.doubleOptIn} onCheckedChange={(v) => setForm((f) => ({ ...f, doubleOptIn: v }))} />
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create list</Button>
         </DialogFooter>
       </DialogContent>
@@ -133,14 +133,14 @@ export function ListsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search lists…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>List</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Subscribers</TableHead>
@@ -152,22 +152,22 @@ export function ListsScreen() {
             {filtered.map((l) => {
               const up = l.growth >= 0;
               return (
-                <TableRow key={l.id} className="border-[#2a2a2a]">
+                <TableRow key={l.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                         <ListIcon className="h-4 w-4" />
                       </span>
                       <div className="flex min-w-0 flex-col">
-                        <span className="font-medium text-[#ededed]">{l.name}</span>
-                        <span className="truncate text-xs text-[#737373]">{l.description}</span>
+                        <span className="font-medium text-foreground">{l.name}</span>
+                        <span className="truncate text-xs text-text-secondary">{l.description}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Pill tone={l.type === "Dynamic" ? "violet" : "blue"}>{l.type}</Pill>
                   </TableCell>
-                  <TableCell className="tabular-nums font-medium text-[#ededed]">{l.subscribers.toLocaleString()}</TableCell>
+                  <TableCell className="tabular-nums font-medium text-foreground">{l.subscribers.toLocaleString()}</TableCell>
                   <TableCell>
                     <span className={cn("inline-flex items-center gap-1 text-sm font-medium tabular-nums", up ? "text-emerald-400" : "text-red-400")}>
                       {up ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
@@ -188,8 +188,8 @@ export function ListsScreen() {
               );
             })}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No lists found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No lists found.</TableCell>
               </TableRow>
             )}
           </TableBody>

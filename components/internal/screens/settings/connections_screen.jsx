@@ -82,12 +82,12 @@ function ConnectAccountDialog({ open, onOpenChange, onConnect }) {
               value={account}
               onChange={(e) => setAccount(e.target.value)}
               placeholder="name@company.com"
-              className="bg-[#161616] border-[#2a2a2a]"
+              className="bg-background border-border"
             />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!account.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Connect</Button>
         </DialogFooter>
       </DialogContent>
@@ -114,11 +114,11 @@ export function ConnectionsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Service</TableHead>
                 <TableHead>Account</TableHead>
                 <TableHead>Scope</TableHead>
@@ -129,19 +129,19 @@ export function ConnectionsScreen() {
             </TableHeader>
             <TableBody>
               {connections.map((c) => (
-                <TableRow key={c.id} className="border-[#2a2a2a]">
+                <TableRow key={c.id} className="border-border">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-xs font-semibold text-[#e7e7e7]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-xs font-semibold text-foreground">
                         {SERVICE_META[c.service]?.initials ?? c.service[0]}
                       </span>
-                      <span className="font-medium text-[#ededed]">{c.service}</span>
+                      <span className="font-medium text-foreground">{c.service}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-[#a3a3a3]">{c.account}</TableCell>
-                  <TableCell className="text-[#a3a3a3]">{c.scope}</TableCell>
+                  <TableCell className="font-mono text-muted-foreground">{c.account}</TableCell>
+                  <TableCell className="text-muted-foreground">{c.scope}</TableCell>
                   <TableCell><Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill></TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{c.connected}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{c.connected}</TableCell>
                   <TableCell className="text-right">
                     <RowActions
                       items={[
@@ -153,8 +153,8 @@ export function ConnectionsScreen() {
                 </TableRow>
               ))}
               {connections.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                  <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No connections found.</TableCell>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No connections found.</TableCell>
                 </TableRow>
               )}
             </TableBody>

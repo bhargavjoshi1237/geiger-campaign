@@ -55,7 +55,7 @@ function NewTemplateDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Template name" htmlFor="t-name">
-            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring Newsletter" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring Newsletter" className="bg-background border-border" />
           </Field>
           <Field label="Category">
             <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
@@ -65,7 +65,7 @@ function NewTemplateDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create template</Button>
         </DialogFooter>
       </DialogContent>
@@ -94,19 +94,19 @@ export function TemplatesScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search templates…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-44">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
               {category === "All" ? "All categories" : category}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by category</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...CATEGORIES].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", category === c && "text-white")}>
+              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", category === c && "text-white")}>
                 {c === "All" ? "All categories" : c}
               </DropdownMenuItem>
             ))}
@@ -119,7 +119,7 @@ export function TemplatesScreen() {
           const meta = CATEGORY_META[t.category];
           const Icon = meta.icon;
           return (
-            <div key={t.id} className="group overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-colors hover:border-[#474747]">
+            <div key={t.id} className="group overflow-hidden rounded-xl border border-border bg-surface-subtle transition-colors hover:border-border-strong">
               <div
                 className="relative flex h-32 items-center justify-center"
                 style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}
@@ -135,14 +135,14 @@ export function TemplatesScreen() {
               </div>
               <div className="p-4">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="truncate font-medium text-[#ededed]">{t.name}</h3>
+                  <h3 className="truncate font-medium text-foreground">{t.name}</h3>
                 </div>
-                <div className="mt-1 flex items-center gap-2 text-xs text-[#737373]">
-                  <span className="rounded border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5">{t.category}</span>
+                <div className="mt-1 flex items-center gap-2 text-xs text-text-secondary">
+                  <span className="rounded border border-border bg-surface-active px-1.5 py-0.5">{t.category}</span>
                   <span>·</span>
                   <span>Edited {t.edited}</span>
                 </div>
-                <Button variant="outline" className="mt-3 h-8 w-full border-[#2a2a2a] bg-[#202020] text-xs text-[#ededed] hover:bg-[#242424]">
+                <Button variant="outline" className="mt-3 h-8 w-full border-border bg-surface-card text-xs text-foreground hover:bg-surface-active">
                   Use template
                 </Button>
               </div>
@@ -152,7 +152,7 @@ export function TemplatesScreen() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center text-sm text-[#737373]">
+        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
           No templates match your filters.
         </div>
       )}

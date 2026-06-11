@@ -62,7 +62,7 @@ function ConnectStoreDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Store name" htmlFor="store-name">
-            <Input id="store-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Northwind Apparel" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="store-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Northwind Apparel" className="bg-background border-border" />
           </Field>
           <Field label="Platform">
             <Select value={form.platform} onValueChange={set("platform")}>
@@ -73,11 +73,11 @@ function ConnectStoreDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Store URL" htmlFor="store-url" hint="The public domain of your storefront.">
-            <Input id="store-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://store.myshopify.com" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="store-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://store.myshopify.com" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Connect store</Button>
         </DialogFooter>
       </DialogContent>
@@ -107,7 +107,7 @@ export function StoresScreen() {
       <TableShell className="mt-4">
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Store</TableHead>
               <TableHead>Platform</TableHead>
               <TableHead>Products</TableHead>
@@ -119,21 +119,21 @@ export function StoresScreen() {
           </TableHeader>
           <TableBody>
             {stores.map((s) => (
-              <TableRow key={s.id} className="border-[#2a2a2a]">
+              <TableRow key={s.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]"><Store className="h-4 w-4" /></span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><Store className="h-4 w-4" /></span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{s.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{s.platform}</span>
+                      <span className="font-medium text-foreground">{s.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{s.platform}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={PLATFORM_TONE[s.platform]}>{s.platform}</Pill></TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{s.products.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{s.orders.toLocaleString()}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{s.products.toLocaleString()}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{s.orders.toLocaleString()}</TableCell>
                 <TableCell><Pill tone={STATUS_TONE[s.status]}>{s.status}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{s.lastSync}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{s.lastSync}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -146,8 +146,8 @@ export function StoresScreen() {
               </TableRow>
             ))}
             {stores.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No stores connected.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No stores connected.</TableCell>
               </TableRow>
             )}
           </TableBody>

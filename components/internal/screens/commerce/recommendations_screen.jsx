@@ -67,7 +67,7 @@ function NewBlockDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Block name" htmlFor="b-name">
-            <Input id="b-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. You may also like" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="b-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. You may also like" className="bg-background border-border" />
           </Field>
           <Field label="Strategy">
             <Select value={form.strategy} onValueChange={set("strategy")}>
@@ -97,7 +97,7 @@ function NewBlockDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create block</Button>
         </DialogFooter>
       </DialogContent>
@@ -125,25 +125,25 @@ export function RecommendationsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
-        <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+      <div className="border-t border-surface-active pt-4">
+        <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-500/25 bg-amber-500/10 text-amber-400"><Sparkles className="h-4 w-4" /></span>
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">AI personalized recommendations</p>
-              <p className="text-xs text-[#737373]">Let Geiger tailor product picks per shopper using browse and purchase history.</p>
+              <p className="text-xs text-text-secondary">Let Geiger tailor product picks per shopper using browse and purchase history.</p>
             </div>
           </div>
           <Switch checked={aiEnabled} onCheckedChange={setAiEnabled} />
         </div>
       </div>
 
-      <h2 className="text-sm font-semibold text-[#ededed]">Recommendation blocks</h2>
+      <h2 className="text-sm font-semibold text-foreground">Recommendation blocks</h2>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Block</TableHead>
               <TableHead>Strategy</TableHead>
               <TableHead>Placement</TableHead>
@@ -154,11 +154,11 @@ export function RecommendationsScreen() {
           </TableHeader>
           <TableBody>
             {blocks.map((b) => (
-              <TableRow key={b.id} className="border-[#2a2a2a]">
-                <TableCell className="font-medium text-[#ededed]">{b.name}</TableCell>
+              <TableRow key={b.id} className="border-border">
+                <TableCell className="font-medium text-foreground">{b.name}</TableCell>
                 <TableCell><Pill tone={STRATEGY_TONE[b.strategy]}>{b.strategy}</Pill></TableCell>
-                <TableCell className="text-[#a3a3a3]">{b.placement}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{b.items}</TableCell>
+                <TableCell className="text-muted-foreground">{b.placement}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{b.items}</TableCell>
                 <TableCell><Pill tone={STATUS_TONE[b.status]}>{b.status}</Pill></TableCell>
                 <TableCell className="text-right">
                   <RowActions
@@ -172,8 +172,8 @@ export function RecommendationsScreen() {
               </TableRow>
             ))}
             {blocks.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No recommendation blocks found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No recommendation blocks found.</TableCell>
               </TableRow>
             )}
           </TableBody>

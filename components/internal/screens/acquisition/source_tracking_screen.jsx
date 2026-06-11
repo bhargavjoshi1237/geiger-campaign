@@ -69,26 +69,26 @@ function UtmBuilderDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Destination URL" htmlFor="utm-url">
-            <Input id="utm-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://geiger.app/lp/your-page" className="bg-[#161616] border-[#2a2a2a] font-mono" />
+            <Input id="utm-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://geiger.app/lp/your-page" className="bg-background border-border font-mono" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Source" hint="e.g. google">
-              <Input value={form.source} onChange={(e) => set("source")(e.target.value)} placeholder="google" className="bg-[#161616] border-[#2a2a2a]" />
+              <Input value={form.source} onChange={(e) => set("source")(e.target.value)} placeholder="google" className="bg-background border-border" />
             </Field>
             <Field label="Medium" hint="e.g. cpc">
-              <Input value={form.medium} onChange={(e) => set("medium")(e.target.value)} placeholder="cpc" className="bg-[#161616] border-[#2a2a2a]" />
+              <Input value={form.medium} onChange={(e) => set("medium")(e.target.value)} placeholder="cpc" className="bg-background border-border" />
             </Field>
           </div>
           <Field label="Campaign" htmlFor="utm-campaign">
-            <Input id="utm-campaign" value={form.campaign} onChange={(e) => set("campaign")(e.target.value)} placeholder="summer_sale_2026" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="utm-campaign" value={form.campaign} onChange={(e) => set("campaign")(e.target.value)} placeholder="summer_sale_2026" className="bg-background border-border" />
           </Field>
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-[#a3a3a3]">Assembled URL</p>
-            <div className="break-all rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">{assembled}</div>
+            <p className="text-xs font-medium text-muted-foreground">Assembled URL</p>
+            <div className="break-all rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{assembled}</div>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Create link</Button>
         </DialogFooter>
       </DialogContent>
@@ -123,14 +123,14 @@ export function SourceTrackingScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search by source, medium, or campaign…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Source / Medium</TableHead>
               <TableHead>Campaign</TableHead>
               <TableHead>Visits</TableHead>
@@ -144,18 +144,18 @@ export function SourceTrackingScreen() {
               const c = conv(l);
               const link = `${l.url}?utm_source=${encodeURIComponent(l.source)}&utm_medium=${encodeURIComponent(l.medium)}&utm_campaign=${encodeURIComponent(l.campaign)}`;
               return (
-                <TableRow key={l.id} className="border-[#2a2a2a]">
-                  <TableCell><span className="font-mono text-sm text-[#ededed]">{l.source} / {l.medium}</span></TableCell>
-                  <TableCell><span className="font-mono text-xs text-[#a3a3a3]">{l.campaign}</span></TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{l.visits.toLocaleString()}</TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{l.signups.toLocaleString()}</TableCell>
+                <TableRow key={l.id} className="border-border">
+                  <TableCell><span className="font-mono text-sm text-foreground">{l.source} / {l.medium}</span></TableCell>
+                  <TableCell><span className="font-mono text-xs text-muted-foreground">{l.campaign}</span></TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{l.visits.toLocaleString()}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{l.signups.toLocaleString()}</TableCell>
                   <TableCell>
                     {c > 0 ? (
                       <div className="w-[120px] space-y-1.5">
-                        <Progress value={c} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                        <p className="text-xs text-[#737373]">{c}%</p>
+                        <Progress value={c} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                        <p className="text-xs text-text-secondary">{c}%</p>
                       </div>
-                    ) : <span className="text-[#737373]">—</span>}
+                    ) : <span className="text-text-secondary">—</span>}
                   </TableCell>
                   <TableCell className="text-right">
                     <RowActions
@@ -169,8 +169,8 @@ export function SourceTrackingScreen() {
               );
             })}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No tracked links match your search.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No tracked links match your search.</TableCell>
               </TableRow>
             )}
           </TableBody>

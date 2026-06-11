@@ -78,7 +78,7 @@ function AddIpDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Add IP</Button>
         </DialogFooter>
       </DialogContent>
@@ -111,14 +111,14 @@ export function DedicatedIpsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search IPs or pools…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>IP</TableHead>
               <TableHead>Pool</TableHead>
               <TableHead>Reputation</TableHead>
@@ -129,27 +129,27 @@ export function DedicatedIpsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((i) => (
-              <TableRow key={i.id} className="border-[#2a2a2a]">
+              <TableRow key={i.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <Network className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-mono font-medium text-[#ededed]">{i.ip}</span>
-                      <span className="truncate text-xs text-[#737373]">{REGION_LABEL[i.region]}</span>
+                      <span className="font-mono font-medium text-foreground">{i.ip}</span>
+                      <span className="truncate text-xs text-text-secondary">{REGION_LABEL[i.region]}</span>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{i.pool}</TableCell>
+                <TableCell className="text-muted-foreground">{i.pool}</TableCell>
                 <TableCell>
                   <div className="flex w-40 items-center gap-3">
-                    <Progress value={i.reputation} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                    <span className="tabular-nums text-xs text-[#a3a3a3]">{i.reputation}%</span>
+                    <Progress value={i.reputation} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                    <span className="tabular-nums text-xs text-muted-foreground">{i.reputation}%</span>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={STATUS_TONE[i.status]}>{i.status}</Pill></TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{i.sends.toLocaleString()}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{i.sends.toLocaleString()}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -162,8 +162,8 @@ export function DedicatedIpsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No IPs found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No IPs found.</TableCell>
               </TableRow>
             )}
           </TableBody>

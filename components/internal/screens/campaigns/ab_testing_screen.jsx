@@ -47,7 +47,7 @@ function CreateTestDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Test name" htmlFor="ab-name">
-            <Input id="ab-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Subject line test" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="ab-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Subject line test" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="What to test">
@@ -71,7 +71,7 @@ function CreateTestDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create test</Button>
         </DialogFooter>
       </DialogContent>
@@ -96,14 +96,14 @@ export function ABTestingScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search tests…" />
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Test</TableHead>
               <TableHead>Testing</TableHead>
               <TableHead>Variants</TableHead>
@@ -115,27 +115,27 @@ export function ABTestingScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((t) => (
-              <TableRow key={t.id} className="border-[#2a2a2a]">
+              <TableRow key={t.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <FlaskConical className="h-4 w-4" />
                     </span>
-                    <span className="font-medium text-[#ededed]">{t.name}</span>
+                    <span className="font-medium text-foreground">{t.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{t.testing}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{t.variants}</TableCell>
-                <TableCell className="text-[#a3a3a3]">{t.metric}</TableCell>
+                <TableCell className="text-muted-foreground">{t.testing}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{t.variants}</TableCell>
+                <TableCell className="text-muted-foreground">{t.metric}</TableCell>
                 <TableCell><Pill tone={STATUS_TONE[t.status]}>{t.status}</Pill></TableCell>
                 <TableCell>
                   {t.status === "Completed" ? (
                     <span className="inline-flex items-center gap-1.5 text-sm">
                       <Trophy className="h-3.5 w-3.5 text-amber-400" />
-                      <span className="font-medium text-[#ededed]">{t.winner}</span>
+                      <span className="font-medium text-foreground">{t.winner}</span>
                       <span className="text-emerald-400 tabular-nums">+{t.uplift}%</span>
                     </span>
-                  ) : <span className="text-[#737373]">—</span>}
+                  ) : <span className="text-text-secondary">—</span>}
                 </TableCell>
                 <TableCell className="text-right">
                   <RowActions items={[
@@ -148,7 +148,7 @@ export function ABTestingScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent"><TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No tests found.</TableCell></TableRow>
+              <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No tests found.</TableCell></TableRow>
             )}
           </TableBody>
         </Table>

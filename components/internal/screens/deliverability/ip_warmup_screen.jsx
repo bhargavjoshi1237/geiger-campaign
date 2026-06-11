@@ -44,12 +44,12 @@ export function IpWarmupScreen() {
         description="Gradually ramp sending volume to build a strong IP reputation."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Warmup settings</h2>
+            <Flame className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Warmup settings</h2>
           </div>
           <Field label="IP address">
             <Select value={ip} onValueChange={setIp}>
@@ -59,15 +59,15 @@ export function IpWarmupScreen() {
               </SelectContent>
             </Select>
           </Field>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Enable automatic warmup</p>
-              <p className="text-xs text-[#737373]">Caps grow each day until the target is reached.</p>
+              <p className="text-xs text-text-secondary">Caps grow each day until the target is reached.</p>
             </div>
             <Switch checked={enabled} onCheckedChange={setEnabled} />
           </div>
           <Field label="Target daily volume" htmlFor="w-target" hint="Maximum messages per day after warmup completes.">
-            <Input id="w-target" type="number" value={target} onChange={(e) => setTarget(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="w-target" type="number" value={target} onChange={(e) => setTarget(e.target.value)} className="bg-background border-border" />
           </Field>
           <Field label="Ramp duration">
             <Select value={duration} onValueChange={setDuration}>
@@ -83,11 +83,11 @@ export function IpWarmupScreen() {
 
         {/* Schedule */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-[#ededed]">Warmup schedule</h2>
+          <h2 className="text-sm font-semibold text-foreground">Warmup schedule</h2>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Day</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Daily cap</TableHead>
@@ -97,11 +97,11 @@ export function IpWarmupScreen() {
               </TableHeader>
               <TableBody>
                 {schedule.map((s) => (
-                  <TableRow key={s.id} className="border-[#2a2a2a]">
-                    <TableCell className="font-medium text-[#ededed]">Day {s.day}</TableCell>
-                    <TableCell className="whitespace-nowrap text-[#a3a3a3]">{s.date}</TableCell>
-                    <TableCell className="tabular-nums text-[#a3a3a3]">{s.cap.toLocaleString()}</TableCell>
-                    <TableCell className="tabular-nums text-[#a3a3a3]">{s.sent.toLocaleString()}</TableCell>
+                  <TableRow key={s.id} className="border-border">
+                    <TableCell className="font-medium text-foreground">Day {s.day}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{s.date}</TableCell>
+                    <TableCell className="tabular-nums text-muted-foreground">{s.cap.toLocaleString()}</TableCell>
+                    <TableCell className="tabular-nums text-muted-foreground">{s.sent.toLocaleString()}</TableCell>
                     <TableCell><Pill tone={STATUS_TONE[s.status]}>{s.status}</Pill></TableCell>
                   </TableRow>
                 ))}

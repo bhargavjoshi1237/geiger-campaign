@@ -57,10 +57,10 @@ function AddCompanyDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Company name" htmlFor="co-name">
-            <Input id="co-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="Northwind Logistics" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="co-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="Northwind Logistics" className="bg-background border-border" />
           </Field>
           <Field label="Domain" htmlFor="co-domain">
-            <Input id="co-domain" value={form.domain} onChange={(e) => set("domain")(e.target.value)} placeholder="northwind.io" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="co-domain" value={form.domain} onChange={(e) => set("domain")(e.target.value)} placeholder="northwind.io" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Industry">
@@ -82,7 +82,7 @@ function AddCompanyDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add company</Button>
         </DialogFooter>
       </DialogContent>
@@ -107,7 +107,7 @@ export function CompaniesScreen() {
       <TableShell className="mt-4">
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Company</TableHead>
               <TableHead>Industry</TableHead>
               <TableHead>Size</TableHead>
@@ -118,22 +118,22 @@ export function CompaniesScreen() {
           </TableHeader>
           <TableBody>
             {companies.map((c) => (
-              <TableRow key={c.id} className="border-[#2a2a2a]">
+              <TableRow key={c.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <Building2 className="h-4 w-4" />
                     </span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{c.name}</span>
-                      <span className="truncate text-xs text-[#737373]">{c.domain}</span>
+                      <span className="font-medium text-foreground">{c.name}</span>
+                      <span className="truncate text-xs text-text-secondary">{c.domain}</span>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{c.industry}</TableCell>
-                <TableCell className="text-[#a3a3a3]">{c.size}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{c.openDeals}</TableCell>
-                <TableCell className="text-[#a3a3a3]">{c.owner}</TableCell>
+                <TableCell className="text-muted-foreground">{c.industry}</TableCell>
+                <TableCell className="text-muted-foreground">{c.size}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{c.openDeals}</TableCell>
+                <TableCell className="text-muted-foreground">{c.owner}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -146,8 +146,8 @@ export function CompaniesScreen() {
               </TableRow>
             ))}
             {companies.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No companies found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No companies found.</TableCell>
               </TableRow>
             )}
           </TableBody>

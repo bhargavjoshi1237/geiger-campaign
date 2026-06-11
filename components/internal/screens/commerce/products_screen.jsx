@@ -70,11 +70,11 @@ function AddProductDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Product name" htmlFor="p-name">
-            <Input id="p-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Merino Wool Crew Sweater" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="p-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Merino Wool Crew Sweater" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="SKU" htmlFor="p-sku">
-              <Input id="p-sku" value={form.sku} onChange={(e) => set("sku")(e.target.value.toUpperCase())} placeholder="NW-APP-1042" className="bg-[#161616] border-[#2a2a2a] font-mono" />
+              <Input id="p-sku" value={form.sku} onChange={(e) => set("sku")(e.target.value.toUpperCase())} placeholder="NW-APP-1042" className="bg-background border-border font-mono" />
             </Field>
             <Field label="Category">
               <Select value={form.category} onValueChange={set("category")}>
@@ -87,15 +87,15 @@ function AddProductDialog({ open, onOpenChange, onCreate }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Price" htmlFor="p-price">
-              <Input id="p-price" type="number" min="0" step="0.01" value={form.price} onChange={(e) => set("price")(e.target.value)} placeholder="0.00" className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="p-price" type="number" min="0" step="0.01" value={form.price} onChange={(e) => set("price")(e.target.value)} placeholder="0.00" className="bg-background border-border" />
             </Field>
             <Field label="Stock" htmlFor="p-stock">
-              <Input id="p-stock" type="number" min="0" value={form.stock} onChange={(e) => set("stock")(e.target.value)} placeholder="0" className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="p-stock" type="number" min="0" value={form.stock} onChange={(e) => set("stock")(e.target.value)} placeholder="0" className="bg-background border-border" />
             </Field>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add product</Button>
         </DialogFooter>
       </DialogContent>
@@ -107,15 +107,15 @@ function FilterMenu({ label, value, options, onChange }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+        <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
           {value === "All" ? label : value}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-        <DropdownMenuLabel className="text-[#737373]">{label}</DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+      <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+        <DropdownMenuLabel className="text-text-secondary">{label}</DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-surface-hover" />
         {options.map((o) => (
-          <DropdownMenuItem key={o} onSelect={() => onChange(o)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", value === o && "text-white")}>
+          <DropdownMenuItem key={o} onSelect={() => onChange(o)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", value === o && "text-white")}>
             {o === "All" ? label : o}
           </DropdownMenuItem>
         ))}
@@ -153,7 +153,7 @@ export function ProductsScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search name or SKU…" />
         <FilterMenu label="All categories" value={category} options={["All", ...CATEGORIES]} onChange={setCategory} />
       </div>
@@ -161,7 +161,7 @@ export function ProductsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Product</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
@@ -172,23 +172,23 @@ export function ProductsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((p) => (
-              <TableRow key={p.id} className="border-[#2a2a2a]">
+              <TableRow key={p.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-xs font-medium text-[#a3a3a3]">{initials(p.name)}</span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-xs font-medium text-muted-foreground">{initials(p.name)}</span>
                     <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-[#ededed]">{p.name}</span>
-                      <span className="truncate font-mono text-xs text-[#737373]">{p.sku}</span>
+                      <span className="font-medium text-foreground">{p.name}</span>
+                      <span className="truncate font-mono text-xs text-text-secondary">{p.sku}</span>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{p.category}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{money(p.price)}</TableCell>
+                <TableCell className="text-muted-foreground">{p.category}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{money(p.price)}</TableCell>
                 <TableCell>
                   {p.stock === 0 ? (
                     <Pill tone="red">Out of stock</Pill>
                   ) : (
-                    <span className="tabular-nums text-[#a3a3a3]">{p.stock.toLocaleString()}</span>
+                    <span className="tabular-nums text-muted-foreground">{p.stock.toLocaleString()}</span>
                   )}
                 </TableCell>
                 <TableCell><Pill tone={STATUS_TONE[p.status]}>{p.status}</Pill></TableCell>
@@ -204,8 +204,8 @@ export function ProductsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No products found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No products found.</TableCell>
               </TableRow>
             )}
           </TableBody>

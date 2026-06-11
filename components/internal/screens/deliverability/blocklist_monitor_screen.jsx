@@ -48,19 +48,19 @@ export function BlocklistMonitorScreen() {
         description="Continuously check your IPs and domains against major blocklists."
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search blocklists…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {statusFilter === "All" ? "All statuses" : statusFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {FILTERS.map((f) => (
-              <DropdownMenuItem key={f} onSelect={() => setStatusFilter(f)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", statusFilter === f && "text-white")}>
+              <DropdownMenuItem key={f} onSelect={() => setStatusFilter(f)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === f && "text-white")}>
                 {f === "All" ? "All statuses" : f}
               </DropdownMenuItem>
             ))}
@@ -71,7 +71,7 @@ export function BlocklistMonitorScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Blocklist</TableHead>
               <TableHead>Monitored</TableHead>
               <TableHead>Status</TableHead>
@@ -81,18 +81,18 @@ export function BlocklistMonitorScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((r) => (
-              <TableRow key={r.id} className="border-[#2a2a2a]">
+              <TableRow key={r.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <ShieldAlert className="h-4 w-4" />
                     </span>
-                    <span className="font-medium text-[#ededed]">{r.name}</span>
+                    <span className="font-medium text-foreground">{r.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="font-mono text-xs text-[#a3a3a3]">{r.monitored}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">{r.monitored}</TableCell>
                 <TableCell><Pill tone={r.status === "Listed" ? "red" : "green"}>{r.status}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{r.checked}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{r.checked}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -106,8 +106,8 @@ export function BlocklistMonitorScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No blocklists found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No blocklists found.</TableCell>
               </TableRow>
             )}
           </TableBody>

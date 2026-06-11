@@ -17,7 +17,7 @@ export function TableShell({ className, children }) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]",
+        "overflow-hidden rounded-2xl border border-border bg-surface-card",
         className,
       )}
     >
@@ -30,13 +30,13 @@ export function TableShell({ className, children }) {
 export function SearchInput({ value, onChange, placeholder = "Search…", className }) {
   return (
     <div className={cn("relative w-full sm:w-72", className)}>
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="h-9 w-full rounded-md border border-[#2a2a2a] bg-[#161616] pl-9 pr-3 text-sm text-[#ededed] outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747]"
+        className="h-9 w-full rounded-md border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-text-secondary focus:border-border-strong"
       />
     </div>
   );
@@ -49,7 +49,7 @@ export const PILL_TONES = {
   amber: "bg-amber-500/15 text-amber-300 border-amber-500/30",
   red: "bg-red-500/15 text-red-300 border-red-500/30",
   violet: "bg-violet-500/15 text-violet-300 border-violet-500/30",
-  zinc: "bg-zinc-500/15 text-zinc-300 border-zinc-500/30",
+  zinc: "bg-zinc-500/15 text-muted-foreground border-zinc-500/30",
 };
 
 export function Pill({ tone = "zinc", className, children }) {
@@ -74,24 +74,24 @@ export function RowActions({ items = [], align = "end" }) {
         <Button
           variant="ghost"
           size="icon-sm"
-          className="text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white"
+          className="text-muted-foreground hover:bg-surface-hover hover:text-foreground"
         >
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align={align}
-        className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]"
+        className="w-44 border-border bg-surface-card text-foreground"
       >
         {items.map((item, i) => (
           <React.Fragment key={item.label}>
             {item.separatorBefore && (
-              <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+              <DropdownMenuSeparator className="bg-surface-hover" />
             )}
             <DropdownMenuItem
               onSelect={item.onSelect}
               className={cn(
-                "cursor-pointer text-sm focus:bg-[#2a2a2a] focus:text-white",
+                "cursor-pointer text-sm focus:bg-surface-hover focus:text-foreground",
                 item.danger && "text-red-400 focus:bg-red-500/10 focus:text-red-300",
               )}
             >
@@ -118,7 +118,7 @@ export function Field({ label, hint, htmlFor, children, className }) {
         </label>
       )}
       {children}
-      {hint && <p className="text-xs text-[#737373]">{hint}</p>}
+      {hint && <p className="text-xs text-text-secondary">{hint}</p>}
     </div>
   );
 }

@@ -47,17 +47,17 @@ function AddSenderDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="From name" htmlFor="s-name">
-            <Input id="s-name" value={form.fromName} onChange={(e) => setForm((f) => ({ ...f, fromName: e.target.value }))} placeholder="e.g. Marketing" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="s-name" value={form.fromName} onChange={(e) => setForm((f) => ({ ...f, fromName: e.target.value }))} placeholder="e.g. Marketing" className="bg-background border-border" />
           </Field>
           <Field label="From email" htmlFor="s-email">
-            <Input id="s-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="e.g. hello@geiger.studio" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="s-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="e.g. hello@geiger.studio" className="bg-background border-border" />
           </Field>
           <Field label="Reply-to address" htmlFor="s-reply" hint="Optional — defaults to the from address.">
-            <Input id="s-reply" type="email" value={form.replyTo} onChange={(e) => setForm((f) => ({ ...f, replyTo: e.target.value }))} placeholder="e.g. support@geiger.studio" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="s-reply" type="email" value={form.replyTo} onChange={(e) => setForm((f) => ({ ...f, replyTo: e.target.value }))} placeholder="e.g. support@geiger.studio" className="bg-background border-border" />
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Add sender</Button>
         </DialogFooter>
       </DialogContent>
@@ -92,39 +92,39 @@ export function EmailChannelScreen() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-          <h2 className="text-sm font-semibold text-[#ededed]">Sending defaults</h2>
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
+          <h2 className="text-sm font-semibold text-foreground">Sending defaults</h2>
 
           <Field label="Default from name" htmlFor="d-name">
-            <Input id="d-name" value={fromName} onChange={(e) => setFromName(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="d-name" value={fromName} onChange={(e) => setFromName(e.target.value)} className="bg-background border-border" />
           </Field>
           <Field label="Default from email" htmlFor="d-email">
-            <Input id="d-email" type="email" value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="d-email" type="email" value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} className="bg-background border-border" />
           </Field>
           <Field label="Reply-to address" htmlFor="d-reply">
-            <Input id="d-reply" type="email" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="d-reply" type="email" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} className="bg-background border-border" />
           </Field>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Track opens</p>
-              <p className="text-xs text-[#737373]">Embed a pixel to record when emails are opened.</p>
+              <p className="text-xs text-text-secondary">Embed a pixel to record when emails are opened.</p>
             </div>
             <Switch checked={trackOpens} onCheckedChange={setTrackOpens} />
           </div>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Track clicks</p>
-              <p className="text-xs text-[#737373]">Rewrite links to measure click-through.</p>
+              <p className="text-xs text-text-secondary">Rewrite links to measure click-through.</p>
             </div>
             <Switch checked={trackClicks} onCheckedChange={setTrackClicks} />
           </div>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Include unsubscribe footer</p>
-              <p className="text-xs text-[#737373]">Append a one-click unsubscribe link to every email.</p>
+              <p className="text-xs text-text-secondary">Append a one-click unsubscribe link to every email.</p>
             </div>
             <Switch checked={unsubscribeFooter} onCheckedChange={setUnsubscribeFooter} />
           </div>
@@ -133,14 +133,14 @@ export function EmailChannelScreen() {
         {/* Sender identities */}
         <div className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-[#ededed]">Sender identities</h2>
-            <p className="text-xs text-[#737373]">Verified addresses your campaigns can send from.</p>
+            <h2 className="text-sm font-semibold text-foreground">Sender identities</h2>
+            <p className="text-xs text-text-secondary">Verified addresses your campaigns can send from.</p>
           </div>
 
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Identity</TableHead>
                   <TableHead>Domain</TableHead>
                   <TableHead>Default</TableHead>
@@ -150,15 +150,15 @@ export function EmailChannelScreen() {
               </TableHeader>
               <TableBody>
                 {senders.map((s) => (
-                  <TableRow key={s.id} className="border-[#2a2a2a]">
+                  <TableRow key={s.id} className="border-border">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                           <Mail className="h-4 w-4" />
                         </span>
                         <div className="flex min-w-0 flex-col">
-                          <span className="font-medium text-[#ededed]">{s.fromName}</span>
-                          <span className="truncate text-xs text-[#737373]">{s.email}</span>
+                          <span className="font-medium text-foreground">{s.fromName}</span>
+                          <span className="truncate text-xs text-text-secondary">{s.email}</span>
                         </div>
                       </div>
                     </TableCell>
@@ -166,9 +166,9 @@ export function EmailChannelScreen() {
                       <Pill tone={s.domain === "Verified" ? "green" : "amber"}>{s.domain}</Pill>
                     </TableCell>
                     <TableCell>
-                      {s.isDefault ? <Pill tone="blue">Default</Pill> : <span className="text-[#737373]">—</span>}
+                      {s.isDefault ? <Pill tone="blue">Default</Pill> : <span className="text-text-secondary">—</span>}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-[#a3a3a3]">{s.added}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{s.added}</TableCell>
                     <TableCell className="text-right">
                       <RowActions
                         items={[
@@ -180,8 +180,8 @@ export function EmailChannelScreen() {
                   </TableRow>
                 ))}
                 {senders.length === 0 && (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                    <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No sender identities found.</TableCell>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No sender identities found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

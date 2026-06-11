@@ -64,39 +64,39 @@ export function SegmentSuggestionsScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
-        <p className="text-sm text-[#a3a3a3]">
+      <div className="border-t border-surface-active pt-4">
+        <p className="text-sm text-muted-foreground">
           Based on recent behavior across your list, here are {suggestions.length} segment
           {suggestions.length === 1 ? "" : "s"} that look ready to act on.
         </p>
       </div>
 
       {suggestions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center text-sm text-[#737373]">
+        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
           No suggestions right now. Refresh to surface new ones.
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {suggestions.map((s) => (
-            <div key={s.id} className="flex flex-col rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5 transition-colors hover:border-[#474747]">
+            <div key={s.id} className="flex flex-col rounded-xl border border-border bg-surface-subtle p-5 transition-colors hover:border-border-strong">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="font-medium text-[#ededed]">{s.name}</h3>
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                <h3 className="font-medium text-foreground">{s.name}</h3>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                   <Users className="h-4 w-4" />
                 </span>
               </div>
-              <p className="mt-2 flex-1 text-sm text-[#737373]">{s.rationale}</p>
-              <p className="mt-3 text-sm tabular-nums text-[#a3a3a3]">≈ {s.size.toLocaleString()} contacts</p>
+              <p className="mt-2 flex-1 text-sm text-text-secondary">{s.rationale}</p>
+              <p className="mt-3 text-sm tabular-nums text-muted-foreground">≈ {s.size.toLocaleString()} contacts</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {s.conditions.map((c) => (
-                  <span key={c} className="rounded border border-[#2a2a2a] bg-[#242424] px-1.5 py-0.5 text-xs text-[#a3a3a3]">{c}</span>
+                  <span key={c} className="rounded border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">{c}</span>
                 ))}
               </div>
-              <div className="mt-5 flex items-center gap-2 border-t border-[#242424] pt-4">
+              <div className="mt-5 flex items-center gap-2 border-t border-surface-active pt-4">
                 <Button size="sm" className="h-8 bg-white text-black hover:bg-[#e5e5e5]">
                   <Plus className="h-3.5 w-3.5" /> Create segment
                 </Button>
-                <Button onClick={() => dismiss(s.id)} size="sm" variant="ghost" className="h-8 text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+                <Button onClick={() => dismiss(s.id)} size="sm" variant="ghost" className="h-8 text-muted-foreground hover:bg-surface-active hover:text-foreground">
                   <X className="h-3.5 w-3.5" /> Dismiss
                 </Button>
               </div>

@@ -90,7 +90,7 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Rule name" htmlFor="r-name">
-            <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Clicked a campaign link" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Clicked a campaign link" className="bg-background border-border" />
           </Field>
           <Field label="When a contact">
             <Select value={form.trigger} onValueChange={(v) => setForm((f) => ({ ...f, trigger: v }))}>
@@ -111,7 +111,7 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
             <Field label="Points" htmlFor="r-points">
-              <Input id="r-points" type="number" min="0" value={form.points} onChange={(e) => setForm((f) => ({ ...f, points: e.target.value }))} className="bg-[#161616] border-[#2a2a2a]" />
+              <Input id="r-points" type="number" min="0" value={form.points} onChange={(e) => setForm((f) => ({ ...f, points: e.target.value }))} className="bg-background border-border" />
             </Field>
           </div>
           <Field label="Apply">
@@ -125,7 +125,7 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create rule</Button>
         </DialogFooter>
       </DialogContent>
@@ -153,31 +153,31 @@ export function LeadScoringScreen() {
       />
 
       {/* Score bands */}
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 sm:grid-cols-3">
         {BANDS.map((b) => (
-          <div key={b.key} className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+          <div key={b.key} className="rounded-xl border border-border bg-surface-subtle p-4">
             <div className="flex items-center justify-between">
               <span className={cn("flex h-9 w-9 items-center justify-center rounded-lg border", b.bg)}>
                 <b.icon className={cn("h-4 w-4", b.tone)} />
               </span>
-              <span className="font-mono text-xs text-[#737373]">{b.range}</span>
+              <span className="font-mono text-xs text-text-secondary">{b.range}</span>
             </div>
             <p className="mt-3 text-2xl font-bold text-white tabular-nums">{b.count.toLocaleString()}</p>
-            <p className="text-sm text-[#a3a3a3]">{b.label} leads</p>
+            <p className="text-sm text-muted-foreground">{b.label} leads</p>
           </div>
         ))}
       </div>
 
       {/* Rules table */}
       <div className="flex items-center gap-2">
-        <Gauge className="h-4 w-4 text-[#737373]" />
-        <h2 className="text-sm font-semibold text-[#ededed]">Scoring rules</h2>
+        <Gauge className="h-4 w-4 text-text-secondary" />
+        <h2 className="text-sm font-semibold text-foreground">Scoring rules</h2>
       </div>
 
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Rule</TableHead>
               <TableHead>Trigger</TableHead>
               <TableHead>Points</TableHead>
@@ -188,9 +188,9 @@ export function LeadScoringScreen() {
           </TableHeader>
           <TableBody>
             {rules.map((r) => (
-              <TableRow key={r.id} className={cn("border-[#2a2a2a]", !r.active && "opacity-55")}>
-                <TableCell className="font-medium text-[#ededed]">{r.name}</TableCell>
-                <TableCell className="text-[#a3a3a3]">{r.trigger}</TableCell>
+              <TableRow key={r.id} className={cn("border-border", !r.active && "opacity-55")}>
+                <TableCell className="font-medium text-foreground">{r.name}</TableCell>
+                <TableCell className="text-muted-foreground">{r.trigger}</TableCell>
                 <TableCell>
                   <span className={cn("font-semibold tabular-nums", r.points >= 0 ? "text-emerald-400" : "text-red-400")}>
                     {r.points >= 0 ? `+${r.points}` : r.points}

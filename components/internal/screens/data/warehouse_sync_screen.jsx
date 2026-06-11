@@ -66,7 +66,7 @@ function CreateSyncDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Table / dataset" htmlFor="s-table" hint="Fully-qualified, e.g. analytics.fct_orders.">
-            <Input id="s-table" value={form.table} onChange={(e) => setForm((f) => ({ ...f, table: e.target.value }))} placeholder="e.g. analytics.fct_orders" className="bg-[#161616] border-[#2a2a2a] font-mono" />
+            <Input id="s-table" value={form.table} onChange={(e) => setForm((f) => ({ ...f, table: e.target.value }))} placeholder="e.g. analytics.fct_orders" className="bg-background border-border font-mono" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Direction">
@@ -84,7 +84,7 @@ function CreateSyncDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.table.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create sync</Button>
         </DialogFooter>
       </DialogContent>
@@ -116,11 +116,11 @@ export function WarehouseSyncScreen() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Connection config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#ededed]">Connection</h2>
+            <h2 className="text-sm font-semibold text-foreground">Connection</h2>
             <Pill tone="green">Connected</Pill>
           </div>
 
@@ -132,15 +132,15 @@ export function WarehouseSyncScreen() {
           </Field>
 
           <Field label="Host / account">
-            <div className="rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3] break-all">
+            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground break-all">
               {host}
             </div>
           </Field>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Sync enabled</p>
-              <p className="text-xs text-[#737373]">Pause all jobs without deleting them.</p>
+              <p className="text-xs text-text-secondary">Pause all jobs without deleting them.</p>
             </div>
             <Switch checked={syncEnabled} onCheckedChange={setSyncEnabled} />
           </div>
@@ -156,13 +156,13 @@ export function WarehouseSyncScreen() {
         {/* Sync jobs */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Database className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Sync jobs</h2>
+            <Database className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Sync jobs</h2>
           </div>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Table / dataset</TableHead>
                   <TableHead>Direction</TableHead>
                   <TableHead>Rows</TableHead>
@@ -174,12 +174,12 @@ export function WarehouseSyncScreen() {
               </TableHeader>
               <TableBody>
                 {jobs.map((j) => (
-                  <TableRow key={j.id} className="border-[#2a2a2a]">
-                    <TableCell className="font-mono text-[#ededed]">{j.table}</TableCell>
+                  <TableRow key={j.id} className="border-border">
+                    <TableCell className="font-mono text-foreground">{j.table}</TableCell>
                     <TableCell><Pill tone={DIRECTION_TONE[j.direction]}>{j.direction}</Pill></TableCell>
-                    <TableCell className="tabular-nums text-[#a3a3a3]">{j.rows.toLocaleString()}</TableCell>
-                    <TableCell className="whitespace-nowrap text-[#a3a3a3]">{j.frequency}</TableCell>
-                    <TableCell className="whitespace-nowrap text-[#a3a3a3]">{j.lastSync}</TableCell>
+                    <TableCell className="tabular-nums text-muted-foreground">{j.rows.toLocaleString()}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{j.frequency}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{j.lastSync}</TableCell>
                     <TableCell><Pill tone={STATUS_TONE[j.status]}>{j.status}</Pill></TableCell>
                     <TableCell className="text-right">
                       <RowActions
@@ -193,8 +193,8 @@ export function WarehouseSyncScreen() {
                   </TableRow>
                 ))}
                 {jobs.length === 0 && (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                    <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No sync jobs found.</TableCell>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No sync jobs found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

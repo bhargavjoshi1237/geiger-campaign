@@ -78,7 +78,7 @@ const INITIAL = [
 function ChannelCell({ channel }) {
   const Icon = channel === "SMS" ? Smartphone : Mail;
   return (
-    <span className="inline-flex items-center gap-1.5 text-sm text-[#737373]">
+    <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
       <Icon className="h-3.5 w-3.5" /> {channel}
     </span>
   );
@@ -87,8 +87,8 @@ function ChannelCell({ channel }) {
 function LabeledRow({ label, children }) {
   return (
     <div className="grid grid-cols-[110px_1fr] items-start gap-3 py-1.5">
-      <span className="text-xs font-medium uppercase tracking-wider text-[#737373]">{label}</span>
-      <div className="min-w-0 text-sm text-[#ededed]">{children}</div>
+      <span className="text-xs font-medium uppercase tracking-wider text-text-secondary">{label}</span>
+      <div className="min-w-0 text-sm text-foreground">{children}</div>
     </div>
   );
 }
@@ -103,30 +103,30 @@ function MessageDetailDialog({ log, onOpenChange }) {
           <DialogTitle>Message details</DialogTitle>
         </DialogHeader>
         <DialogBody className="py-4">
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+          <div className="rounded-xl border border-border bg-surface-subtle p-4">
             <LabeledRow label="To"><span className="break-all">{log.recipient}</span></LabeledRow>
             <LabeledRow label="Channel"><ChannelCell channel={log.channel} /></LabeledRow>
             <LabeledRow label="Subject"><span className="break-words">{log.subject}</span></LabeledRow>
             <LabeledRow label="Status"><Pill tone={STATUS_TONE[log.status]}>{log.status}</Pill></LabeledRow>
-            <LabeledRow label="Message ID"><span className="font-mono text-[#a3a3a3]">{log.msgId}</span></LabeledRow>
-            <LabeledRow label="Sent at"><span className="text-[#a3a3a3]">{log.time}</span></LabeledRow>
+            <LabeledRow label="Message ID"><span className="font-mono text-muted-foreground">{log.msgId}</span></LabeledRow>
+            <LabeledRow label="Sent at"><span className="text-muted-foreground">{log.time}</span></LabeledRow>
           </div>
 
           <div className="mt-4">
-            <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#737373]">Events</h3>
+            <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-secondary">Events</h3>
             <ol className="space-y-3">
               {events.map((ev, i) => (
                 <li key={i} className="flex items-center gap-3">
                   <span className="h-2 w-2 rounded-full" style={{ backgroundColor: EVENT_COLOR[ev.label] }} />
-                  <span className="flex-1 text-sm text-[#ededed]">{ev.label}</span>
-                  <span className="font-mono text-xs text-[#737373]">{ev.time}</span>
+                  <span className="flex-1 text-sm text-foreground">{ev.label}</span>
+                  <span className="font-mono text-xs text-text-secondary">{ev.time}</span>
                 </li>
               ))}
             </ol>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Close</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -154,25 +154,25 @@ export function MessageLogsScreen() {
         title="Message Logs"
         description="A searchable record of every transactional message and its delivery events."
         actions={
-          <Button variant="outline" className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+          <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
             <Download className="h-4 w-4" /> Export
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search recipient or subject…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {statusFilter === "All" ? "All statuses" : statusFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...STATUSES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", statusFilter === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
                 {s === "All" ? "All statuses" : s}
               </DropdownMenuItem>
             ))}
@@ -180,15 +180,15 @@ export function MessageLogsScreen() {
         </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {channelFilter === "All" ? "All channels" : channelFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by channel</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by channel</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...CHANNELS].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setChannelFilter(c)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", channelFilter === c && "text-white")}>
+              <DropdownMenuItem key={c} onSelect={() => setChannelFilter(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", channelFilter === c && "text-white")}>
                 {c === "All" ? "All channels" : c}
               </DropdownMenuItem>
             ))}
@@ -199,7 +199,7 @@ export function MessageLogsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Time</TableHead>
               <TableHead>Recipient</TableHead>
               <TableHead>Subject</TableHead>
@@ -210,10 +210,10 @@ export function MessageLogsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((l) => (
-              <TableRow key={l.id} className="border-[#2a2a2a]">
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{l.time}</TableCell>
-                <TableCell className="font-medium text-[#ededed]">{l.recipient}</TableCell>
-                <TableCell className="max-w-xs truncate text-[#a3a3a3]">{l.subject}</TableCell>
+              <TableRow key={l.id} className="border-border">
+                <TableCell className="whitespace-nowrap text-muted-foreground">{l.time}</TableCell>
+                <TableCell className="font-medium text-foreground">{l.recipient}</TableCell>
+                <TableCell className="max-w-xs truncate text-muted-foreground">{l.subject}</TableCell>
                 <TableCell><ChannelCell channel={l.channel} /></TableCell>
                 <TableCell><Pill tone={STATUS_TONE[l.status]}>{l.status}</Pill></TableCell>
                 <TableCell className="text-right">
@@ -226,8 +226,8 @@ export function MessageLogsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No messages found.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No messages found.</TableCell>
               </TableRow>
             )}
           </TableBody>

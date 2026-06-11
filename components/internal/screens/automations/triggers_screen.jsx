@@ -63,7 +63,7 @@ function CreateTriggerDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Trigger name" htmlFor="trg-name">
-            <Input id="trg-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. New subscriber" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="trg-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. New subscriber" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Category">
@@ -87,7 +87,7 @@ function CreateTriggerDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create trigger</Button>
         </DialogFooter>
       </DialogContent>
@@ -116,19 +116,19 @@ export function TriggersScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search triggers…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-44">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
               {typeFilter === "All" ? "All categories" : typeFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by category</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...Object.keys(EVENT_TYPES)].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", typeFilter === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}>
                 {t === "All" ? "All categories" : t}
               </DropdownMenuItem>
             ))}
@@ -139,7 +139,7 @@ export function TriggersScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Trigger</TableHead>
               <TableHead>Event</TableHead>
               <TableHead>Category</TableHead>
@@ -150,19 +150,19 @@ export function TriggersScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((t) => (
-              <TableRow key={t.id} className="border-[#2a2a2a]">
+              <TableRow key={t.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                       <MousePointerClick className="h-4 w-4" />
                     </span>
-                    <span className="font-medium text-[#ededed]">{t.name}</span>
+                    <span className="font-medium text-foreground">{t.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-[#a3a3a3]">{t.event}</TableCell>
+                <TableCell className="text-muted-foreground">{t.event}</TableCell>
                 <TableCell><Pill tone={EVENT_TYPES[t.type]}>{t.type}</Pill></TableCell>
-                <TableCell className="text-[#a3a3a3]">{t.source}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{t.usedIn} automations</TableCell>
+                <TableCell className="text-muted-foreground">{t.source}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{t.usedIn} automations</TableCell>
                 <TableCell className="text-right">
                   <RowActions items={[
                     { label: "Edit trigger", icon: Pencil },
@@ -173,7 +173,7 @@ export function TriggersScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent"><TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No triggers found.</TableCell></TableRow>
+              <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No triggers found.</TableCell></TableRow>
             )}
           </TableBody>
         </Table>

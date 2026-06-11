@@ -46,7 +46,7 @@ function CreateJourneyDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Journey name" htmlFor="jr-name">
-            <Input id="jr-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. New customer onboarding" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="jr-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. New customer onboarding" className="bg-background border-border" />
           </Field>
           <Field label="Entry condition">
             <Select value={form.trigger} onValueChange={(v) => setForm((f) => ({ ...f, trigger: v }))}>
@@ -56,7 +56,7 @@ function CreateJourneyDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create journey</Button>
         </DialogFooter>
       </DialogContent>
@@ -81,40 +81,40 @@ export function JourneysScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
+      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search journeys…" />
       </div>
 
       <div className="space-y-4">
         {filtered.map((j) => (
-          <div key={j.id} className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+          <div key={j.id} className="rounded-xl border border-border bg-surface-subtle p-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#a3a3a3]">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                   <Route className="h-4 w-4" />
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-[#ededed]">{j.name}</h3>
+                    <h3 className="font-medium text-foreground">{j.name}</h3>
                     <Pill tone={STATUS_TONE[j.status]}>{j.status}</Pill>
                   </div>
-                  <p className="text-xs text-[#737373]">{j.stages.length} stages</p>
+                  <p className="text-xs text-text-secondary">{j.stages.length} stages</p>
                 </div>
               </div>
 
               {/* Stats moved up, left of the menu */}
               <div className="flex items-center gap-4 sm:gap-6">
                 <div className="hidden items-center gap-2 text-sm sm:flex">
-                  <Users className="h-4 w-4 text-[#737373]" />
-                  <span className="font-medium text-[#ededed] tabular-nums">{j.active.toLocaleString()}</span>
-                  <span className="text-[#737373]">active</span>
+                  <Users className="h-4 w-4 text-text-secondary" />
+                  <span className="font-medium text-foreground tabular-nums">{j.active.toLocaleString()}</span>
+                  <span className="text-text-secondary">active</span>
                 </div>
                 <div className="hidden items-center gap-3 md:flex">
-                  <span className="text-xs text-[#737373]">Completion</span>
-                  <div className="h-1.5 w-[140px] overflow-hidden rounded-full bg-[#2a2a2a]">
+                  <span className="text-xs text-text-secondary">Completion</span>
+                  <div className="h-1.5 w-[140px] overflow-hidden rounded-full bg-surface-hover">
                     <div className="h-full rounded-full bg-[#ededed]" style={{ width: `${j.completion}%` }} />
                   </div>
-                  <span className="text-xs tabular-nums text-[#a3a3a3]">{j.completion}%</span>
+                  <span className="text-xs tabular-nums text-muted-foreground">{j.completion}%</span>
                 </div>
                 <RowActions items={[
                   { label: "Edit journey", icon: Pencil },
@@ -125,15 +125,15 @@ export function JourneysScreen() {
             </div>
 
             {/* Stage flow */}
-            <div className="mt-4 flex flex-wrap items-center gap-1.5 rounded-lg border border-[#2a2a2a] p-3">
+            <div className="mt-4 flex flex-wrap items-center gap-1.5 rounded-lg border border-border p-3">
               {j.stages.map((stage, i) => {
                 const Icon = STAGE_ICON[stage] || Mail;
                 return (
                   <React.Fragment key={i}>
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-[#2a2a2a] bg-[#242424] px-2.5 py-1 text-xs text-[#ededed]">
-                      <Icon className="h-3.5 w-3.5 text-[#a3a3a3]" /> {stage}
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-active px-2.5 py-1 text-xs text-foreground">
+                      <Icon className="h-3.5 w-3.5 text-muted-foreground" /> {stage}
                     </span>
-                    {i < j.stages.length - 1 && <ChevronRight className="h-3.5 w-3.5 text-[#525252]" />}
+                    {i < j.stages.length - 1 && <ChevronRight className="h-3.5 w-3.5 text-text-tertiary" />}
                   </React.Fragment>
                 );
               })}
@@ -142,16 +142,16 @@ export function JourneysScreen() {
             {/* Compact stats for small screens */}
             <div className="mt-3 flex items-center gap-4 sm:hidden">
               <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-[#737373]" />
-                <span className="font-medium text-[#ededed] tabular-nums">{j.active.toLocaleString()}</span>
-                <span className="text-[#737373]">active</span>
+                <Users className="h-4 w-4 text-text-secondary" />
+                <span className="font-medium text-foreground tabular-nums">{j.active.toLocaleString()}</span>
+                <span className="text-text-secondary">active</span>
               </div>
-              <span className="text-xs tabular-nums text-[#a3a3a3]">{j.completion}% complete</span>
+              <span className="text-xs tabular-nums text-muted-foreground">{j.completion}% complete</span>
             </div>
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] py-16 text-center text-sm text-[#737373]">No journeys found.</div>
+          <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">No journeys found.</div>
         )}
       </div>
 

@@ -90,7 +90,7 @@ function AddSuppressionDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Email address" htmlFor="sup-email">
-            <Input id="sup-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="name@company.com" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="sup-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="name@company.com" className="bg-background border-border" />
           </Field>
           <Field label="Reason">
             <Select value={form.reason} onValueChange={(v) => setForm((f) => ({ ...f, reason: v }))}>
@@ -105,7 +105,7 @@ function AddSuppressionDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Suppress address</Button>
         </DialogFooter>
       </DialogContent>
@@ -142,23 +142,23 @@ export function SuppressionScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <SearchInput value={query} onChange={setQuery} placeholder="Search email…" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-44">
+              <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
                 {reasonFilter === "All" ? "All reasons" : reasonFilter}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-              <DropdownMenuLabel className="text-[#737373]">Filter by reason</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+            <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+              <DropdownMenuLabel className="text-text-secondary">Filter by reason</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
               {["All", ...REASONS].map((r) => (
                 <DropdownMenuItem
                   key={r}
                   onSelect={() => setReasonFilter(r)}
-                  className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", reasonFilter === r && "text-white")}
+                  className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", reasonFilter === r && "text-white")}
                 >
                   {r === "All" ? "All reasons" : r}
                 </DropdownMenuItem>
@@ -166,7 +166,7 @@ export function SuppressionScreen() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Button variant="outline" className="h-9 border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a]">
+        <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
           <Download className="h-4 w-4" /> Export
         </Button>
       </div>
@@ -174,7 +174,7 @@ export function SuppressionScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Email address</TableHead>
               <TableHead>Reason</TableHead>
               <TableHead>Source</TableHead>
@@ -184,18 +184,18 @@ export function SuppressionScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((e) => (
-              <TableRow key={e.id} className="border-[#2a2a2a]">
+              <TableRow key={e.id} className="border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#242424] text-[#737373]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-text-secondary">
                       <ShieldOff className="h-4 w-4" />
                     </span>
-                    <span className="font-medium text-[#ededed]">{e.email}</span>
+                    <span className="font-medium text-foreground">{e.email}</span>
                   </div>
                 </TableCell>
                 <TableCell><Pill tone={REASON_TONE[e.reason]}>{e.reason}</Pill></TableCell>
-                <TableCell className="text-[#a3a3a3]">{e.source}</TableCell>
-                <TableCell className="whitespace-nowrap text-[#a3a3a3]">{e.added}</TableCell>
+                <TableCell className="text-muted-foreground">{e.source}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{e.added}</TableCell>
                 <TableCell className="text-right">
                   <RowActions
                     items={[
@@ -207,8 +207,8 @@ export function SuppressionScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-[#737373]">No suppressed addresses match your filters.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No suppressed addresses match your filters.</TableCell>
               </TableRow>
             )}
           </TableBody>

@@ -53,11 +53,11 @@ function ValidateDialog({ open, onOpenChange, onValidate }) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={"jordan@example.com\nsales@example.com"}
-            className="min-h-[160px] bg-[#161616] border-[#2a2a2a] font-mono text-sm"
+            className="min-h-[160px] bg-background border-border font-mono text-sm"
           />
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!text.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Validate</Button>
         </DialogFooter>
       </DialogContent>
@@ -110,32 +110,32 @@ export function EmailValidationScreen() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Summary */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <ListChecks className="h-4 w-4 text-[#737373]" />
-            <h2 className="text-sm font-semibold text-[#ededed]">Results summary</h2>
+            <ListChecks className="h-4 w-4 text-text-secondary" />
+            <h2 className="text-sm font-semibold text-foreground">Results summary</h2>
           </div>
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
-            <span className="text-sm text-[#a3a3a3]">Total checked</span>
-            <span className="tabular-nums text-sm font-semibold text-[#ededed]">{counts.total.toLocaleString()}</span>
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
+            <span className="text-sm text-muted-foreground">Total checked</span>
+            <span className="tabular-nums text-sm font-semibold text-foreground">{counts.total.toLocaleString()}</span>
           </div>
           {summaryRows.map((s) => (
-            <div key={s.label} className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+            <div key={s.label} className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
               <Pill tone={s.tone}>{s.label}</Pill>
-              <span className="tabular-nums text-sm font-semibold text-[#ededed]">{s.value.toLocaleString()}</span>
+              <span className="tabular-nums text-sm font-semibold text-foreground">{s.value.toLocaleString()}</span>
             </div>
           ))}
         </div>
 
         {/* Results table */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-[#ededed]">Validation results</h2>
+          <h2 className="text-sm font-semibold text-foreground">Validation results</h2>
           <TableShell>
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Email</TableHead>
                   <TableHead>Result</TableHead>
                   <TableHead>Reason</TableHead>
@@ -144,18 +144,18 @@ export function EmailValidationScreen() {
               </TableHeader>
               <TableBody>
                 {results.map((r) => (
-                  <TableRow key={r.id} className="border-[#2a2a2a]">
-                    <TableCell className="font-mono text-xs text-[#ededed]">{r.email}</TableCell>
+                  <TableRow key={r.id} className="border-border">
+                    <TableCell className="font-mono text-xs text-foreground">{r.email}</TableCell>
                     <TableCell><Pill tone={RESULT_TONE[r.result]}>{r.result}</Pill></TableCell>
-                    <TableCell className="text-[#a3a3a3]">{r.reason}</TableCell>
+                    <TableCell className="text-muted-foreground">{r.reason}</TableCell>
                     <TableCell className="text-right">
                       <RowActions items={[{ label: "Remove", icon: Trash2, danger: true, onSelect: () => remove(r.id) }]} />
                     </TableCell>
                   </TableRow>
                 ))}
                 {results.length === 0 && (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                    <TableCell colSpan={4} className="py-14 text-center text-sm text-[#737373]">No results yet.</TableCell>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableCell colSpan={4} className="py-14 text-center text-sm text-text-secondary">No results yet.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

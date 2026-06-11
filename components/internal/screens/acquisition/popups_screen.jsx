@@ -58,7 +58,7 @@ function CreatePopupDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Popup name" htmlFor="popup-name">
-            <Input id="popup-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome 15% Off" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="popup-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome 15% Off" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Trigger">
@@ -76,7 +76,7 @@ function CreatePopupDialog({ open, onOpenChange, onCreate }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create popup</Button>
         </DialogFooter>
       </DialogContent>
@@ -110,19 +110,19 @@ export function PopupsScreen() {
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-[#242424] pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search popups…" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-[#2a2a2a] bg-[#202020] text-[#ededed] hover:bg-[#1a1a1a] sm:w-40">
+            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
               {status === "All" ? "All statuses" : status}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-[#2a2a2a] bg-[#202020] text-[#ededed]">
-            <DropdownMenuLabel className="text-[#737373]">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-surface-hover" />
             {STATUSES.map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer focus:bg-[#2a2a2a] focus:text-white", status === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", status === s && "text-white")}>
                 {s === "All" ? "All statuses" : s}
               </DropdownMenuItem>
             ))}
@@ -133,7 +133,7 @@ export function PopupsScreen() {
       <TableShell>
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
               <TableHead>Popup</TableHead>
               <TableHead>Trigger</TableHead>
               <TableHead>Type</TableHead>
@@ -145,18 +145,18 @@ export function PopupsScreen() {
           </TableHeader>
           <TableBody>
             {filtered.map((p) => (
-              <TableRow key={p.id} className="border-[#2a2a2a]">
-                <TableCell><span className="font-medium text-[#ededed]">{p.name}</span></TableCell>
+              <TableRow key={p.id} className="border-border">
+                <TableCell><span className="font-medium text-foreground">{p.name}</span></TableCell>
                 <TableCell><Pill tone={TRIGGER_TONE[p.trigger]}>{p.trigger}</Pill></TableCell>
-                <TableCell className="text-[#a3a3a3]">{p.type}</TableCell>
-                <TableCell className="tabular-nums text-[#a3a3a3]">{p.impressions ? p.impressions.toLocaleString() : "—"}</TableCell>
+                <TableCell className="text-muted-foreground">{p.type}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{p.impressions ? p.impressions.toLocaleString() : "—"}</TableCell>
                 <TableCell>
                   {p.conversion > 0 ? (
                     <div className="w-[120px] space-y-1.5">
-                      <Progress value={p.conversion} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                      <p className="text-xs text-[#737373]">{p.conversion}%</p>
+                      <Progress value={p.conversion} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                      <p className="text-xs text-text-secondary">{p.conversion}%</p>
                     </div>
-                  ) : <span className="text-[#737373]">—</span>}
+                  ) : <span className="text-text-secondary">—</span>}
                 </TableCell>
                 <TableCell><Pill tone={STATUS_TONE[p.status]}>{p.status}</Pill></TableCell>
                 <TableCell className="text-right">
@@ -172,8 +172,8 @@ export function PopupsScreen() {
               </TableRow>
             ))}
             {filtered.length === 0 && (
-              <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-[#737373]">No popups match your filters.</TableCell>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No popups match your filters.</TableCell>
               </TableRow>
             )}
           </TableBody>

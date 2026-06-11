@@ -121,7 +121,7 @@ const TOP_CAMPAIGNS = [
 const STATUS_META = {
   Sent: { label: "Sent", className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
   Live: { label: "Live", className: "bg-blue-500/15 text-blue-300 border-blue-500/30" },
-  Draft: { label: "Draft", className: "bg-zinc-500/15 text-zinc-300 border-zinc-500/30" },
+  Draft: { label: "Draft", className: "bg-zinc-500/15 text-muted-foreground border-zinc-500/30" },
 };
 
 const PERFORMANCE_CONFIG = {
@@ -150,7 +150,7 @@ const AUDIENCE_CONFIG = {
   subscribers: { label: "New subscribers", color: SERIES[0] },
 };
 
-const TOOLTIP_CLASS = "bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]";
+const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
 
 // --- Rolling number (odometer) — copied from geiger-events overview ----------
 
@@ -217,7 +217,7 @@ function Panel({ children, className }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] text-[#e7e7e7]",
+        "rounded-xl border border-border bg-surface-subtle text-foreground",
         className,
       )}
     >
@@ -230,8 +230,8 @@ function PanelHeader({ title, subtitle, action }) {
   return (
     <div className="flex items-start justify-between gap-3 px-5 pt-4">
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold text-[#ededed]">{title}</h3>
-        {subtitle && <p className="text-xs text-[#737373]">{subtitle}</p>}
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        {subtitle && <p className="text-xs text-text-secondary">{subtitle}</p>}
       </div>
       {action}
     </div>
@@ -252,10 +252,10 @@ function PerformanceCard() {
   return (
     <Panel className="overflow-hidden">
       {/* Header with interactive stat tiles (shadcn line-chart-interactive) */}
-      <div className="flex flex-col items-stretch border-b border-[#2a2a2a] sm:flex-row">
+      <div className="flex flex-col items-stretch border-b border-border sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-5 py-4">
-          <h3 className="text-sm font-semibold text-[#ededed]">Campaign Performance</h3>
-          <p className="text-xs text-[#737373]">Totals over the last 12 weeks.</p>
+          <h3 className="text-sm font-semibold text-foreground">Campaign Performance</h3>
+          <p className="text-xs text-text-secondary">Totals over the last 12 weeks.</p>
         </div>
         <div className="flex">
           {["sends", "opens", "clicks"].map((key) => (
@@ -264,9 +264,9 @@ function PerformanceCard() {
               type="button"
               data-active={activeChart === key}
               onClick={() => setActiveChart(key)}
-              className="flex flex-1 flex-col justify-center gap-1 border-t border-[#2a2a2a] px-5 py-4 text-left transition-colors hover:bg-[#1f1f1f] data-[active=true]:bg-[#202020] sm:border-t-0 sm:border-l sm:px-7"
+              className="flex flex-1 flex-col justify-center gap-1 border-t border-border px-5 py-4 text-left transition-colors hover:bg-surface-card data-[active=true]:bg-surface-card sm:border-t-0 sm:border-l sm:px-7"
             >
-              <span className="text-[11px] uppercase tracking-wider text-[#737373]">
+              <span className="text-[11px] uppercase tracking-wider text-text-secondary">
                 {PERFORMANCE_CONFIG[key].label}
               </span>
               <RollingNumber
@@ -314,7 +314,7 @@ function PerformanceCard() {
               <LabelList
                 position="top"
                 offset={10}
-                className="fill-[#e7e7e7]"
+                className="fill-foreground"
                 fontSize={11}
                 formatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v)}
               />
@@ -369,7 +369,7 @@ function DeliverabilityCard() {
       <div className="px-3 pb-3 pt-2">
         <ChartContainer
           config={DELIVERABILITY_CONFIG}
-          className="[&_.recharts-text]:fill-[#e7e7e7] mx-auto aspect-square max-h-[220px]"
+          className="[&_.recharts-text]:fill-foreground mx-auto aspect-square max-h-[220px]"
         >
           <PieChart>
             <ChartTooltip
@@ -386,7 +386,7 @@ function DeliverabilityCard() {
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: d.fill }} />
                 {d.metric}
               </span>
-              <span className="tabular-nums font-medium text-[#ededed]">{d.value}%</span>
+              <span className="tabular-nums font-medium text-foreground">{d.value}%</span>
             </div>
           ))}
         </div>
@@ -440,21 +440,21 @@ function TopCampaignsTable() {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-[#ededed]">Top Campaigns</h3>
-          <p className="text-xs text-[#737373]">Performance by campaign this period.</p>
+          <h3 className="text-sm font-semibold text-foreground">Top Campaigns</h3>
+          <p className="text-xs text-text-secondary">Performance by campaign this period.</p>
         </div>
         <Button
           variant="ghost"
-          className="text-xs font-medium text-[#737373] hover:text-[#e7e7e7] hover:bg-[#252525] px-2 py-1 rounded-lg"
+          className="text-xs font-medium text-text-secondary hover:text-foreground hover:bg-surface-active px-2 py-1 rounded-lg"
         >
           View all
         </Button>
       </div>
 
-      <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl overflow-hidden">
+      <div className="bg-surface-card border border-border rounded-2xl overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-[#1a1a1a] border-[#2a2a2a]">
+            <TableRow className="bg-surface-subtle border-border">
               <TableHead>Campaign</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Recipients</TableHead>
@@ -468,11 +468,11 @@ function TopCampaignsTable() {
             {TOP_CAMPAIGNS.map((c) => {
               const meta = STATUS_META[c.status] || STATUS_META.Draft;
               return (
-                <TableRow key={c.name} className="border-[#2a2a2a] hover:bg-[#242424]">
+                <TableRow key={c.name} className="border-border hover:bg-surface-active">
                   <TableCell>
                     <div className="flex flex-col gap-1">
-                      <span className="font-medium text-[#ededed]">{c.name}</span>
-                      <p className="line-clamp-1 text-xs text-[#737373]">{c.description}</p>
+                      <span className="font-medium text-foreground">{c.name}</span>
+                      <p className="line-clamp-1 text-xs text-text-secondary">{c.description}</p>
                     </div>
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
@@ -485,20 +485,20 @@ function TopCampaignsTable() {
                       {meta.label}
                     </Badge>
                   </TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">
+                  <TableCell className="tabular-nums text-muted-foreground">
                     {c.recipients.toLocaleString()}
                   </TableCell>
                   <TableCell>
                     <div className="w-[130px] space-y-1.5">
                       <Progress
                         value={c.openRate}
-                        className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                        className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]"
                       />
-                      <p className="text-xs text-[#737373]">{c.openRate}%</p>
+                      <p className="text-xs text-text-secondary">{c.openRate}%</p>
                     </div>
                   </TableCell>
-                  <TableCell className="tabular-nums text-[#a3a3a3]">{c.ctr}%</TableCell>
-                  <TableCell className="tabular-nums font-medium text-[#ededed]">
+                  <TableCell className="tabular-nums text-muted-foreground">{c.ctr}%</TableCell>
+                  <TableCell className="tabular-nums font-medium text-foreground">
                     {c.revenue}
                   </TableCell>
                   <TableCell className="text-right">
@@ -506,7 +506,7 @@ function TopCampaignsTable() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="text-[#a3a3a3] hover:text-white hover:bg-[#252525]"
+                      className="text-muted-foreground hover:text-foreground hover:bg-surface-active"
                     >
                       <ArrowUpRight className="h-4 w-4" />
                     </Button>
@@ -535,12 +535,12 @@ export function CampaignOverviewScreen() {
           <h1 className="text-2xl font-bold text-white tracking-tight">
             Campaign Overview
           </h1>
-          <span className="bg-[#1a1a1a] text-[#737373] text-[9px] px-1.5 py-0.5 rounded border border-[#2a2a2a] font-mono tracking-widest shrink-0">
+          <span className="bg-surface-subtle text-text-secondary text-[9px] px-1.5 py-0.5 rounded border border-border font-mono tracking-widest shrink-0">
             WORKSPACE
           </span>
         </div>
               <div className="w-full mt-2">
-        <p className="text-zinc-500 text-sm text-center md:text-left max-w-xl">
+        <p className="text-foreground0 text-sm text-center md:text-left max-w-xl">
           Track sends, deliverability, engagement, and revenue across all your
           campaigns.
         </p>
@@ -549,19 +549,19 @@ export function CampaignOverviewScreen() {
         <div className="w-full md:w-auto">
           <div className="flex w-full md:w-auto md:gap-0">
             <div className="flex-1 md:flex-none flex flex-col items-center md:pr-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+              <span className="text-text-secondary text-[11px] uppercase tracking-wider font-medium">
                 Campaigns
               </span>
               <RollingNumber value="12" className="text-white font-bold text-2xl mt-0.5" />
             </div>
-            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-[#2a2a2a] md:px-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-border md:px-8">
+              <span className="text-text-secondary text-[11px] uppercase tracking-wider font-medium">
                 Subscribers
               </span>
               <RollingNumber value="48.2k" className="text-white font-bold text-2xl mt-0.5" />
             </div>
-            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-[#2a2a2a] md:pl-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-border md:pl-8">
+              <span className="text-text-secondary text-[11px] uppercase tracking-wider font-medium">
                 Avg. Open
               </span>
               <RollingNumber value="42%" className="text-white font-bold text-2xl mt-0.5" />
@@ -570,7 +570,7 @@ export function CampaignOverviewScreen() {
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#242424]">
+      <div className="pt-4 border-t border-surface-active">
         <FilterDropdown value={filterValue} onValueChange={setFilterValue} />
       </div>
 

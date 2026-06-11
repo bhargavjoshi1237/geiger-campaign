@@ -41,13 +41,13 @@ export function SendTimeScreen() {
         description="Deliver each message when a contact is most likely to open it."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-[#242424] pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <div className="space-y-0.5">
               <p className="text-sm font-medium text-[#e5e5e5]">Enable optimization</p>
-              <p className="text-xs text-[#737373]">Applies to all broadcast campaigns.</p>
+              <p className="text-xs text-text-secondary">Applies to all broadcast campaigns.</p>
             </div>
             <Switch checked={enabled} onCheckedChange={setEnabled} />
           </div>
@@ -81,22 +81,22 @@ export function SendTimeScreen() {
         </div>
 
         {/* Heatmap */}
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="rounded-xl border border-border bg-surface-subtle p-5">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-[#737373]" />
-            <h3 className="text-sm font-semibold text-[#ededed]">Engagement by send time</h3>
+            <Clock className="h-4 w-4 text-text-secondary" />
+            <h3 className="text-sm font-semibold text-foreground">Engagement by send time</h3>
           </div>
-          <p className="mt-1 text-xs text-[#737373]">Open rate across the last 90 days, by day and hour.</p>
+          <p className="mt-1 text-xs text-text-secondary">Open rate across the last 90 days, by day and hour.</p>
 
           <div className="mt-5 overflow-x-auto">
             <div className="min-w-[440px]">
               <div className="mb-1 grid grid-cols-[40px_repeat(9,1fr)] gap-1">
                 <span />
-                {HOURS.map((h) => <span key={h} className="text-center text-[10px] text-[#737373]">{h}</span>)}
+                {HOURS.map((h) => <span key={h} className="text-center text-[10px] text-text-secondary">{h}</span>)}
               </div>
               {DAYS.map((day, d) => (
                 <div key={day} className="mb-1 grid grid-cols-[40px_repeat(9,1fr)] items-center gap-1">
-                  <span className="text-[11px] text-[#737373]">{day}</span>
+                  <span className="text-[11px] text-text-secondary">{day}</span>
                   {HOURS.map((_, h) => {
                     const v = intensity(d, h);
                     return <span key={h} className="aspect-square rounded-[3px]" style={{ backgroundColor: HEAT[v] }} title={`${day} ${HOURS[h]}`} />;
@@ -106,7 +106,7 @@ export function SendTimeScreen() {
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-end gap-2 text-[10px] text-[#737373]">
+          <div className="mt-4 flex items-center justify-end gap-2 text-[10px] text-text-secondary">
             Less
             {HEAT.map((c) => <span key={c} className="h-3 w-3 rounded-[3px]" style={{ backgroundColor: c }} />)}
             More

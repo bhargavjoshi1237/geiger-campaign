@@ -60,7 +60,7 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <DialogBody className="space-y-4 py-4">
           <Field label="Key name" htmlFor="k-name">
-            <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production server" className="bg-[#161616] border-[#2a2a2a]" />
+            <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production server" className="bg-background border-border" />
           </Field>
           <Field label="Environment">
             <Select value={form.env} onValueChange={(v) => setForm((f) => ({ ...f, env: v }))}>
@@ -82,7 +82,7 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[#a3a3a3] hover:bg-[#242424] hover:text-white">Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create key</Button>
         </DialogFooter>
       </DialogContent>
@@ -108,31 +108,31 @@ export function EmailApiScreen() {
         }
       />
 
-      <div className="border-t border-[#242424] pt-4">
-        <div className="space-y-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="border-t border-surface-active pt-4">
+        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
         <Field label="Endpoint">
-          <div className="flex items-center gap-2 rounded-md border border-[#2a2a2a] bg-[#161616] px-3 py-2 font-mono text-sm text-[#a3a3a3]">
-            <Code className="h-4 w-4 shrink-0 text-[#737373]" />
+          <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">
+            <Code className="h-4 w-4 shrink-0 text-text-secondary" />
             POST https://api.geiger.studio/v1/email/send
           </div>
         </Field>
         <Field label="Example request">
-          <pre className="overflow-x-auto rounded-lg border border-[#2a2a2a] bg-[#161616] p-4 text-xs leading-relaxed text-[#a3a3a3] font-mono">
+          <pre className="overflow-x-auto rounded-lg border border-border bg-background p-4 text-xs leading-relaxed text-muted-foreground font-mono">
 {CURL_EXAMPLE}
           </pre>
         </Field>
         </div>
       </div>
 
-      <div className="space-y-3 border-t border-[#242424] pt-4">
+      <div className="space-y-3 border-t border-surface-active pt-4">
         <div className="flex items-center gap-2">
-          <KeyRound className="h-4 w-4 text-[#737373]" />
-          <h2 className="text-sm font-semibold text-[#ededed]">API keys</h2>
+          <KeyRound className="h-4 w-4 text-text-secondary" />
+          <h2 className="text-sm font-semibold text-foreground">API keys</h2>
         </div>
         <TableShell>
           <Table>
             <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                 <TableHead>Name</TableHead>
                 <TableHead>Key</TableHead>
                 <TableHead>Environment</TableHead>
@@ -143,12 +143,12 @@ export function EmailApiScreen() {
             </TableHeader>
             <TableBody>
               {keys.map((k) => (
-                <TableRow key={k.id} className="border-[#2a2a2a]">
-                  <TableCell className="font-medium text-[#ededed]">{k.name}</TableCell>
-                  <TableCell className="font-mono text-[#a3a3a3]">{k.key}</TableCell>
+                <TableRow key={k.id} className="border-border">
+                  <TableCell className="font-medium text-foreground">{k.name}</TableCell>
+                  <TableCell className="font-mono text-muted-foreground">{k.key}</TableCell>
                   <TableCell><Pill tone={k.env === "Live" ? "green" : "amber"}>{k.env}</Pill></TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{k.created}</TableCell>
-                  <TableCell className="whitespace-nowrap text-[#a3a3a3]">{k.lastUsed}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{k.created}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{k.lastUsed}</TableCell>
                   <TableCell className="text-right">
                     <RowActions
                       items={[
@@ -161,8 +161,8 @@ export function EmailApiScreen() {
                 </TableRow>
               ))}
               {keys.length === 0 && (
-                <TableRow className="border-[#2a2a2a] hover:bg-transparent">
-                  <TableCell colSpan={6} className="py-14 text-center text-sm text-[#737373]">No API keys found.</TableCell>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No API keys found.</TableCell>
                 </TableRow>
               )}
             </TableBody>
