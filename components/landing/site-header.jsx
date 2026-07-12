@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getUser } from "@/lib/supabase/user";
 import { ProfileDropdown } from "@/components/internal/topbar/dialogue/profile_dropdown";
-import { MegaMenu } from "@/components/mega-menu";
+import { SuiteMegaMenu } from "@/components/landing/suite-mega-menu";
 
 const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -33,7 +33,7 @@ export function SiteHeader({ productName = "Campaign", ctaHref = "/home" }) {
           </span>
         </Link>
 
-        <MegaMenu dashboardHref={ctaHref} />
+        <SuiteMegaMenu />
 
         <div className="hidden items-center gap-4 md:flex">
           {user ? (

@@ -6,6 +6,20 @@ import LandingCampaignShowcase from "@/components/campaign-playground/LandingCam
 
 const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
+const showcaseBackgroundImages = [
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-00a586c62c8782e65c0a.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/internal-brand-023-3291bb4c.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-0ec1f3ba625f482c9dc3.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-85923e7fafe00c9c0d1f.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-8e2e88cff7f33224ddd7.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-0a66efa21dd4b7e6c526.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-cc24ca462279ca23250c.jpg",
+];
+
+function pickRandomShowcaseBackground() {
+  return showcaseBackgroundImages[Math.floor(Math.random() * showcaseBackgroundImages.length)];
+}
+
 export const metadata = {
   title: "Campaign - Geiger Studio",
   description: "Plan, launch, and track campaigns in one focused workspace.",
@@ -56,7 +70,7 @@ function Footer() {
           <div>
             <h4 className="mb-4 font-bold text-foreground">Product</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/home" className="transition-colors hover:text-foreground">Workspace</Link></li>
+              <li><Link href="/org" className="transition-colors hover:text-foreground">Workspace</Link></li>
               <li><Link href="#features" className="transition-colors hover:text-foreground">Features</Link></li>
             </ul>
           </div>
@@ -82,11 +96,12 @@ function Footer() {
 }
 
 export default function CampaignLandingPage() {
+  const showcaseBg = pickRandomShowcaseBackground();
   return (
     <div className="flex min-h-screen w-full flex-col bg-background font-sans text-foreground selection:bg-indigo-500/30">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(to_right,#80808030_1px,transparent_1px),linear-gradient(to_bottom,#80808030_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      <SiteHeader productName="Campaign" />
+      <SiteHeader productName="Campaign" ctaHref="/org" />
 
       <main className="relative z-10 flex flex-1 flex-col pt-16 sm:pt-20">
         <section className="mx-auto mb-10 mt-10 flex w-full max-w-6xl items-start justify-start px-4 sm:mt-16 sm:px-6">
@@ -98,7 +113,7 @@ export default function CampaignLandingPage() {
               Geiger Campaign brings campaign management, audience targeting, content scheduling, and analytics into a focused workspace for your team.
             </p>
             <Link
-              href="/home"
+              href="/org"
               className="inline-flex h-10 items-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white sm:text-base"
             >
               Continue to Campaign
@@ -108,7 +123,7 @@ export default function CampaignLandingPage() {
         </section>
 
         <div className="mx-auto my-10 w-[94%] sm:my-20 md:w-[80%]">
-          <LandingCampaignShowcase />
+          <LandingCampaignShowcase backgroundImage={showcaseBg} />
         </div>
 
         <section id="features" className="mx-auto grid w-full max-w-6xl gap-4 px-4 sm:px-6 md:grid-cols-3">
@@ -136,7 +151,7 @@ export default function CampaignLandingPage() {
               TRY GEIGER NOW
             </h2>
             <Link
-              href="/home"
+              href="/org"
               className="inline-flex h-10 items-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white"
             >
               Open Campaign
