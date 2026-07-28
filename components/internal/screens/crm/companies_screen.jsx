@@ -5,17 +5,27 @@ import { Plus, Building2, Pencil, Handshake, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const INDUSTRIES = ["Logistics", "Software", "Finance", "Manufacturing", "Media", "Telecom"];
 const SIZES = ["1–10", "11–50", "51–200", "201–500", "501–1000", "1000+"];
@@ -55,7 +65,7 @@ function AddCompanyDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add company</DialogTitle>
           <DialogDescription>Create an organization record for your contacts and deals.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Company name" htmlFor="co-name">
             <Input id="co-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="Northwind Logistics" className="bg-background border-border" />
           </Field>
@@ -65,7 +75,7 @@ function AddCompanyDialog({ open, onOpenChange, onCreate }) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Industry">
               <Select value={form.industry} onValueChange={set("industry")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {INDUSTRIES.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
                 </SelectContent>
@@ -73,14 +83,14 @@ function AddCompanyDialog({ open, onOpenChange, onCreate }) {
             </Field>
             <Field label="Size">
               <Select value={form.size} onValueChange={set("size")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {SIZES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add company</Button>

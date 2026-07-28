@@ -6,22 +6,35 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Textarea,
+} from "@geiger/ui";
 
 const TYPE_TONE = {
   Welcome: "green",
@@ -65,13 +78,13 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New template</DialogTitle>
           <DialogDescription>Create a reusable template for a system-generated email.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Template name" htmlFor="t-name">
             <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Welcome email" className="bg-background border-border" />
           </Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
@@ -83,7 +96,7 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
           <Field label="Body" htmlFor="t-body" hint="Supports merge tags like {{first_name}} and {{order_id}}.">
             <Textarea id="t-body" value={form.body} onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))} placeholder="Hi {{first_name}}, …" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create template</Button>

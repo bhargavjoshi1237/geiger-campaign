@@ -5,18 +5,28 @@ import { Plus, Smartphone, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const TYPE_TONE = {
   "Long code": "zinc",
@@ -57,23 +67,23 @@ function AddNumberDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add sending number</DialogTitle>
           <DialogDescription>Provision a new number for SMS campaigns. It activates once carrier registration completes.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Country">
             <Select value={form.country} onValueChange={(v) => setForm((f) => ({ ...f, country: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <Field label="Number type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{NUMBER_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <Field label="Preferred area code" htmlFor="n-area" hint="We'll provision an available number.">
             <Input id="n-area" value={form.areaCode} onChange={(e) => setForm((f) => ({ ...f, areaCode: e.target.value }))} placeholder="e.g. 415" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Add number</Button>
@@ -113,7 +123,7 @@ export function SmsScreen() {
 
           <Field label="Default sender number">
             <Select value={defaultNumber} onValueChange={setDefaultNumber}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {numbers.map((n) => <SelectItem key={n.id} value={n.number}>{n.number}</SelectItem>)}
               </SelectContent>

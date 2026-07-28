@@ -8,14 +8,22 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { SearchInput, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Input,
+} from "@geiger/ui";
 
 const RECIPES = [
   { id: 1, name: "Welcome new subscribers", description: "Greet new contacts and set expectations over 3 emails.", category: "Onboarding", steps: 5, icon: UserPlus },
@@ -38,11 +46,11 @@ function UseRecipeDialog({ recipe, onOpenChange }) {
           <DialogTitle>Use “{recipe.name}”</DialogTitle>
           <DialogDescription>We'll create a new workflow pre-built with {recipe.steps} steps. You can customize everything after.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="py-4">
+        <div className="py-4">
           <Field label="New workflow name" htmlFor="rc-name">
             <Input id="rc-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={recipe.name} className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={() => onOpenChange(null)} className="bg-white text-black hover:bg-[#e5e5e5]">Create from recipe</Button>

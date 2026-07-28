@@ -6,18 +6,28 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from "@geiger/ui";
 
 const TYPE_META = {
   Call: { icon: Phone, color: "bg-blue-500/15 text-blue-300 border-blue-500/30" },
@@ -68,10 +78,10 @@ function LogActivityDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Log activity</DialogTitle>
           <DialogDescription>Record an interaction on your CRM timeline.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Type">
             <Select value={form.type} onValueChange={set("type")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
@@ -86,7 +96,7 @@ function LogActivityDialog({ open, onOpenChange, onCreate }) {
           <Field label="Note">
             <Textarea value={form.note} onChange={(e) => set("note")(e.target.value)} placeholder="Add context or next steps…" className="min-h-[80px] bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Log activity</Button>

@@ -5,7 +5,6 @@ import { Plus, Tag as TagIcon, Pencil, Trash2, Merge, Hash } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
 import {
   TableShell,
   SearchInput,
@@ -13,33 +12,29 @@ import {
   RowActions,
   Field,
 } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  SegmentedTabs,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 
 const TAG_COLORS = [
   { name: "Emerald", value: "#34d399" },
@@ -87,7 +82,7 @@ function CreateTagDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create tag</DialogTitle>
           <DialogDescription>Tags are lightweight labels you can apply to any contact.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Tag name" htmlFor="t-name">
             <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP" className="bg-background border-border" />
           </Field>
@@ -109,7 +104,7 @@ function CreateTagDialog({ open, onOpenChange, onCreate }) {
               ))}
             </div>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create tag</Button>
@@ -137,7 +132,7 @@ function CreateFieldDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New custom field</DialogTitle>
           <DialogDescription>Custom fields store structured data on every contact.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Field label" htmlFor="f-label">
             <Input id="f-label" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} placeholder="e.g. Company" className="bg-background border-border" />
           </Field>
@@ -148,7 +143,7 @@ function CreateFieldDialog({ open, onOpenChange, onCreate }) {
           </Field>
           <Field label="Field type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {FIELD_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
@@ -161,7 +156,7 @@ function CreateFieldDialog({ open, onOpenChange, onCreate }) {
             </div>
             <Switch checked={form.required} onCheckedChange={(v) => setForm((f) => ({ ...f, required: v }))} />
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.label.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create field</Button>

@@ -5,11 +5,15 @@ import { Sparkles, RotateCcw, Copy } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from "@geiger/ui";
 
 const CONTENT_TYPES = ["Email body", "Ad", "Social post", "Product description"];
 const TONES = ["Friendly", "Professional", "Bold", "Playful"];
@@ -85,7 +89,7 @@ export function CopyGeneratorScreen() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Field label="Content type">
             <Select value={contentType} onValueChange={setContentType}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {CONTENT_TYPES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
@@ -93,7 +97,7 @@ export function CopyGeneratorScreen() {
           </Field>
           <Field label="Tone">
             <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {TONES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
@@ -101,7 +105,7 @@ export function CopyGeneratorScreen() {
           </Field>
           <Field label="Length">
             <Select value={length} onValueChange={setLength}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {LENGTHS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
               </SelectContent>

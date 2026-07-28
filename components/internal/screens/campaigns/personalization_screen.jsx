@@ -4,19 +4,29 @@ import React, { useState } from "react";
 import { Plus, Braces, SplitSquareVertical, Pencil, Copy, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
 import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  SegmentedTabs,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const SOURCE_FIELDS = ["First name", "Last name", "Company", "Plan tier", "City", "Last order"];
 
@@ -48,10 +58,10 @@ function AddTokenDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New merge tag</DialogTitle>
           <DialogDescription>Merge tags insert per-contact values into your content.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Source field">
             <Select value={form.source} onValueChange={(v) => setForm((f) => ({ ...f, source: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{SOURCE_FIELDS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
@@ -61,7 +71,7 @@ function AddTokenDialog({ open, onOpenChange, onCreate }) {
           <Field label="Fallback value" htmlFor="p-fallback" hint="Shown when a contact has no value for this field.">
             <Input id="p-fallback" value={form.fallback} onChange={(e) => setForm((f) => ({ ...f, fallback: e.target.value }))} placeholder="e.g. there" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Create tag</Button>

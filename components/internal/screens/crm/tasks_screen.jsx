@@ -6,18 +6,28 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 
 const PRIORITY_TONE = { High: "red", Medium: "amber", Low: "zinc" };
 const PRIORITIES = ["High", "Medium", "Low"];
@@ -59,7 +69,7 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add task</DialogTitle>
           <DialogDescription>Create a follow-up tied to a deal or contact.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Task title" htmlFor="t-title">
             <Input id="t-title" value={form.title} onChange={(e) => set("title")(e.target.value)} placeholder="e.g. Send pricing proposal" className="bg-background border-border" />
           </Field>
@@ -69,7 +79,7 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Priority">
               <Select value={form.priority} onValueChange={set("priority")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                 </SelectContent>
@@ -81,13 +91,13 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
           </div>
           <Field label="Assignee">
             <Select value={form.assignee} onValueChange={set("assignee")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {ASSIGNEES.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
               </SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add task</Button>

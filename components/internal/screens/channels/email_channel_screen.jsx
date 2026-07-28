@@ -5,15 +5,23 @@ import { Plus, Mail, Star, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const INITIAL_SENDERS = [
   { id: 1, fromName: "Marketing", email: "hello@geiger.studio", domain: "Verified", isDefault: true, added: "Jan 12, 2026" },
@@ -45,7 +53,7 @@ function AddSenderDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add sender identity</DialogTitle>
           <DialogDescription>New identities are verified before they can send. We'll email a confirmation link.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="From name" htmlFor="s-name">
             <Input id="s-name" value={form.fromName} onChange={(e) => setForm((f) => ({ ...f, fromName: e.target.value }))} placeholder="e.g. Marketing" className="bg-background border-border" />
           </Field>
@@ -55,7 +63,7 @@ function AddSenderDialog({ open, onOpenChange, onCreate }) {
           <Field label="Reply-to address" htmlFor="s-reply" hint="Optional — defaults to the from address.">
             <Input id="s-reply" type="email" value={form.replyTo} onChange={(e) => setForm((f) => ({ ...f, replyTo: e.target.value }))} placeholder="e.g. support@geiger.studio" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Add sender</Button>

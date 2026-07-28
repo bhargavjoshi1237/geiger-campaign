@@ -5,18 +5,28 @@ import { Plus, Webhook, Eye, Send, Pause, Trash2, CheckCircle2 } from "lucide-re
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 
 const EVENT_OPTIONS = [
   "email.sent",
@@ -70,7 +80,7 @@ function AddWebhookDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add webhook</DialogTitle>
           <DialogDescription>We will POST a signed JSON payload to this endpoint when subscribed events fire.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Endpoint URL" htmlFor="w-url">
             <Input id="w-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://api.yourapp.com/webhooks/geiger" className="bg-background border-border font-mono text-sm" />
           </Field>
@@ -86,7 +96,7 @@ function AddWebhookDialog({ open, onOpenChange, onCreate }) {
           </Field>
           <Field label="API version">
             <Select value={version} onValueChange={setVersion}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="2026-04-01">2026-04-01 (latest)</SelectItem>
                 <SelectItem value="2025-11-15">2025-11-15</SelectItem>
@@ -94,7 +104,7 @@ function AddWebhookDialog({ open, onOpenChange, onCreate }) {
               </SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!url.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Add webhook</Button>

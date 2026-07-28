@@ -6,17 +6,27 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const STATUS_TONE = { Running: "amber", Completed: "green", Draft: "zinc" };
 const TEST_WHAT = ["Subject line", "Email content", "Send time", "From name"];
@@ -45,31 +55,31 @@ function CreateTestDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create A/B test</DialogTitle>
           <DialogDescription>Split your audience across variants and let the winner send automatically.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Test name" htmlFor="ab-name">
             <Input id="ab-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Subject line test" className="bg-background border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="What to test">
               <Select value={form.testing} onValueChange={set("testing")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>{TEST_WHAT.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="Variants">
               <Select value={form.variants} onValueChange={set("variants")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>{["2", "3", "4"].map((v) => <SelectItem key={v} value={v}>{v} variants</SelectItem>)}</SelectContent>
               </Select>
             </Field>
           </div>
           <Field label="Winning metric" hint="The variant that performs best on this metric is sent to the remaining audience.">
             <Select value={form.metric} onValueChange={set("metric")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{METRICS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create test</Button>

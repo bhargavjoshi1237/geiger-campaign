@@ -5,11 +5,16 @@ import { Play, Mail, Globe, Building2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+  Button,
+  Progress,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const PROVIDER_META = {
   Gmail: { icon: Mail, label: "Consumer" },

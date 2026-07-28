@@ -5,12 +5,16 @@ import { Building2, Link2, Clock, Languages, Check } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+} from "@geiger/ui";
 
 export function GeneralSettingsScreen() {
   const [name, setName] = useState("Geiger Studio");
@@ -66,7 +70,7 @@ export function GeneralSettingsScreen() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label="Timezone">
               <Select value={timezone} onValueChange={setTimezone}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="America/Los_Angeles">(GMT-08:00) Pacific Time</SelectItem>
                   <SelectItem value="America/New_York">(GMT-05:00) Eastern Time</SelectItem>
@@ -79,7 +83,7 @@ export function GeneralSettingsScreen() {
 
             <Field label="Default language">
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="en">English (US)</SelectItem>
                   <SelectItem value="en-GB">English (UK)</SelectItem>
@@ -92,7 +96,7 @@ export function GeneralSettingsScreen() {
 
             <Field label="Date format">
               <Select value={dateFormat} onValueChange={setDateFormat}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
                   <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>

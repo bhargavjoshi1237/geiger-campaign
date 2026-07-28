@@ -7,11 +7,15 @@ import {
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from "@geiger/ui";
 
 const OBJECTIVES = ["Awareness", "Acquisition", "Retention", "Re-engagement"];
 const AUDIENCES = ["All subscribers", "New leads", "Customers", "Churn risk"];
@@ -82,7 +86,7 @@ export function CampaignBriefScreen() {
         <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
           <Field label="Objective">
             <Select value={objective} onValueChange={setObjective}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {OBJECTIVES.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
               </SelectContent>
@@ -90,7 +94,7 @@ export function CampaignBriefScreen() {
           </Field>
           <Field label="Audience">
             <Select value={audience} onValueChange={setAudience}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {AUDIENCES.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
               </SelectContent>
@@ -98,7 +102,7 @@ export function CampaignBriefScreen() {
           </Field>
           <Field label="Channel">
             <Select value={channel} onValueChange={setChannel}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {CHANNELS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
@@ -106,7 +110,7 @@ export function CampaignBriefScreen() {
           </Field>
           <Field label="Tone">
             <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {TONES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>

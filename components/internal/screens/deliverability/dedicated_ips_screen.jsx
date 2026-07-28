@@ -5,17 +5,27 @@ import { Plus, Network, FolderInput, Pause, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Progress,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const REGION_LABEL = { us: "US (us-east)", eu: "EU (eu-west)", au: "AU (ap-southeast)" };
 
@@ -53,11 +63,11 @@ function AddIpDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add dedicated IP</DialogTitle>
           <DialogDescription>A new IP starts in warmup until it has built reputation.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-3">
             <Field label="Pool">
               <Select value={pool} onValueChange={setPool}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Marketing">Marketing</SelectItem>
                   <SelectItem value="Transactional">Transactional</SelectItem>
@@ -67,7 +77,7 @@ function AddIpDialog({ open, onOpenChange, onCreate }) {
             </Field>
             <Field label="Region">
               <Select value={region} onValueChange={setRegion}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="us">United States</SelectItem>
                   <SelectItem value="eu">European Union</SelectItem>
@@ -76,7 +86,7 @@ function AddIpDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Add IP</Button>

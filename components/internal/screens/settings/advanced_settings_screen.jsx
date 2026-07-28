@@ -5,11 +5,15 @@ import { ShieldAlert, Download, Lock, AlertTriangle } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+} from "@geiger/ui";
 
 export function AdvancedSettingsScreen() {
   const [require2fa, setRequire2fa] = useState(false);
@@ -50,7 +54,7 @@ export function AdvancedSettingsScreen() {
 
           <Field label="Data retention" hint="How long campaign and contact activity is stored.">
             <Select value={retention} onValueChange={setRetention}>
-              <SelectTrigger className="sm:w-72"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-72"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="12">12 months</SelectItem>
                 <SelectItem value="24">24 months</SelectItem>

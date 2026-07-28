@@ -5,18 +5,28 @@ import { Plus, Database, Play, Pencil, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const PROVIDERS = {
   Snowflake: "geiger.us-east-1.snowflakecomputing.com",
@@ -64,25 +74,25 @@ function CreateSyncDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New sync job</DialogTitle>
           <DialogDescription>Move a table or dataset between Geiger and your warehouse.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Table / dataset" htmlFor="s-table" hint="Fully-qualified, e.g. analytics.fct_orders.">
             <Input id="s-table" value={form.table} onChange={(e) => setForm((f) => ({ ...f, table: e.target.value }))} placeholder="e.g. analytics.fct_orders" className="bg-background border-border font-mono" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Direction">
               <Select value={form.direction} onValueChange={(v) => setForm((f) => ({ ...f, direction: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>{DIRECTIONS.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="Frequency">
               <Select value={form.frequency} onValueChange={(v) => setForm((f) => ({ ...f, frequency: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>{FREQUENCIES.map((fr) => <SelectItem key={fr} value={fr}>{fr}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.table.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create sync</Button>
@@ -126,7 +136,7 @@ export function WarehouseSyncScreen() {
 
           <Field label="Provider">
             <Select value={provider} onValueChange={setProvider}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{Object.keys(PROVIDERS).map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
@@ -147,7 +157,7 @@ export function WarehouseSyncScreen() {
 
           <Field label="Sync frequency" hint="Default cadence applied to new jobs.">
             <Select value={frequency} onValueChange={setFrequency}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{FREQUENCIES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
             </Select>
           </Field>

@@ -5,15 +5,23 @@ import { Plus, Copy, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Progress,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const INITIAL = [
   { id: 1, url: "https://geiger.app/lp/summer-sale", source: "google", medium: "cpc", campaign: "summer_sale_2026", visits: 18420, signups: 1290 },
@@ -67,7 +75,7 @@ function UtmBuilderDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New tracked link</DialogTitle>
           <DialogDescription>Build a UTM-tagged URL to attribute signups to the right channel.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Destination URL" htmlFor="utm-url">
             <Input id="utm-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://geiger.app/lp/your-page" className="bg-background border-border font-mono" />
           </Field>
@@ -86,7 +94,7 @@ function UtmBuilderDialog({ open, onOpenChange, onCreate }) {
             <p className="text-xs font-medium text-muted-foreground">Assembled URL</p>
             <div className="break-all rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{assembled}</div>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Create link</Button>

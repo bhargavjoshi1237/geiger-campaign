@@ -3,14 +3,14 @@
 import React from "react";
 import { Search, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 
 // Rounded surface that wraps a Table (matches the overview "Top Campaigns" form).
 export function TableShell({ className, children }) {

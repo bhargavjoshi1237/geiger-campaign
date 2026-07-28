@@ -5,15 +5,22 @@ import { Settings, MessageSquare, LogIn, X } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const STATUS_TONE = { Active: "green", Waiting: "amber", Ended: "zinc" };
 
@@ -72,7 +79,7 @@ export function LiveChatScreen() {
 
           <Field label="Widget position">
             <Select value={position} onValueChange={setPosition}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="bottom-right">Bottom right</SelectItem>
                 <SelectItem value="bottom-left">Bottom left</SelectItem>
@@ -86,7 +93,7 @@ export function LiveChatScreen() {
 
           <Field label="Assign to">
             <Select value={team} onValueChange={setTeam}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="support">Support team</SelectItem>
                 <SelectItem value="sales">Sales team</SelectItem>

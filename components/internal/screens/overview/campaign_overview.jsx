@@ -17,22 +17,20 @@ import {
   YAxis,
 } from "recharts";
 import { ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
+  Badge,
+  Button,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  Progress,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import FilterDropdown from "./filter_dropdown";

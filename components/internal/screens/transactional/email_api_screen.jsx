@@ -5,17 +5,27 @@ import { Plus, Code, KeyRound, Eye, RefreshCw, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const CURL_EXAMPLE = `curl https://api.geiger.studio/v1/email/send \\
   -H "Authorization: Bearer $GEIGER_API_KEY" \\
@@ -58,13 +68,13 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create API key</DialogTitle>
           <DialogDescription>The full secret is shown only once after creation — store it securely.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Key name" htmlFor="k-name">
             <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production server" className="bg-background border-border" />
           </Field>
           <Field label="Environment">
             <Select value={form.env} onValueChange={(v) => setForm((f) => ({ ...f, env: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Live">Live</SelectItem>
                 <SelectItem value="Test">Test</SelectItem>
@@ -73,14 +83,14 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
           </Field>
           <Field label="Scope">
             <Select value={form.scope} onValueChange={(v) => setForm((f) => ({ ...f, scope: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="send">Send only</SelectItem>
                 <SelectItem value="full">Full access</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create key</Button>

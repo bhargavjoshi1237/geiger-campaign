@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@geiger/ui";
 import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
 import { CampaignOverviewScreen } from "@/components/internal/screens/overview/campaign_overview";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";

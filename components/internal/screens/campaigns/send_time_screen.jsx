@@ -6,10 +6,14 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Switch } from "@/components/ui/switch";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+} from "@geiger/ui";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const HOURS = ["6a", "8a", "10a", "12p", "2p", "4p", "6p", "8p", "10p"];
@@ -55,7 +59,7 @@ export function SendTimeScreen() {
           <div className={cn("space-y-4 transition-opacity", !enabled && "pointer-events-none opacity-40")}>
             <Field label="Strategy">
               <Select value={strategy} onValueChange={setStrategy}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {STRATEGIES.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                 </SelectContent>
@@ -63,13 +67,13 @@ export function SendTimeScreen() {
             </Field>
             <Field label="Fallback send time" hint="Used when there isn't enough history for a contact.">
               <Select value={fallback} onValueChange={setFallback}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>{HOURS.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="Optimization window" hint="How long after launch the engine may hold a send to hit the best time.">
               <Select value={window} onValueChange={setWindow}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="12h">Within 12 hours</SelectItem>
                   <SelectItem value="24h">Within 24 hours</SelectItem>

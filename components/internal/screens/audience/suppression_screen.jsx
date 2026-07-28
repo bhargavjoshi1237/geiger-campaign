@@ -12,41 +12,34 @@ import {
   RowActions,
   Field,
 } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
+  Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Textarea,
+} from "@geiger/ui";
 
 const REASON_TONE = {
   Unsubscribed: "zinc",
@@ -88,13 +81,13 @@ function AddSuppressionDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add to suppression list</DialogTitle>
           <DialogDescription>Suppressed addresses are excluded from every send across all channels.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Email address" htmlFor="sup-email">
             <Input id="sup-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="name@company.com" className="bg-background border-border" />
           </Field>
           <Field label="Reason">
             <Select value={form.reason} onValueChange={(v) => setForm((f) => ({ ...f, reason: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {REASONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
               </SelectContent>
@@ -103,7 +96,7 @@ function AddSuppressionDialog({ open, onOpenChange, onCreate }) {
           <Field label="Internal note" htmlFor="sup-note" hint="Optional — visible to your team only.">
             <Textarea id="sup-note" value={form.note} onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))} placeholder="Why is this address being suppressed?" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Suppress address</Button>

@@ -12,8 +12,8 @@ import {
   Megaphone,
   Menu,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Sheet,
   SheetClose,
   SheetContent,
@@ -21,7 +21,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@geiger/ui";
 
 export function MegaMenu({ dashboardHref = "/home" }) {
   const products = [

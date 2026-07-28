@@ -11,32 +11,27 @@ import {
   RowActions,
   Field,
 } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 
 const INITIAL_SEGMENTS = [
   { id: 1, name: "Engaged — last 90 days", description: "Opened or clicked at least one email recently", match: "all", conditions: 2, contacts: 9840 },
@@ -86,7 +81,7 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create segment</DialogTitle>
           <DialogDescription>Segments are live audience slices defined by conditions. Contacts move in and out automatically.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-5 py-4">
+        <div className="space-y-5 py-4">
           <Field label="Segment name" htmlFor="s-name">
             <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Engaged — last 90 days" className="bg-background border-border" />
           </Field>
@@ -108,13 +103,13 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
               {conditions.map((c) => (
                 <div key={c.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   <Select value={c.field} onValueChange={(v) => updateCond(c.id, "field", v)}>
-                    <SelectTrigger className="sm:w-48"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full sm:w-48"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {FIELD_OPTIONS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <Select value={c.operator} onValueChange={(v) => updateCond(c.id, "operator", v)}>
-                    <SelectTrigger className="sm:w-40"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full sm:w-40"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {OPERATOR_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                     </SelectContent>
@@ -147,7 +142,7 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
               <Plus className="h-4 w-4" /> Add condition
             </Button>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create segment</Button>

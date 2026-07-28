@@ -5,18 +5,28 @@ import { Plus, Pencil, Copy, Trash2, Sparkles } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const STATUS_TONE = { Active: "green", Paused: "amber" };
 
@@ -65,13 +75,13 @@ function NewBlockDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New recommendation block</DialogTitle>
           <DialogDescription>Choose a strategy and where the block appears for shoppers.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Block name" htmlFor="b-name">
             <Input id="b-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. You may also like" className="bg-background border-border" />
           </Field>
           <Field label="Strategy">
             <Select value={form.strategy} onValueChange={set("strategy")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {STRATEGIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
@@ -80,7 +90,7 @@ function NewBlockDialog({ open, onOpenChange, onCreate }) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Placement">
               <Select value={form.placement} onValueChange={set("placement")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {PLACEMENTS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                 </SelectContent>
@@ -88,14 +98,14 @@ function NewBlockDialog({ open, onOpenChange, onCreate }) {
             </Field>
             <Field label="Items shown">
               <Select value={form.items} onValueChange={set("items")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {ITEM_COUNTS.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create block</Button>

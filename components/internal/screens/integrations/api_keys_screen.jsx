@@ -5,17 +5,27 @@ import { Plus, Eye, RefreshCw, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const PERMISSION_TONE = { "Read-only": "zinc", "Read & write": "blue", Admin: "violet" };
 const PERMISSIONS = ["Read-only", "Read & write", "Admin"];
@@ -52,13 +62,13 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create API key</DialogTitle>
           <DialogDescription>The full secret is shown only once after creation — store it securely.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Key name" htmlFor="k-name">
             <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production backend" className="bg-background border-border" />
           </Field>
           <Field label="Permissions">
             <Select value={form.permission} onValueChange={(v) => setForm((f) => ({ ...f, permission: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {PERMISSIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
               </SelectContent>
@@ -66,7 +76,7 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
           </Field>
           <Field label="Expiry">
             <Select value={form.expiry} onValueChange={(v) => setForm((f) => ({ ...f, expiry: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Never">Never</SelectItem>
                 <SelectItem value="30 days">30 days</SelectItem>
@@ -75,7 +85,7 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
               </SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create key</Button>

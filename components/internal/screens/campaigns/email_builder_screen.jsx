@@ -9,12 +9,16 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from "@geiger/ui";
 
 const BLOCK_LIBRARY = [
   { type: "Heading", icon: Type },
@@ -176,7 +180,7 @@ export function EmailBuilderScreen() {
               {["Heading", "Text", "Button"].includes(selected.type) && (
                 <Field label="Alignment">
                   <Select value={selected.content.align} onValueChange={(v) => updateSelected("align", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="left">Left</SelectItem>
                       <SelectItem value="center">Center</SelectItem>

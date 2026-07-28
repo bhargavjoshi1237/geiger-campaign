@@ -2,23 +2,23 @@
 
 import React from "react";
 import {
+  Button,
   Sidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarRail,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@geiger/ui";
 import { ChevronDown, Search, MoreVertical, PanelLeft, Bell, HelpCircle, X } from "lucide-react";
 import { SidebarOption } from "./sidebar_option";
 import { workspaceNav } from "./sidebar_nav";
 import { NotificationsDropdown } from "../topbar/dialogue/notifications_dropdown";
 import { roleHasPermission, tabPermissionKey } from "@/lib/rbac";
-import { Button } from "@/components/ui/button";
 
 function MobileSidebarHeader() {
   const { isMobile, toggleSidebar } = useSidebar();

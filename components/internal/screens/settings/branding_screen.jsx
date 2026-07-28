@@ -5,9 +5,7 @@ import { Image as ImageIcon, Palette, Check, Upload } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button, Input, Textarea } from "@geiger/ui";
 
 const PRESETS = ["#6d28d9", "#2563eb", "#059669", "#dc2626", "#d97706", "#111827"];
 

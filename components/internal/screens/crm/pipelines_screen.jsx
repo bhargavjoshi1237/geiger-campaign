@@ -5,14 +5,21 @@ import { Plus } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@geiger/ui";
 
 const PIPELINES = ["Sales pipeline", "Onboarding"];
 const STAGES = ["Lead", "Qualified", "Proposal", "Negotiation", "Won"];
@@ -61,7 +68,7 @@ function AddDealDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add deal</DialogTitle>
           <DialogDescription>Drop a new card into the selected stage column.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Deal name" htmlFor="p-name">
             <Input id="p-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Annual platform license" className="bg-background border-border" />
           </Field>
@@ -75,13 +82,13 @@ function AddDealDialog({ open, onOpenChange, onCreate }) {
           </div>
           <Field label="Stage">
             <Select value={form.stage} onValueChange={set("stage")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {STAGES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add deal</Button>

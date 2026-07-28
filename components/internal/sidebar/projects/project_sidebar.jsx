@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import {
+  Button,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -11,11 +12,10 @@ import {
   SidebarMenu,
   SidebarRail,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@geiger/ui";
 import { PanelLeft } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { projectNav, settingsNav } from "./sidebar_data";
-import { Button } from "@/components/ui/button";
 
 function MobileSidebarHeader() {
   const { isMobile } = useSidebar();

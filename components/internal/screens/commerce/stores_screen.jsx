@@ -5,17 +5,27 @@ import { Plus, Store, RefreshCw, Settings, Unplug } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const PLATFORM_TONE = {
   Shopify: "green",
@@ -60,13 +70,13 @@ function ConnectStoreDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Connect store</DialogTitle>
           <DialogDescription>Link a storefront to sync its products, orders, and customers.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Store name" htmlFor="store-name">
             <Input id="store-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Northwind Apparel" className="bg-background border-border" />
           </Field>
           <Field label="Platform">
             <Select value={form.platform} onValueChange={set("platform")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {PLATFORMS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
               </SelectContent>
@@ -75,7 +85,7 @@ function ConnectStoreDialog({ open, onOpenChange, onCreate }) {
           <Field label="Store URL" htmlFor="store-url" hint="The public domain of your storefront.">
             <Input id="store-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://store.myshopify.com" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Connect store</Button>

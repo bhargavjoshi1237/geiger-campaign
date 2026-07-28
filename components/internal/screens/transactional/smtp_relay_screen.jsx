@@ -5,17 +5,27 @@ import { Plus, Server, KeyRound, Ban, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const INITIAL = [
   { id: 1, name: "Production app", username: "smtp_a1b2c3", created: "Apr 14, 2026", status: "Active" },
@@ -47,14 +57,14 @@ function CreateCredentialDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create SMTP credential</DialogTitle>
           <DialogDescription>Use these credentials with any standard SMTP client to relay mail.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Credential name" htmlFor="c-name">
             <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Production app" className="bg-background border-border" />
           </Field>
           <Field label="Generated username" hint="A password will be shown once after creation.">
             <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{username}</div>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create credential</Button>
@@ -97,7 +107,7 @@ export function SmtpRelayScreen() {
           </Field>
           <Field label="Port">
             <Select value={port} onValueChange={setPort}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="587">587 (STARTTLS)</SelectItem>
                 <SelectItem value="465">465 (SSL)</SelectItem>
@@ -107,7 +117,7 @@ export function SmtpRelayScreen() {
           </Field>
           <Field label="Security">
             <Select value={security} onValueChange={setSecurity}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="starttls">STARTTLS</SelectItem>
                 <SelectItem value="ssl">SSL/TLS</SelectItem>

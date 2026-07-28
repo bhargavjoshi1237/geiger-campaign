@@ -8,10 +8,14 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@geiger/ui";
 
 const TOOLS = [
   { id: "crop", label: "Crop", icon: Crop },
@@ -125,14 +129,14 @@ export function ImageEditorScreen() {
 
           <Field label="Filter preset">
             <Select value={preset} onValueChange={applyPreset}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{Object.keys(PRESETS).map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
 
           <Field label="Aspect ratio">
             <Select value={aspect} onValueChange={setAspect}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{Object.keys(ASPECTS).map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
             </Select>
           </Field>

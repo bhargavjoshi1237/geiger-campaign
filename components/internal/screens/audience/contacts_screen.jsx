@@ -23,41 +23,34 @@ import {
   RowActions,
   Field,
 } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
+  Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const STATUS_TONE = {
   Subscribed: "green",
@@ -110,7 +103,7 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add contact</DialogTitle>
           <DialogDescription>Create a single contact and add them to a list.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-3">
             <Field label="First name" htmlFor="c-first">
               <Input id="c-first" value={form.first} onChange={(e) => set("first")(e.target.value)} placeholder="Amara" className="bg-background border-border" />
@@ -125,7 +118,7 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
               <Select value={form.status} onValueChange={set("status")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {["Subscribed", "Pending", "Unsubscribed"].map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -135,7 +128,7 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
             </Field>
             <Field label="Add to list">
               <Select value={form.list} onValueChange={set("list")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {ALL_LISTS.map((l) => (
                     <SelectItem key={l} value={l}>{l}</SelectItem>
@@ -144,7 +137,7 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">
             Cancel

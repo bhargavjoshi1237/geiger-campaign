@@ -5,14 +5,22 @@ import { ListChecks, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Textarea,
+} from "@geiger/ui";
 
 const RESULT_TONE = { Valid: "green", Risky: "amber", Invalid: "red", Unknown: "zinc" };
 
@@ -48,14 +56,14 @@ function ValidateDialog({ open, onOpenChange, onValidate }) {
           <DialogTitle>Validate list</DialogTitle>
           <DialogDescription>Paste addresses, one per line. They are queued for verification.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={"jordan@example.com\nsales@example.com"}
             className="min-h-[160px] bg-background border-border font-mono text-sm"
           />
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!text.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Validate</Button>

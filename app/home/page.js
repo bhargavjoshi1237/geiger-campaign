@@ -4,7 +4,7 @@ import React, { Suspense, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@geiger/ui";
 import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
 import { getScreen } from "@/components/internal/screens/screen_registry";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";

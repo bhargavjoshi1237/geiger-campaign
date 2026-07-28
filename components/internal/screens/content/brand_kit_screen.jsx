@@ -6,14 +6,21 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@geiger/ui";
 
 const LOGOS = [
   { id: "primary", label: "Primary", from: "#3b82f6", to: "#1e3a8a" },
@@ -49,7 +56,7 @@ function AddColorDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add brand color</DialogTitle>
           <DialogDescription>Give it a name and a hex value, or pick a preset.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-3">
             <Field label="Name" htmlFor="c-name">
               <Input id="c-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Highlight" className="bg-background border-border" />
@@ -72,7 +79,7 @@ function AddColorDialog({ open, onOpenChange, onCreate }) {
               ))}
             </div>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add color</Button>
@@ -154,7 +161,7 @@ export function BrandKitScreen() {
             <div className="space-y-3 rounded-xl border border-border bg-surface-subtle p-5">
               <Field label="Heading font">
                 <Select value={headingFont} onValueChange={setHeadingFont}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>{FONTS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
@@ -163,7 +170,7 @@ export function BrandKitScreen() {
             <div className="space-y-3 rounded-xl border border-border bg-surface-subtle p-5">
               <Field label="Body font">
                 <Select value={bodyFont} onValueChange={setBodyFont}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>{FONTS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>

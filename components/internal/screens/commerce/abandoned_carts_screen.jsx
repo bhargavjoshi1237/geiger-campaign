@@ -6,8 +6,13 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions } from "@/components/internal/shared/screen_kit";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const RECOVERY_TONE = {
   Recovered: "green",

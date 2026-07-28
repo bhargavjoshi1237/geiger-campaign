@@ -14,27 +14,23 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@geiger/ui";
 
 const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
 const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";

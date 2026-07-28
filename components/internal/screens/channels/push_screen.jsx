@@ -6,18 +6,28 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const PLATFORM_ICON = { iOS: Smartphone, Android: Smartphone, Web: Globe };
 const STATUS_TONE = { Connected: "green", "Not configured": "zinc" };
@@ -64,10 +74,10 @@ function AddPlatformDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add platform</DialogTitle>
           <DialogDescription>Connect an app so it can receive push notifications.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Platform">
             <Select value={form.platform} onValueChange={set("platform")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{PLATFORMS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
@@ -77,7 +87,7 @@ function AddPlatformDialog({ open, onOpenChange, onCreate }) {
           <Field label="Credential reference" htmlFor="push-cred" hint="Name of the stored key/certificate.">
             <Input id="push-cred" value={form.credential} onChange={(e) => set("credential")(e.target.value)} placeholder="e.g. APNs key" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Add platform</Button>
@@ -116,7 +126,7 @@ export function PushScreen() {
           <ToggleRow title="Collapse similar notifications" description="Stack duplicate alerts into one." checked={collapse} onCheckedChange={setCollapse} />
           <Field label="Default sound">
             <Select value={sound} onValueChange={setSound}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Default">Default</SelectItem>
                 <SelectItem value="Chime">Chime</SelectItem>

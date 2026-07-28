@@ -11,33 +11,28 @@ import {
   RowActions,
   Field,
 } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 
 const BANDS = [
   { key: "hot", label: "Hot", range: "75–100", count: 1240, icon: Flame, tone: "text-red-400", bg: "bg-red-500/10 border-red-500/25" },
@@ -88,13 +83,13 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New scoring rule</DialogTitle>
           <DialogDescription>Award or deduct points when contacts take an action.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Rule name" htmlFor="r-name">
             <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Clicked a campaign link" className="bg-background border-border" />
           </Field>
           <Field label="When a contact">
             <Select value={form.trigger} onValueChange={(v) => setForm((f) => ({ ...f, trigger: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {TRIGGERS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
@@ -103,7 +98,7 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Adjustment">
               <Select value={form.direction} onValueChange={(v) => setForm((f) => ({ ...f, direction: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="add">Add points</SelectItem>
                   <SelectItem value="subtract">Subtract points</SelectItem>
@@ -116,14 +111,14 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
           </div>
           <Field label="Apply">
             <Select value={form.frequency} onValueChange={(v) => setForm((f) => ({ ...f, frequency: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Every time">Every time it happens</SelectItem>
                 <SelectItem value="Once">Only the first time</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create rule</Button>

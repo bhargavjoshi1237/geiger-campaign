@@ -5,13 +5,20 @@ import { ShieldCheck, Check, X, Eye, Users } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const STATUS_TONE = {
   Pending: "amber",
@@ -61,7 +68,7 @@ export function ApprovalsScreen() {
 
           <Field label="Approval threshold" hint="Which campaigns need an approver's sign-off.">
             <Select value={threshold} onValueChange={setThreshold}>
-              <SelectTrigger className="sm:w-72"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-72"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All campaigns</SelectItem>
                 <SelectItem value="10k">Over 10k recipients</SelectItem>

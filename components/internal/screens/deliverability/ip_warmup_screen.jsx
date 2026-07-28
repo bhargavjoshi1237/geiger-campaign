@@ -5,14 +5,21 @@ import { Flame } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, Field } from "@/components/internal/shared/screen_kit";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const IPS = ["198.51.100.24", "203.0.113.88", "192.0.2.140"];
 
@@ -53,7 +60,7 @@ export function IpWarmupScreen() {
           </div>
           <Field label="IP address">
             <Select value={ip} onValueChange={setIp}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {IPS.map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}
               </SelectContent>
@@ -71,7 +78,7 @@ export function IpWarmupScreen() {
           </Field>
           <Field label="Ramp duration">
             <Select value={duration} onValueChange={setDuration}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="14">14 days</SelectItem>
                 <SelectItem value="30">30 days</SelectItem>

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Sparkles, Plus, X, Users } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const SEED = [
   {

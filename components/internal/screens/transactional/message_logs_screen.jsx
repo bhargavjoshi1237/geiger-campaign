@@ -6,16 +6,26 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, Pill, RowActions } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const STATUS_TONE = {
   Delivered: "green",
@@ -102,7 +112,7 @@ function MessageDetailDialog({ log, onOpenChange }) {
         <DialogHeader>
           <DialogTitle>Message details</DialogTitle>
         </DialogHeader>
-        <DialogBody className="py-4">
+        <div className="py-4">
           <div className="rounded-xl border border-border bg-surface-subtle p-4">
             <LabeledRow label="To"><span className="break-all">{log.recipient}</span></LabeledRow>
             <LabeledRow label="Channel"><ChannelCell channel={log.channel} /></LabeledRow>
@@ -124,7 +134,7 @@ function MessageDetailDialog({ log, onOpenChange }) {
               ))}
             </ol>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Close</Button>
         </DialogFooter>

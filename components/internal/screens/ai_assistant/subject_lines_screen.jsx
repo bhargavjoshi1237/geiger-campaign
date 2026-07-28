@@ -5,12 +5,16 @@ import { Sparkles, RotateCcw, Copy, Check } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Field, Pill } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Input,
+  Progress,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@geiger/ui";
 
 const TONES = ["Friendly", "Professional", "Bold", "Playful", "Urgent"];
 
@@ -66,7 +70,7 @@ export function SubjectLinesScreen() {
         </Field>
         <Field label="Tone" className="sm:w-44">
           <Select value={tone} onValueChange={setTone}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {TONES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>

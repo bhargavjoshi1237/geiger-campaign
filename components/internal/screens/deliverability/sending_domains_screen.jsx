@@ -5,17 +5,27 @@ import { Plus, Globe, FileText, RefreshCw, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const REGION_LABEL = { us: "US (us-east)", eu: "EU (eu-west)", au: "AU (ap-southeast)" };
 
@@ -55,13 +65,13 @@ function AddDomainDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Add sending domain</DialogTitle>
           <DialogDescription>Add a domain, then publish the generated DNS records to verify it.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Domain" htmlFor="d-domain" hint="Use a subdomain dedicated to email, e.g. mail.yourbrand.com.">
             <Input id="d-domain" value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="mail.yourbrand.com" className="bg-background border-border" />
           </Field>
           <Field label="Sending region">
             <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="us">United States</SelectItem>
                 <SelectItem value="eu">European Union</SelectItem>
@@ -69,7 +79,7 @@ function AddDomainDialog({ open, onOpenChange, onCreate }) {
               </SelectContent>
             </Select>
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!domain.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Add domain</Button>

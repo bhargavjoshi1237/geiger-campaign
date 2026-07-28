@@ -6,8 +6,7 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { Pill } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Button, Textarea } from "@geiger/ui";
 
 const STATUS_FILTERS = ["All", "Open", "Closed"];
 

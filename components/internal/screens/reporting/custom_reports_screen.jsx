@@ -6,18 +6,28 @@ import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Textarea,
+} from "@geiger/ui";
 
 const SCHEDULE_TONE = {
   Daily: "green",
@@ -68,7 +78,7 @@ function CreateReportDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create report</DialogTitle>
           <DialogDescription>Define what to measure, how to group it, and when it runs.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Report name" htmlFor="r-name">
             <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Monthly revenue review" className="bg-background border-border" />
           </Field>
@@ -77,25 +87,25 @@ function CreateReportDialog({ open, onOpenChange, onCreate }) {
           </Field>
           <Field label="Group by">
             <Select value={form.groupBy} onValueChange={(v) => setForm((f) => ({ ...f, groupBy: v }))}>
-              <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full bg-background border-border"><SelectValue /></SelectTrigger>
               <SelectContent>{GROUP_BY.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Schedule">
               <Select value={form.schedule} onValueChange={(v) => setForm((f) => ({ ...f, schedule: v }))}>
-                <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full bg-background border-border"><SelectValue /></SelectTrigger>
                 <SelectContent>{SCHEDULES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
             <Field label="Format">
               <Select value={form.format} onValueChange={(v) => setForm((f) => ({ ...f, format: v }))}>
-                <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full bg-background border-border"><SelectValue /></SelectTrigger>
                 <SelectContent>{FORMATS.map((fmt) => <SelectItem key={fmt} value={fmt}>{fmt}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create report</Button>

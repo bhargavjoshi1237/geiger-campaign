@@ -5,14 +5,22 @@ import { Plus, Boxes, Pencil, Database, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, SearchInput, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const INITIAL = [
   { id: 1, name: "Subscription", plural: "Subscriptions", records: 18420, fields: 11, api: "subscription", updated: "Jun 6, 2026" },
@@ -64,7 +72,7 @@ function CreateObjectDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>New custom object</DialogTitle>
           <DialogDescription>Define a new data model with its own records and fields.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Object name" htmlFor="o-name" hint="Singular, e.g. Subscription.">
             <Input id="o-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Subscription" className="bg-background border-border" />
           </Field>
@@ -76,7 +84,7 @@ function CreateObjectDialog({ open, onOpenChange, onCreate }) {
           <Field label="Primary field label" htmlFor="o-primary" hint="The human-readable field shown when referencing a record.">
             <Input id="o-primary" value={primaryField} onChange={(e) => setPrimaryField(e.target.value)} placeholder="e.g. Plan name" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!name.trim() || !apiName} className="bg-white text-black hover:bg-[#e5e5e5]">Create object</Button>

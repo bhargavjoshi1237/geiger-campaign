@@ -21,34 +21,29 @@ import {
   RowActions,
   Field,
 } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Textarea,
+} from "@geiger/ui";
 
 const INITIAL_LISTS = [
   { id: 1, name: "Newsletter", description: "Weekly digest for all opted-in contacts", type: "Standard", subscribers: 18420, growth: 4.2 },
@@ -81,7 +76,7 @@ function CreateListDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create list</DialogTitle>
           <DialogDescription>Lists group contacts for sending. Dynamic lists update automatically from rules.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="List name" htmlFor="l-name">
             <Input id="l-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring Promo" className="bg-background border-border" />
           </Field>
@@ -90,7 +85,7 @@ function CreateListDialog({ open, onOpenChange, onCreate }) {
           </Field>
           <Field label="List type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Standard">Standard — manually managed</SelectItem>
                 <SelectItem value="Dynamic">Dynamic — rule-based, auto-updating</SelectItem>
@@ -104,7 +99,7 @@ function CreateListDialog({ open, onOpenChange, onCreate }) {
             </div>
             <Switch checked={form.doubleOptIn} onCheckedChange={(v) => setForm((f) => ({ ...f, doubleOptIn: v }))} />
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create list</Button>

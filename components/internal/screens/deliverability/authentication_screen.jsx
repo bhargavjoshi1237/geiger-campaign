@@ -5,14 +5,21 @@ import { ShieldCheck, RefreshCw, Copy } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
 import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const DOMAINS = [
   { value: "mail.acmestore.com", label: "mail.acmestore.com" },
@@ -69,7 +76,7 @@ export function AuthenticationScreen() {
           </div>
           <Field label="Domain">
             <Select value={domain} onValueChange={setDomain}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {DOMAINS.map((d) => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
               </SelectContent>
@@ -77,7 +84,7 @@ export function AuthenticationScreen() {
           </Field>
           <Field label="DMARC policy" hint="How mailbox providers handle mail that fails authentication.">
             <Select value={policy} onValueChange={setPolicy}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None (monitor only)</SelectItem>
                 <SelectItem value="quarantine">Quarantine</SelectItem>

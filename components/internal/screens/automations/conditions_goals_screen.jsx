@@ -4,19 +4,29 @@ import React, { useState } from "react";
 import { Plus, GitFork, Target, Pencil, Copy, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
 import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  SegmentedTabs,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@geiger/ui";
 
 const COND_FIELDS = ["Email engagement", "Tag", "List membership", "Lead score", "Country", "Last purchase"];
 const COND_OPS = ["is", "is not", "is greater than", "is less than", "contains"];
@@ -53,22 +63,22 @@ function CreateConditionDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create condition</DialogTitle>
           <DialogDescription>Reusable rules that branch a contact's path inside automations.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Condition name" htmlFor="cd-name">
             <Input id="cd-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. High lead score" className="bg-background border-border" />
           </Field>
           <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface-card p-3 sm:flex-row">
             <Select value={form.field} onValueChange={set("field")}>
-              <SelectTrigger className="sm:w-44"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger>
               <SelectContent>{COND_FIELDS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={form.op} onValueChange={set("op")}>
-              <SelectTrigger className="sm:w-40"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-40"><SelectValue /></SelectTrigger>
               <SelectContent>{COND_OPS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>
             <Input value={form.value} onChange={(e) => set("value")(e.target.value)} placeholder="value" className="flex-1 bg-background border-border" />
           </div>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create condition</Button>
@@ -94,20 +104,20 @@ function CreateGoalDialog({ open, onOpenChange, onCreate }) {
           <DialogTitle>Create goal</DialogTitle>
           <DialogDescription>Goals measure the outcome an automation is driving toward.</DialogDescription>
         </DialogHeader>
-        <DialogBody className="space-y-4 py-4">
+        <div className="space-y-4 py-4">
           <Field label="Goal name" htmlFor="gl-name">
             <Input id="gl-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Completed checkout" className="bg-background border-border" />
           </Field>
           <Field label="Conversion metric">
             <Select value={form.metric} onValueChange={set("metric")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{GOAL_METRICS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <Field label="Target definition" htmlFor="gl-target" hint="What exactly counts as a conversion?">
             <Input id="gl-target" value={form.target} onChange={(e) => set("target")(e.target.value)} placeholder="e.g. Order value > $0" className="bg-background border-border" />
           </Field>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create goal</Button>
