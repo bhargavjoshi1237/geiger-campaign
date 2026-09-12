@@ -4,7 +4,7 @@ import React, { Suspense, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
-import { LogoLoading, SidebarInset, SidebarProvider } from "@geiger/ui";
+import { LoadingScreen, SidebarInset, SidebarProvider } from "@geiger/ui";
 import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
 import { getScreen } from "@/components/internal/screens/screen_registry";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";
@@ -67,10 +67,7 @@ export default function HomePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
-          <LogoLoading size={96} />
-          <span className="text-text-tertiary text-sm">Loading...</span>
-        </div>
+        <LoadingScreen />
       }
     >
       <HomeLayoutContent />

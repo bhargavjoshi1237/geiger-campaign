@@ -16,7 +16,7 @@
   "dependencies": {
     "@geiger/orm": "github:bhargavjoshi1237/geiger-orm#master",
     "@geiger/rbac": "github:bhargavjoshi1237/geiger-rbac#1835de3735cf9c86df5adebdbc7458dd4302e40d",
-    "@geiger/ui": "github:bhargavjoshi1237/geiger-ui#3e39407aa598ba03f55356c9c4e1e23b4dc42659",
+    "@geiger/ui": "github:bhargavjoshi1237/geiger-ui#6be4e0df37ebd83c30706b67c6ec0a5f1547b961",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "class-variance-authority": "^0.7.1",
@@ -30,9 +30,11 @@
     "react": "19.2.4",
     "react-day-picker": "^10.0.1",
     "react-dom": "19.2.4",
+    "react-hook-form": "^7.88.0",
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
