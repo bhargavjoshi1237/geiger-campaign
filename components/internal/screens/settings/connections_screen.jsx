@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { Plug, RefreshCw, Unplug } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -19,18 +17,18 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const STATUS_TONE = {
-  Connected: "green",
-  Expired: "amber",
-  Disconnected: "zinc",
+  Connected: "success",
+  Expired: "warning",
+  Disconnected: "neutral",
 };
 
 const SERVICE_META = {
@@ -43,11 +41,11 @@ const SERVICE_META = {
 };
 
 const INITIAL = [
-  { id: 1, service: "Google", account: "jordan@acme.com", scope: "Email, Calendar", status: "Connected", connected: "May 12, 2026" },
-  { id: 2, service: "Microsoft", account: "ops@acme.onmicrosoft.com", scope: "Email, Contacts", status: "Connected", connected: "Apr 28, 2026" },
-  { id: 3, service: "Shopify", account: "acme-store.myshopify.com", scope: "Orders, Customers", status: "Expired", connected: "Feb 3, 2026" },
-  { id: 4, service: "Stripe", account: "acct_1Q8vXkAcme", scope: "Payments, Customers", status: "Connected", connected: "Jan 19, 2026" },
-  { id: 5, service: "Meta", account: "@acmebrand", scope: "Ads, Audiences", status: "Disconnected", connected: "—" },
+  { id: 1, service: "Google", account: "alex@halcyon.studio", scope: "Email, Calendar", status: "Connected", connected: "May 12, 2026" },
+  { id: 2, service: "Microsoft", account: "ops@halcyonstudio.onmicrosoft.com", scope: "Email, Contacts", status: "Connected", connected: "Apr 28, 2026" },
+  { id: 3, service: "Shopify", account: "halcyon-shop.myshopify.com", scope: "Orders, Customers", status: "Expired", connected: "Feb 3, 2026" },
+  { id: 4, service: "Stripe", account: "acct_1Q8vXkHalcyon", scope: "Payments, Customers", status: "Connected", connected: "Jan 19, 2026" },
+  { id: 5, service: "Meta", account: "@halcyon.studio", scope: "Ads, Audiences", status: "Disconnected", connected: "—" },
 ];
 
 function ConnectAccountDialog({ open, onOpenChange, onConnect }) {
@@ -92,13 +90,13 @@ function ConnectAccountDialog({ open, onOpenChange, onConnect }) {
               value={account}
               onChange={(e) => setAccount(e.target.value)}
               placeholder="name@company.com"
-              className="bg-background border-border"
+              className="border-border"
             />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!account.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Connect</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!account.trim()}>Connect</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -112,64 +110,69 @@ export function ConnectionsScreen() {
   const reconnect = (id) => setConnections((p) => p.map((c) => (c.id === id ? { ...c, status: "Connected", connected: "Just now" } : c)));
   const disconnect = (id) => setConnections((p) => p.map((c) => (c.id === id ? { ...c, status: "Disconnected", connected: "—" } : c)));
 
+  const columns = [
+    {
+      key: "service",
+      header: "Service",
+      render: (c) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-xs font-semibold text-foreground">
+            {SERVICE_META[c.service]?.initials ?? c.service[0]}
+          </span>
+          <span className="font-medium text-foreground">{c.service}</span>
+        </div>
+      ),
+    },
+    { key: "account", header: "Account", className: "font-mono text-muted-foreground", render: (c) => c.account },
+    { key: "scope", header: "Scope", className: "text-muted-foreground", render: (c) => c.scope },
+    { key: "status", header: "Status", render: (c) => <Badge variant={STATUS_TONE[c.status]}>{c.status}</Badge> },
+    { key: "connected", header: "Connected", className: "whitespace-nowrap text-muted-foreground", render: (c) => c.connected },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (c) => (
+        <ActionMenu
+          items={[
+            { label: "Reconnect", icon: RefreshCw, onSelect: () => reconnect(c.id) },
+            { separator: true },
+            { label: "Disconnect", icon: Unplug, destructive: true, onSelect: () => disconnect(c.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Connections"
         description="Authenticated accounts linked to your workspace."
         actions={
-          <Button onClick={() => setConnectOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setConnectOpen(true)}>
             <Plug className="h-4 w-4" /> Connect account
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Service</TableHead>
-                <TableHead>Account</TableHead>
-                <TableHead>Scope</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Connected</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {connections.map((c) => (
-                <TableRow key={c.id} className="border-border">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-xs font-semibold text-foreground">
-                        {SERVICE_META[c.service]?.initials ?? c.service[0]}
-                      </span>
-                      <span className="font-medium text-foreground">{c.service}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-muted-foreground">{c.account}</TableCell>
-                  <TableCell className="text-muted-foreground">{c.scope}</TableCell>
-                  <TableCell><Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill></TableCell>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{c.connected}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Reconnect", icon: RefreshCw, onSelect: () => reconnect(c.id) },
-                        { label: "Disconnect", icon: Unplug, danger: true, separatorBefore: true, onSelect: () => disconnect(c.id) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {connections.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No connections found.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
+      <div>
+        <DataTable
+          columns={columns}
+          data={connections}
+          getRowKey={(c) => c.id}
+          empty={
+            <EmptyState
+              icon={Plug}
+              title="No connections found"
+              className="rounded-xl border border-border bg-surface-subtle"
+              action={
+                <Button onClick={() => setConnectOpen(true)}>
+                  <Plug className="h-4 w-4" /> Connect account
+                </Button>
+              }
+            />
+          }
+        />
       </div>
 
       <ConnectAccountDialog

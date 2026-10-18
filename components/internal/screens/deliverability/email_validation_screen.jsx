@@ -3,8 +3,6 @@
 import React, { useMemo, useState } from "react";
 import { ListChecks, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -13,16 +11,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
+  ScreenHeader,
+  SectionCard,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
 } from "@geiger/ui";
 
-const RESULT_TONE = { Valid: "green", Risky: "amber", Invalid: "red", Unknown: "zinc" };
+const RESULT_TONE = { Valid: "success", Risky: "warning", Invalid: "danger", Unknown: "neutral" };
 
 const INITIAL = [
   { id: 1, email: "jordan.lee@acmestore.com", result: "Valid", reason: "Mailbox exists" },
@@ -61,12 +59,12 @@ function ValidateDialog({ open, onOpenChange, onValidate }) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={"jordan@example.com\nsales@example.com"}
-            className="min-h-[160px] bg-background border-border font-mono text-sm"
+            className="min-h-[160px] bg-background font-mono"
           />
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!text.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Validate</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!text.trim()}>Validate</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -100,75 +98,78 @@ export function EmailValidationScreen() {
   };
 
   const summaryRows = [
-    { label: "Valid", value: counts.valid, tone: "green" },
-    { label: "Risky", value: counts.risky, tone: "amber" },
-    { label: "Invalid", value: counts.invalid, tone: "red" },
-    { label: "Unknown", value: counts.unknown, tone: "zinc" },
+    { label: "Valid", value: counts.valid, tone: "success" },
+    { label: "Risky", value: counts.risky, tone: "warning" },
+    { label: "Invalid", value: counts.invalid, tone: "danger" },
+    { label: "Unknown", value: counts.unknown, tone: "neutral" },
+  ];
+
+  const columns = [
+    { key: "email", header: "Email", className: "font-mono text-xs text-foreground", render: (r) => r.email },
+    { key: "result", header: "Result", render: (r) => <Badge variant={RESULT_TONE[r.result]}>{r.result}</Badge> },
+    { key: "reason", header: "Reason", className: "text-muted-foreground", render: (r) => r.reason },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (r) => <ActionMenu items={[{ label: "Remove", icon: Trash2, destructive: true, onSelect: () => remove(r.id) }]} />,
+    },
   ];
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Email Validation"
         description="Verify addresses before you send to protect your sender reputation."
         actions={
-          <Button onClick={() => setValidateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setValidateOpen(true)}>
             <ListChecks className="h-4 w-4" /> Validate list
           </Button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         {/* Summary */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
-            <ListChecks className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Results summary</h2>
-          </div>
+        <SectionCard
+          title={
+            <span className="inline-flex items-center gap-2">
+              <ListChecks className="h-4 w-4 text-text-secondary" /> Results summary
+            </span>
+          }
+          contentClassName="space-y-4"
+        >
           <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
             <span className="text-sm text-muted-foreground">Total checked</span>
             <span className="tabular-nums text-sm font-semibold text-foreground">{counts.total.toLocaleString()}</span>
           </div>
           {summaryRows.map((s) => (
             <div key={s.label} className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-              <Pill tone={s.tone}>{s.label}</Pill>
+              <Badge variant={s.tone}>{s.label}</Badge>
               <span className="tabular-nums text-sm font-semibold text-foreground">{s.value.toLocaleString()}</span>
             </div>
           ))}
-        </div>
+        </SectionCard>
 
         {/* Results table */}
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-foreground">Validation results</h2>
-          <TableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                  <TableHead>Email</TableHead>
-                  <TableHead>Result</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {results.map((r) => (
-                  <TableRow key={r.id} className="border-border">
-                    <TableCell className="font-mono text-xs text-foreground">{r.email}</TableCell>
-                    <TableCell><Pill tone={RESULT_TONE[r.result]}>{r.result}</Pill></TableCell>
-                    <TableCell className="text-muted-foreground">{r.reason}</TableCell>
-                    <TableCell className="text-right">
-                      <RowActions items={[{ label: "Remove", icon: Trash2, danger: true, onSelect: () => remove(r.id) }]} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {results.length === 0 && (
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableCell colSpan={4} className="py-14 text-center text-sm text-text-secondary">No results yet.</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableShell>
+          <DataTable
+            columns={columns}
+            data={results}
+            getRowKey={(r) => r.id}
+            empty={
+              <EmptyState
+                icon={ListChecks}
+                title="No results yet."
+                className="rounded-xl border border-border bg-surface-subtle"
+                action={
+                  <Button onClick={() => setValidateOpen(true)}>
+                    <ListChecks className="h-4 w-4" /> Validate list
+                  </Button>
+                }
+              />
+            }
+          />
         </div>
       </div>
 

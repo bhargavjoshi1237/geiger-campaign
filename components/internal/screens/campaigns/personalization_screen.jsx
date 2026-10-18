@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { Plus, Braces, SplitSquareVertical, Pencil, Copy, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -20,12 +18,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const SOURCE_FIELDS = ["First name", "Last name", "Company", "Plan tier", "City", "Last order"];
@@ -66,15 +66,15 @@ function AddTokenDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Token" hint="Use this in content to insert the value.">
-            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{`{{ ${token} }}`}</div>
+            <Input readOnly value={`{{ ${token} }}`} aria-label="Token" className="border-border font-mono text-muted-foreground" />
           </Field>
           <Field label="Fallback value" htmlFor="p-fallback" hint="Shown when a contact has no value for this field.">
-            <Input id="p-fallback" value={form.fallback} onChange={(e) => setForm((f) => ({ ...f, fallback: e.target.value }))} placeholder="e.g. there" className="bg-background border-border" />
+            <Input id="p-fallback" value={form.fallback} onChange={(e) => setForm((f) => ({ ...f, fallback: e.target.value }))} placeholder="e.g. there" className="border-border" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Create tag</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit}>Create tag</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -92,14 +92,54 @@ export function PersonalizationScreen() {
   const fTags = tags.filter((t) => t.token.includes(q) || t.source.toLowerCase().includes(q));
   const fRules = rules.filter((r) => r.name.toLowerCase().includes(q));
 
+  const tagColumns = [
+    { key: "token", header: "Token", className: "font-mono text-xs text-foreground", render: (t) => `{{ ${t.token} }}` },
+    { key: "source", header: "Source field", className: "text-muted-foreground", render: (t) => t.source },
+    { key: "fallback", header: "Fallback", className: "text-muted-foreground", render: (t) => t.fallback },
+    { key: "sample", header: "Sample", className: "text-muted-foreground", render: (t) => t.sample },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (t) => (
+        <ActionMenu items={[
+          { label: "Edit", icon: Pencil },
+          { label: "Copy token", icon: Copy },
+          { separator: true },
+          { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setTags((p) => p.filter((x) => x.id !== t.id)) },
+        ]} />
+      ),
+    },
+  ];
+
+  const ruleColumns = [
+    { key: "name", header: "Rule", className: "font-medium text-foreground", render: (r) => r.name },
+    { key: "condition", header: "Condition", className: "text-muted-foreground", render: (r) => r.condition },
+    { key: "variants", header: "Variants", className: "tabular-nums text-muted-foreground", render: (r) => r.variants },
+    { key: "status", header: "Status", render: (r) => <Badge variant={r.status === "Active" ? "success" : "neutral"}>{r.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (r) => (
+        <ActionMenu items={[
+          { label: "Edit rule", icon: Pencil },
+          { label: "Duplicate", icon: Copy },
+          { separator: true },
+          { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setRules((p) => p.filter((x) => x.id !== r.id)) },
+        ]} />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Personalization"
         description="Merge tags and conditional content that tailor every message to the recipient."
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <Toolbar>
         <SegmentedTabs
           value={tab}
           onChange={setTab}
@@ -111,81 +151,40 @@ export function PersonalizationScreen() {
         <div className="flex items-center gap-2">
           <SearchInput value={query} onChange={setQuery} placeholder={tab === "tags" ? "Search tags…" : "Search rules…"} />
           {tab === "tags" ? (
-            <Button onClick={() => setTokenOpen(true)} className="h-9 shrink-0 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> New tag</Button>
+            <Button onClick={() => setTokenOpen(true)} className="shrink-0"><Plus className="h-4 w-4" /> New tag</Button>
           ) : (
-            <Button className="h-9 shrink-0 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> New rule</Button>
+            <Button className="shrink-0"><Plus className="h-4 w-4" /> New rule</Button>
           )}
         </div>
-      </div>
+      </Toolbar>
 
       {tab === "tags" ? (
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Token</TableHead>
-                <TableHead>Source field</TableHead>
-                <TableHead>Fallback</TableHead>
-                <TableHead>Sample</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {fTags.map((t) => (
-                <TableRow key={t.id} className="border-border">
-                  <TableCell className="font-mono text-xs text-foreground">{`{{ ${t.token} }}`}</TableCell>
-                  <TableCell className="text-muted-foreground">{t.source}</TableCell>
-                  <TableCell className="text-muted-foreground">{t.fallback}</TableCell>
-                  <TableCell className="text-muted-foreground">{t.sample}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Copy token", icon: Copy },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setTags((p) => p.filter((x) => x.id !== t.id)) },
-                    ]} />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {fTags.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No merge tags found.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
+        <DataTable
+          columns={tagColumns}
+          data={fTags}
+          getRowKey={(t) => t.id}
+          empty={
+            <EmptyState
+              icon={Braces}
+              title="No merge tags found"
+              className="rounded-xl border border-border bg-surface-subtle"
+              action={<Button variant="outline" onClick={() => setTokenOpen(true)}><Plus className="h-4 w-4" /> New tag</Button>}
+            />
+          }
+        />
       ) : (
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Rule</TableHead>
-                <TableHead>Condition</TableHead>
-                <TableHead>Variants</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {fRules.map((r) => (
-                <TableRow key={r.id} className="border-border">
-                  <TableCell className="font-medium text-foreground">{r.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{r.condition}</TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{r.variants}</TableCell>
-                  <TableCell><Pill tone={r.status === "Active" ? "green" : "zinc"}>{r.status}</Pill></TableCell>
-                  <TableCell className="text-right">
-                    <RowActions items={[
-                      { label: "Edit rule", icon: Pencil },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setRules((p) => p.filter((x) => x.id !== r.id)) },
-                    ]} />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {fRules.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No dynamic content rules found.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
+        <DataTable
+          columns={ruleColumns}
+          data={fRules}
+          getRowKey={(r) => r.id}
+          empty={
+            <EmptyState
+              icon={SplitSquareVertical}
+              title="No dynamic content rules found"
+              className="rounded-xl border border-border bg-surface-subtle"
+            />
+          }
+        />
       )}
 
       <AddTokenDialog open={tokenOpen} onOpenChange={setTokenOpen} onCreate={(t) => setTags((p) => [{ id: Date.now(), ...t }, ...p])} />

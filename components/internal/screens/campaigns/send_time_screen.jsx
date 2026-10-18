@@ -2,17 +2,19 @@
 
 import React, { useState } from "react";
 import { Clock, Sparkles, Globe, Sun } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
+  cn,
+  ScreenHeader,
+  SectionCard,
+  SettingsList,
+  SettingRow,
+  Field,
 } from "@geiger/ui";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -24,7 +26,7 @@ function intensity(d, h) {
   const peak = h >= 2 && h <= 5 && d < 5 ? 1.6 : 0;
   return Math.max(0, Math.min(4, Math.round(base + peak)));
 }
-const HEAT = ["#1f1f1f", "#28332b", "#2f5141", "#3f8a5e", "#56d68f"];
+const HEAT = ["bg-zinc-100 dark:bg-[#1f1f1f]", "bg-emerald-100 dark:bg-[#28332b]", "bg-emerald-200 dark:bg-[#2f5141]", "bg-emerald-400 dark:bg-[#3f8a5e]", "bg-emerald-500 dark:bg-[#56d68f]"];
 
 const STRATEGIES = [
   { value: "ai", label: "AI per-recipient (recommended)", icon: Sparkles },
@@ -39,22 +41,23 @@ export function SendTimeScreen() {
   const [window, setWindow] = useState("24h");
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Send-Time Optimization"
         description="Deliver each message when a contact is most likely to open it."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">Enable optimization</p>
-              <p className="text-xs text-text-secondary">Applies to all broadcast campaigns.</p>
-            </div>
-            <Switch checked={enabled} onCheckedChange={setEnabled} />
-          </div>
+        <SectionCard contentClassName="space-y-4">
+          <SettingsList className="rounded-lg border border-border bg-surface-card px-4 py-3">
+            <SettingRow
+              title="Enable optimization"
+              description="Applies to all broadcast campaigns."
+              checked={enabled}
+              onCheckedChange={setEnabled}
+            />
+          </SettingsList>
 
           <div className={cn("space-y-4 transition-opacity", !enabled && "pointer-events-none opacity-40")}>
             <Field label="Strategy">
@@ -82,17 +85,18 @@ export function SendTimeScreen() {
               </Select>
             </Field>
           </div>
-        </div>
+        </SectionCard>
 
         {/* Heatmap */}
-        <div className="rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-text-secondary" />
-            <h3 className="text-sm font-semibold text-foreground">Engagement by send time</h3>
-          </div>
-          <p className="mt-1 text-xs text-text-secondary">Open rate across the last 90 days, by day and hour.</p>
-
-          <div className="mt-5 overflow-x-auto">
+        <SectionCard
+          title={
+            <span className="inline-flex items-center gap-2">
+              <Clock className="h-4 w-4 text-text-secondary" /> Engagement by send time
+            </span>
+          }
+          description="Open rate across the last 90 days, by day and hour."
+        >
+          <div className="overflow-x-auto">
             <div className="min-w-[440px]">
               <div className="mb-1 grid grid-cols-[40px_repeat(9,1fr)] gap-1">
                 <span />
@@ -103,7 +107,7 @@ export function SendTimeScreen() {
                   <span className="text-[11px] text-text-secondary">{day}</span>
                   {HOURS.map((_, h) => {
                     const v = intensity(d, h);
-                    return <span key={h} className="aspect-square rounded-[3px]" style={{ backgroundColor: HEAT[v] }} title={`${day} ${HOURS[h]}`} />;
+                    return <span key={h} className={cn("aspect-square rounded-[3px]", HEAT[v])} title={`${day} ${HOURS[h]}`} />;
                   })}
                 </div>
               ))}
@@ -112,10 +116,10 @@ export function SendTimeScreen() {
 
           <div className="mt-4 flex items-center justify-end gap-2 text-[10px] text-text-secondary">
             Less
-            {HEAT.map((c) => <span key={c} className="h-3 w-3 rounded-[3px]" style={{ backgroundColor: c }} />)}
+            {HEAT.map((c) => <span key={c} className={cn("h-3 w-3 rounded-[3px]", c)} />)}
             More
           </div>
-        </div>
+        </SectionCard>
       </div>
     </MainScreenWrapper>
   );

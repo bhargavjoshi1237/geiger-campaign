@@ -3,8 +3,6 @@
 import React, { useMemo, useState } from "react";
 import { Plus, Database, Play, Pencil, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -19,13 +17,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  SettingsList,
+  SettingRow,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const PROVIDERS = {
@@ -37,8 +37,8 @@ const PROVIDERS = {
 
 const FREQUENCIES = ["Hourly", "Every 6h", "Daily"];
 const DIRECTIONS = ["Import", "Export"];
-const DIRECTION_TONE = { Import: "blue", Export: "violet" };
-const STATUS_TONE = { Success: "green", Running: "amber", Failed: "red" };
+const DIRECTION_TONE = { Import: "info", Export: "purple" };
+const STATUS_TONE = { Success: "success", Running: "warning", Failed: "danger" };
 
 const INITIAL_JOBS = [
   { id: 1, table: "analytics.fct_orders", direction: "Import", rows: 482910, frequency: "Hourly", lastSync: "9 minutes ago", status: "Success" },
@@ -76,7 +76,7 @@ function CreateSyncDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Table / dataset" htmlFor="s-table" hint="Fully-qualified, e.g. analytics.fct_orders.">
-            <Input id="s-table" value={form.table} onChange={(e) => setForm((f) => ({ ...f, table: e.target.value }))} placeholder="e.g. analytics.fct_orders" className="bg-background border-border font-mono" />
+            <Input id="s-table" value={form.table} onChange={(e) => setForm((f) => ({ ...f, table: e.target.value }))} placeholder="e.g. analytics.fct_orders" className="border-border font-mono" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Direction">
@@ -94,8 +94,8 @@ function CreateSyncDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.table.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create sync</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.table.trim()}>Create sync</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -114,26 +114,49 @@ export function WarehouseSyncScreen() {
   const remove = (id) => setJobs((p) => p.filter((j) => j.id !== id));
   const runNow = (id) => setJobs((p) => p.map((j) => (j.id === id ? { ...j, status: "Running", lastSync: "Running now" } : j)));
 
+  const columns = [
+    { key: "table", header: "Table / dataset", className: "font-mono text-foreground" },
+    { key: "direction", header: "Direction", render: (j) => <Badge variant={DIRECTION_TONE[j.direction]}>{j.direction}</Badge> },
+    { key: "rows", header: "Rows", className: "tabular-nums text-muted-foreground", render: (j) => j.rows.toLocaleString() },
+    { key: "frequency", header: "Frequency", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "lastSync", header: "Last sync", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "status", header: "Status", render: (j) => <Badge variant={STATUS_TONE[j.status]}>{j.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (j) => (
+        <ActionMenu
+          items={[
+            { label: "Run now", icon: Play, onSelect: () => runNow(j.id) },
+            { label: "Edit", icon: Pencil },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => remove(j.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Warehouse Sync"
         description="Sync data both ways with your data warehouse."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New sync
           </Button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         {/* Connection config */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Connection</h2>
-            <Pill tone="green">Connected</Pill>
-          </div>
-
+        <SectionCard
+          title="Connection"
+          action={<Badge variant="success">Connected</Badge>}
+          contentClassName="space-y-4"
+        >
           <Field label="Provider">
             <Select value={provider} onValueChange={setProvider}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -147,13 +170,14 @@ export function WarehouseSyncScreen() {
             </div>
           </Field>
 
-          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">Sync enabled</p>
-              <p className="text-xs text-text-secondary">Pause all jobs without deleting them.</p>
-            </div>
-            <Switch checked={syncEnabled} onCheckedChange={setSyncEnabled} />
-          </div>
+          <SettingsList>
+            <SettingRow
+              title="Sync enabled"
+              description="Pause all jobs without deleting them."
+              checked={syncEnabled}
+              onCheckedChange={setSyncEnabled}
+            />
+          </SettingsList>
 
           <Field label="Sync frequency" hint="Default cadence applied to new jobs.">
             <Select value={frequency} onValueChange={setFrequency}>
@@ -161,7 +185,7 @@ export function WarehouseSyncScreen() {
               <SelectContent>{FREQUENCIES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-        </div>
+        </SectionCard>
 
         {/* Sync jobs */}
         <div className="space-y-3">
@@ -169,47 +193,19 @@ export function WarehouseSyncScreen() {
             <Database className="h-4 w-4 text-text-secondary" />
             <h2 className="text-sm font-semibold text-foreground">Sync jobs</h2>
           </div>
-          <TableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                  <TableHead>Table / dataset</TableHead>
-                  <TableHead>Direction</TableHead>
-                  <TableHead>Rows</TableHead>
-                  <TableHead>Frequency</TableHead>
-                  <TableHead>Last sync</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jobs.map((j) => (
-                  <TableRow key={j.id} className="border-border">
-                    <TableCell className="font-mono text-foreground">{j.table}</TableCell>
-                    <TableCell><Pill tone={DIRECTION_TONE[j.direction]}>{j.direction}</Pill></TableCell>
-                    <TableCell className="tabular-nums text-muted-foreground">{j.rows.toLocaleString()}</TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{j.frequency}</TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{j.lastSync}</TableCell>
-                    <TableCell><Pill tone={STATUS_TONE[j.status]}>{j.status}</Pill></TableCell>
-                    <TableCell className="text-right">
-                      <RowActions
-                        items={[
-                          { label: "Run now", icon: Play, onSelect: () => runNow(j.id) },
-                          { label: "Edit", icon: Pencil },
-                          { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => remove(j.id) },
-                        ]}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {jobs.length === 0 && (
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No sync jobs found.</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableShell>
+          <DataTable
+            columns={columns}
+            data={jobs}
+            getRowKey={(j) => j.id}
+            empty={
+              <EmptyState
+                icon={Database}
+                title="No sync jobs found"
+                className="rounded-xl border border-border bg-surface-subtle"
+                action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New sync</Button>}
+              />
+            }
+          />
         </div>
       </div>
 

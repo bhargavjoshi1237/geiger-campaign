@@ -20,7 +20,7 @@ export default function Pallet() {
   ];
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-background">
+    <div className="dark flex flex-col w-full min-h-screen bg-background">
       <div className="min-h-screen bg-background text-foreground p-6 sm:p-10 font-sans selection:bg-surface-strong">
         <div className="max-w-6xl mx-auto space-y-16">
           <div className="space-y-4 border-b border-border pb-8 pt-6">

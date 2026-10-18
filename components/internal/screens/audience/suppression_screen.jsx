@@ -2,16 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { ShieldOff, Plus, RotateCcw, Trash2, Download } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import {
-  TableShell,
-  SearchInput,
-  Pill,
-  RowActions,
-  Field,
-} from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -32,20 +23,23 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  DataTable,
+  EmptyState,
 } from "@geiger/ui";
 
 const REASON_TONE = {
-  Unsubscribed: "zinc",
-  "Hard bounce": "red",
-  "Spam complaint": "amber",
-  Manual: "violet",
+  Unsubscribed: "neutral",
+  "Hard bounce": "danger",
+  "Spam complaint": "warning",
+  Manual: "purple",
 };
 
 const REASONS = ["Unsubscribed", "Hard bounce", "Spam complaint", "Manual"];
@@ -83,7 +77,7 @@ function AddSuppressionDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Email address" htmlFor="sup-email">
-            <Input id="sup-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="name@company.com" className="bg-background border-border" />
+            <Input id="sup-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="name@company.com" />
           </Field>
           <Field label="Reason">
             <Select value={form.reason} onValueChange={(v) => setForm((f) => ({ ...f, reason: v }))}>
@@ -98,8 +92,8 @@ function AddSuppressionDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Suppress address</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.email.trim()}>Suppress address</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -123,35 +117,76 @@ export function SuppressionScreen() {
 
   const remove = (id) => setEntries((p) => p.filter((e) => e.id !== id));
 
+  const columns = [
+    {
+      key: "email",
+      header: "Email address",
+      render: (e) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-text-secondary">
+            <ShieldOff className="h-4 w-4" />
+          </span>
+          <span className="font-medium text-foreground">{e.email}</span>
+        </div>
+      ),
+    },
+    {
+      key: "reason",
+      header: "Reason",
+      render: (e) => <Badge variant={REASON_TONE[e.reason]}>{e.reason}</Badge>,
+    },
+    { key: "source", header: "Source", className: "text-muted-foreground", render: (e) => e.source },
+    { key: "added", header: "Suppressed", className: "whitespace-nowrap text-muted-foreground", render: (e) => e.added },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (e) => (
+        <ActionMenu
+          label={`Actions for ${e.email}`}
+          items={[
+            { label: "Remove from list", icon: RotateCcw, onSelect: () => remove(e.id) },
+            { separator: true },
+            { label: "Delete record", icon: Trash2, destructive: true, onSelect: () => remove(e.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Suppression"
         description="Addresses excluded from all sends — bounces, complaints, unsubscribes, and manual blocks."
         actions={
-          <Button onClick={() => setAddOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
-            <Plus className="h-4 w-4" /> Add address
-          </Button>
+          <>
+            <Button variant="outline">
+              <Download className="h-4 w-4" /> Export
+            </Button>
+            <Button onClick={() => setAddOpen(true)}>
+              <Plus className="h-4 w-4" /> Add address
+            </Button>
+          </>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <SearchInput value={query} onChange={setQuery} placeholder="Search email…" />
+      <Toolbar>
+        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
+              <Button variant="outline" className="h-9 justify-between bg-surface-card sm:w-44">
                 {reasonFilter === "All" ? "All reasons" : reasonFilter}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+            <DropdownMenuContent className="w-48">
               <DropdownMenuLabel className="text-text-secondary">Filter by reason</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-surface-hover" />
+              <DropdownMenuSeparator />
               {["All", ...REASONS].map((r) => (
                 <DropdownMenuItem
                   key={r}
                   onSelect={() => setReasonFilter(r)}
-                  className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", reasonFilter === r && "text-white")}
+                  className={cn("cursor-pointer", reasonFilter === r && "font-medium")}
                 >
                   {r === "All" ? "All reasons" : r}
                 </DropdownMenuItem>
@@ -159,54 +194,27 @@ export function SuppressionScreen() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
-          <Download className="h-4 w-4" /> Export
-        </Button>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search email…" />
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Email address</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Suppressed</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((e) => (
-              <TableRow key={e.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-text-secondary">
-                      <ShieldOff className="h-4 w-4" />
-                    </span>
-                    <span className="font-medium text-foreground">{e.email}</span>
-                  </div>
-                </TableCell>
-                <TableCell><Pill tone={REASON_TONE[e.reason]}>{e.reason}</Pill></TableCell>
-                <TableCell className="text-muted-foreground">{e.source}</TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{e.added}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Remove from list", icon: RotateCcw, onSelect: () => remove(e.id) },
-                      { label: "Delete record", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => remove(e.id) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No suppressed addresses match your filters.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(e) => e.id}
+        empty={
+          <EmptyState
+            icon={ShieldOff}
+            title="No suppressed addresses"
+            description="No suppressed addresses match your filters."
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button onClick={() => setAddOpen(true)}>
+                <Plus className="h-4 w-4" /> Add address
+              </Button>
+            }
+          />
+        }
+      />
 
       <AddSuppressionDialog open={addOpen} onOpenChange={setAddOpen} onCreate={(e) => setEntries((p) => [{ id: Date.now(), ...e }, ...p])} />
     </MainScreenWrapper>

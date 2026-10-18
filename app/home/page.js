@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
-import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
+import { Topbar } from "@/components/internal/topbar/topbar";
 import { LoadingScreen, SidebarInset, SidebarProvider } from "@geiger/ui";
 import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
 import { getScreen } from "@/components/internal/screens/screen_registry";
@@ -44,7 +44,7 @@ function HomeLayoutContent() {
         className="flex-col !flex h-full min-w-0"
         style={{ flexDirection: "column" }}
       >
-        <ProjectTopbar name="Campaign" />
+        <Topbar />
         <div className="flex flex-1 overflow-hidden relative">
           <ProjectSidebar activeTab={currentTab} onTabChange={setCurrentTab} />
           <SidebarInset className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative border-none">

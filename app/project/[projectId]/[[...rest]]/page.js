@@ -2,9 +2,16 @@
 
 import React, { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
-import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
-import { SidebarInset, SidebarProvider } from "@geiger/ui";
+import { Topbar } from "@/components/internal/topbar/topbar";
+import {
+  Button,
+  EmptyState,
+  LoadingArea,
+  SidebarInset,
+  SidebarProvider,
+} from "@geiger/ui";
 import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
 import { getScreen } from "@/components/internal/screens/screen_registry";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";
@@ -14,7 +21,8 @@ import {
   useProject,
   pickDefaultProjectId,
 } from "@/context/project-context";
-import { LoadingArea } from "@/components/internal/workspace/workspace_states";
+import { RbacProvider, useRbac } from "@/context/rbac-context";
+import { permissionsForTab, tabPermissionKey } from "@/lib/rbac";
 
 // The active screen for the current tab, gated on the path's project resolving
 // to one the user can reach. Keyed by project id so switching projects remounts
@@ -22,6 +30,8 @@ import { LoadingArea } from "@/components/internal/workspace/workspace_states";
 function ScreenArea({ activeItem, Screen }) {
   const router = useRouter();
   const { project, projects, loading } = useProject();
+  const { can, hasGrant } = useRbac();
+  const { setTab } = useWorkspaceUrl();
 
   // No reachable projects → landing. A stale/invalid id in the path → a valid one.
   useEffect(() => {
@@ -37,6 +47,29 @@ function ScreenArea({ activeItem, Screen }) {
 
   if (loading) return <LoadingArea />;
   if (projects.length === 0 || !project) return <LoadingArea />;
+
+  // Advisory UI gate: a tab whose section the user's role doesn't carry renders a no-access state instead of the screen.
+  if (!hasGrant || !permissionsForTab(activeItem.title).every((key) => can(key))) {
+    const canOverview = hasGrant && can(tabPermissionKey("Overview"));
+    return (
+      <EmptyState
+        icon={Lock}
+        title={hasGrant ? `No access to ${activeItem.title}` : "No access to this project"}
+        description={
+          hasGrant
+            ? "Your role doesn't include this section. Ask a workspace admin to update your role."
+            : "You don't hold a role in this project yet. Ask a workspace admin to add you from Team & Roles."
+        }
+        action={
+          canOverview && activeItem.title !== "Overview" ? (
+            <Button variant="outline" onClick={() => setTab("Overview")}>
+              Go to Overview
+            </Button>
+          ) : null
+        }
+      />
+    );
+  }
 
   return (
     <div key={project.id} className="h-full">
@@ -71,7 +104,7 @@ function WorkspaceContent() {
         className="flex-col !flex h-full min-w-0"
         style={{ flexDirection: "column" }}
       >
-        <ProjectTopbar name="Campaign" />
+        <Topbar />
         <div className="flex flex-1 overflow-hidden relative">
           <ProjectSidebar activeTab={currentTab} onTabChange={setCurrentTab} />
           <SidebarInset className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative border-none">
@@ -96,7 +129,9 @@ export default function ProjectWorkspacePage() {
       }
     >
       <ProjectProvider>
-        <WorkspaceContent />
+        <RbacProvider>
+          <WorkspaceContent />
+        </RbacProvider>
       </ProjectProvider>
     </Suspense>
   );

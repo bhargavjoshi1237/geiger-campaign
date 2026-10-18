@@ -2,11 +2,8 @@
 
 import React, { useState } from "react";
 import { MessageCircle, Send } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Pill } from "@/components/internal/shared/screen_kit";
-import { Button, Input } from "@geiger/ui";
+import { Button, Input, cn, ScreenHeader, Badge, SectionCard, EmptyState } from "@geiger/ui";
 
 const QUICK_REPLIES = [
   "Thanks for reaching out!",
@@ -14,6 +11,10 @@ const QUICK_REPLIES = [
   "Your order is on the way 🚚",
   "Is there anything else I can help with?",
 ];
+
+// Ghost Button reshaped into a full-width thread list row
+const THREAD_ROW =
+  "h-auto w-full items-start justify-start gap-3 whitespace-normal rounded-none border-b border-surface-active px-3 py-3 text-left font-normal last:border-b-0 hover:bg-surface-hover";
 
 const INITIAL_THREADS = [
   {
@@ -101,24 +102,22 @@ export function WhatsappInboxScreen() {
   };
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="WhatsApp Inbox"
         description="Manage WhatsApp Business conversations and quick replies."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[320px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
         {/* Thread list */}
-        <div className="overflow-hidden rounded-xl border border-border bg-surface-subtle">
+        <SectionCard bodyPadding={false}>
           {threads.map((t) => (
-            <button
+            <Button
               key={t.id}
               type="button"
+              variant="ghost"
               onClick={() => openThread(t.id)}
-              className={cn(
-                "flex w-full items-start gap-3 border-b border-surface-active px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#1d1d1d]",
-                selectedId === t.id && "bg-surface-card",
-              )}
+              className={cn(THREAD_ROW, selectedId === t.id && "bg-surface-card")}
             >
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-active text-xs font-medium text-muted-foreground">
                 {t.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
@@ -132,31 +131,34 @@ export function WhatsappInboxScreen() {
                 <span className="truncate text-xs text-text-secondary">{t.messages[t.messages.length - 1].body}</span>
               </div>
               {t.unread && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-400" />}
-            </button>
+            </Button>
           ))}
-        </div>
+        </SectionCard>
 
         {/* Conversation */}
-        <div className="flex h-[560px] flex-col rounded-xl border border-border bg-surface-subtle">
+        <SectionCard
+          className="h-[560px]"
+          bodyPadding={false}
+          contentClassName="flex min-h-0 flex-1 flex-col"
+          title={selected ? <span className="block truncate">{selected.name}</span> : null}
+          description={
+            selected ? (
+              <span className="inline-flex items-center gap-1.5 truncate font-mono text-xs">
+                <MessageCircle className="h-3.5 w-3.5" /> WhatsApp · {selected.phone}
+              </span>
+            ) : null
+          }
+          action={selected ? <Badge variant={selected.status === "Open" ? "success" : "neutral"}>{selected.status}</Badge> : null}
+        >
           {selected ? (
             <>
-              <div className="flex items-center justify-between gap-3 border-b border-surface-active px-5 py-3">
-                <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-medium text-foreground">{selected.name}</span>
-                  <span className="inline-flex items-center gap-1.5 truncate font-mono text-xs text-text-secondary">
-                    <MessageCircle className="h-3.5 w-3.5" /> WhatsApp · {selected.phone}
-                  </span>
-                </div>
-                <Pill tone={selected.status === "Open" ? "green" : "zinc"}>{selected.status}</Pill>
-              </div>
-
               <div className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
                 {selected.messages.map((m) => (
                   <div key={m.id} className={cn("flex flex-col", m.dir === "out" ? "items-end" : "items-start")}>
                     <div
                       className={cn(
                         "max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-5",
-                        m.dir === "out" ? "bg-emerald-500/15 text-emerald-50" : "bg-surface-active text-foreground",
+                        m.dir === "out" ? "bg-emerald-500/15 text-emerald-900 dark:text-emerald-50" : "bg-surface-active text-foreground",
                       )}
                     >
                       {m.body}
@@ -169,14 +171,16 @@ export function WhatsappInboxScreen() {
               <div className="border-t border-surface-active p-3">
                 <div className="mb-2 flex flex-wrap gap-2">
                   {QUICK_REPLIES.map((q) => (
-                    <button
+                    <Button
                       key={q}
                       type="button"
+                      variant="outline"
+                      size="xs"
                       onClick={() => send(q)}
-                      className="rounded-full border border-border bg-surface-card px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
+                      className="rounded-full bg-surface-card px-3 font-normal text-muted-foreground shadow-none hover:border-border-strong"
                     >
                       {q}
-                    </button>
+                    </Button>
                   ))}
                 </div>
                 <div className="flex items-center gap-2">
@@ -185,20 +189,18 @@ export function WhatsappInboxScreen() {
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") send(); }}
                     placeholder="Type a message…"
-                    className="border-border bg-background"
+                    className="border-border"
                   />
-                  <Button onClick={() => send()} disabled={!draft.trim()} size="icon" className="h-9 w-9 shrink-0 bg-white text-black hover:bg-[#e5e5e5]">
+                  <Button onClick={() => send()} disabled={!draft.trim()} size="icon" aria-label="Send message">
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex flex-1 items-center justify-center text-sm text-text-secondary">
-              Select a thread to view messages.
-            </div>
+            <EmptyState icon={MessageCircle} title="Select a thread to view messages." className="flex-1" />
           )}
-        </div>
+        </SectionCard>
       </div>
     </MainScreenWrapper>
   );

@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Eye } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Eye, Receipt } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -19,20 +17,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  SectionCard,
+  Toolbar,
+  Badge,
+  ActionMenu,
+  cn,
 } from "@geiger/ui";
 
 const STATUS_TONE = {
-  Paid: "green",
-  Pending: "amber",
-  Fulfilled: "blue",
-  Refunded: "zinc",
-  Cancelled: "red",
+  Paid: "success",
+  Pending: "warning",
+  Fulfilled: "info",
+  Refunded: "neutral",
+  Cancelled: "danger",
 };
 
 const STATUSES = ["Paid", "Pending", "Fulfilled", "Refunded", "Cancelled"];
@@ -70,14 +70,14 @@ function OrderDetailDialog({ order, onOpenChange }) {
           <DialogTitle>Order {order.number}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <div className="rounded-xl border border-border bg-surface-subtle p-4">
+          <SectionCard contentClassName="p-4">
             <LabeledRow label="Order #"><span className="font-mono text-muted-foreground">{order.number}</span></LabeledRow>
             <LabeledRow label="Customer">{order.customer}</LabeledRow>
             <LabeledRow label="Email"><span className="break-all text-muted-foreground">{order.email}</span></LabeledRow>
-            <LabeledRow label="Status"><Pill tone={STATUS_TONE[order.status]}>{order.status}</Pill></LabeledRow>
+            <LabeledRow label="Status"><Badge variant={STATUS_TONE[order.status]}>{order.status}</Badge></LabeledRow>
             <LabeledRow label="Total"><span className="tabular-nums">{money(order.total)}</span></LabeledRow>
             <LabeledRow label="Date"><span className="text-muted-foreground">{order.date}</span></LabeledRow>
-          </div>
+          </SectionCard>
 
           <div className="mt-4">
             <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-secondary">Line items</h3>
@@ -92,7 +92,7 @@ function OrderDetailDialog({ order, onOpenChange }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Close</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(null)}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -112,77 +112,77 @@ export function OrdersScreen() {
     );
   }, [query, statusFilter]);
 
+  const columns = [
+    { key: "order", header: "Order", className: "font-mono font-medium text-foreground", render: (o) => o.number },
+    {
+      key: "customer",
+      header: "Customer",
+      render: (o) => (
+        <div className="flex min-w-0 flex-col">
+          <span className="font-medium text-foreground">{o.customer}</span>
+          <span className="truncate text-xs text-text-secondary">{o.email}</span>
+        </div>
+      ),
+    },
+    { key: "items", header: "Items", className: "tabular-nums text-muted-foreground", render: (o) => o.lineItems.reduce((s, li) => s + li.qty, 0) },
+    { key: "total", header: "Total", className: "tabular-nums text-muted-foreground", render: (o) => money(o.total) },
+    { key: "status", header: "Status", render: (o) => <Badge variant={STATUS_TONE[o.status]}>{o.status}</Badge> },
+    { key: "date", header: "Date", className: "whitespace-nowrap text-muted-foreground", render: (o) => o.date },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (o) => (
+        <ActionMenu
+          items={[
+            { label: "View", icon: Eye, onSelect: () => setSelected(o) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Orders"
         description="Every order flowing in from your connected stores."
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {statusFilter === "All" ? "All statuses" : statusFilter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44 bg-surface-card">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
+              {["All", ...STATUSES].map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover", statusFilter === s && "font-medium")}>
+                  {s === "All" ? "All statuses" : s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search order, customer, or email…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {statusFilter === "All" ? "All statuses" : statusFilter}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...STATUSES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
-                {s === "All" ? "All statuses" : s}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Order</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((o) => (
-              <TableRow key={o.id} className="border-border">
-                <TableCell className="font-mono font-medium text-foreground">{o.number}</TableCell>
-                <TableCell>
-                  <div className="flex min-w-0 flex-col">
-                    <span className="font-medium text-foreground">{o.customer}</span>
-                    <span className="truncate text-xs text-text-secondary">{o.email}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{o.lineItems.reduce((s, li) => s + li.qty, 0)}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{money(o.total)}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[o.status]}>{o.status}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{o.date}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "View", icon: Eye, onSelect: () => setSelected(o) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No orders found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(o) => o.id}
+        empty={
+          <EmptyState
+            icon={Receipt}
+            title="No orders found"
+            className="rounded-xl border border-border bg-surface-subtle"
+          />
+        }
+      />
 
       <OrderDetailDialog order={selected} onOpenChange={setSelected} />
     </MainScreenWrapper>

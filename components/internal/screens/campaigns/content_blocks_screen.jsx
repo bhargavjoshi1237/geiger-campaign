@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, SquareStack, Pencil, Copy, Trash2, LayoutPanelTop, MousePointerClick, PanelBottom, ShoppingBag, Share2, Type } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -26,22 +23,25 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const TYPE_META = {
-  Header: { icon: LayoutPanelTop, tone: "blue" },
-  Hero: { icon: Type, tone: "violet" },
-  CTA: { icon: MousePointerClick, tone: "amber" },
-  Footer: { icon: PanelBottom, tone: "zinc" },
-  Product: { icon: ShoppingBag, tone: "green" },
-  Social: { icon: Share2, tone: "blue" },
+  Header: { icon: LayoutPanelTop, tone: "info" },
+  Hero: { icon: Type, tone: "purple" },
+  CTA: { icon: MousePointerClick, tone: "warning" },
+  Footer: { icon: PanelBottom, tone: "neutral" },
+  Product: { icon: ShoppingBag, tone: "success" },
+  Social: { icon: Share2, tone: "info" },
 };
 const TYPES = Object.keys(TYPE_META);
 
@@ -71,7 +71,7 @@ function CreateBlockDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Block name" htmlFor="b-name">
-            <Input id="b-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring hero banner" className="bg-background border-border" />
+            <Input id="b-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring hero banner" className="border-border" />
           </Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
@@ -84,8 +84,8 @@ function CreateBlockDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create block</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create block</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -103,89 +103,90 @@ export function ContentBlocksScreen() {
     return blocks.filter((b) => (typeFilter === "All" || b.type === typeFilter) && (!q || b.name.toLowerCase().includes(q)));
   }, [blocks, query, typeFilter]);
 
+  const columns = [
+    {
+      key: "block",
+      header: "Block",
+      render: (b) => {
+        const Icon = TYPE_META[b.type].icon;
+        return (
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+              <Icon className="h-4 w-4" />
+            </span>
+            <div className="flex min-w-0 flex-col">
+              <span className="font-medium text-foreground">{b.name}</span>
+              <span className="truncate text-xs text-text-secondary">{b.description}</span>
+            </div>
+          </div>
+        );
+      },
+    },
+    { key: "type", header: "Type", render: (b) => <Badge variant={TYPE_META[b.type].tone}>{b.type}</Badge> },
+    { key: "usedIn", header: "Used in", className: "tabular-nums text-muted-foreground", render: (b) => `${b.usedIn} campaigns` },
+    { key: "updated", header: "Updated", className: "whitespace-nowrap text-muted-foreground", render: (b) => b.updated },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (b) => (
+        <ActionMenu
+          items={[
+            { label: "Edit block", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setBlocks((p) => p.filter((x) => x.id !== b.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Content Blocks"
         description="Reusable, brand-consistent building blocks you can drop into any email."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New block
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <SearchInput value={query} onChange={setQuery} placeholder="Search blocks…" />
+      <Toolbar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
+            <Button variant="outline" className="h-9 justify-between bg-surface-card sm:w-40">
               {typeFilter === "All" ? "All types" : typeFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+          <DropdownMenuContent className="w-44">
             <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
+            <DropdownMenuSeparator />
             {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer", typeFilter === t && "font-medium")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search blocks…" />
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Block</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Used in</TableHead>
-              <TableHead>Updated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((b) => {
-              const meta = TYPE_META[b.type];
-              const Icon = meta.icon;
-              return (
-                <TableRow key={b.id} className="border-border">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <div className="flex min-w-0 flex-col">
-                        <span className="font-medium text-foreground">{b.name}</span>
-                        <span className="truncate text-xs text-text-secondary">{b.description}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell><Pill tone={meta.tone}>{b.type}</Pill></TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{b.usedIn} campaigns</TableCell>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{b.updated}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Edit block", icon: Pencil },
-                        { label: "Duplicate", icon: Copy },
-                        { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setBlocks((p) => p.filter((x) => x.id !== b.id)) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No blocks found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(b) => b.id}
+        empty={
+          <EmptyState
+            icon={SquareStack}
+            title="No blocks found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button variant="outline" onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New block</Button>}
+          />
+        }
+      />
 
       <CreateBlockDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(b) => setBlocks((p) => [{ id: Date.now(), ...b }, ...p])} />
     </MainScreenWrapper>

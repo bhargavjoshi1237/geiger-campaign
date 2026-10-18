@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, FileCode, Pencil, Copy, Send, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -27,21 +24,24 @@ import {
   SelectTrigger,
   SelectValue,
   Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  DataTable,
+  EmptyState,
 } from "@geiger/ui";
 
 const TYPE_TONE = {
-  Welcome: "green",
-  "Password reset": "amber",
-  Receipt: "blue",
-  "Email verification": "violet",
-  "Shipping update": "zinc",
+  Welcome: "success",
+  "Password reset": "warning",
+  Receipt: "info",
+  "Email verification": "purple",
+  "Shipping update": "neutral",
 };
 
 const TYPES = Object.keys(TYPE_TONE);
@@ -80,7 +80,7 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Template name" htmlFor="t-name">
-            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Welcome email" className="bg-background border-border" />
+            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Welcome email" className="border-border" />
           </Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
@@ -91,15 +91,15 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Subject" htmlFor="t-subject">
-            <Input id="t-subject" value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} placeholder="Your order {{order_id}} is confirmed" className="bg-background border-border" />
+            <Input id="t-subject" value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} placeholder="Your order {{order_id}} is confirmed" className="border-border" />
           </Field>
           <Field label="Body" htmlFor="t-body" hint="Supports merge tags like {{first_name}} and {{order_id}}.">
-            <Textarea id="t-body" value={form.body} onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))} placeholder="Hi {{first_name}}, …" className="bg-background border-border" />
+            <Textarea id="t-body" value={form.body} onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))} placeholder="Hi {{first_name}}, …" className="bg-background" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create template</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create template</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -123,88 +123,90 @@ export function TransactionalTemplatesScreen() {
   const toggle = (id) => setTemplates((p) => p.map((t) => (t.id === id ? { ...t, active: !t.active } : t)));
   const remove = (id) => setTemplates((p) => p.filter((t) => t.id !== id));
 
+  const columns = [
+    {
+      key: "template",
+      header: "Template",
+      render: (t) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+            <FileCode className="h-4 w-4" />
+          </span>
+          <div className="flex min-w-0 flex-col">
+            <span className="font-medium text-foreground">{t.name}</span>
+            <span className="truncate text-xs text-text-secondary">{t.subject}</span>
+          </div>
+        </div>
+      ),
+    },
+    { key: "type", header: "Type", render: (t) => <Badge variant={TYPE_TONE[t.type]}>{t.type}</Badge> },
+    { key: "updated", header: "Last updated", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "active", header: "Active", render: (t) => <Switch checked={t.active} onCheckedChange={() => toggle(t.id)} /> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (t) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { label: "Send test", icon: Send },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => remove(t.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Transactional Templates"
         description="Reusable templates for receipts, password resets, and other system emails."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New template
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-44">
+                {typeFilter === "All" ? "All types" : typeFilter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 bg-surface-card">
+              <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
+              {["All", ...TYPES].map((t) => (
+                <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover", typeFilter === t && "font-medium")}>
+                  {t === "All" ? "All types" : t}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search templates…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
-              {typeFilter === "All" ? "All types" : typeFilter}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}>
-                {t === "All" ? "All types" : t}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Template</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Last updated</TableHead>
-              <TableHead>Active</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((t) => (
-              <TableRow key={t.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                      <FileCode className="h-4 w-4" />
-                    </span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-foreground">{t.name}</span>
-                      <span className="truncate text-xs text-text-secondary">{t.subject}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell><Pill tone={TYPE_TONE[t.type]}>{t.type}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{t.updated}</TableCell>
-                <TableCell>
-                  <Switch checked={t.active} onCheckedChange={() => toggle(t.id)} />
-                </TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Send test", icon: Send },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => remove(t.id) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No templates found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(t) => t.id}
+        empty={
+          <EmptyState
+            icon={FileCode}
+            title="No templates found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button variant="outline" onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New template</Button>}
+          />
+        }
+      />
 
       <CreateTemplateDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(t) => setTemplates((p) => [{ id: Date.now(), ...t }, ...p])} />
     </MainScreenWrapper>

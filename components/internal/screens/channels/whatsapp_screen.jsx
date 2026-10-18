@@ -2,12 +2,10 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, MessageCircle, Pencil, Copy, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -20,23 +18,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  EmptyState,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
+  ScreenHeader,
+  SearchInput,
+  SectionCard,
+  Toolbar,
+  Badge,
+  ActionMenu,
+  Field,
+  cn,
 } from "@geiger/ui";
 
-const CATEGORY_TONE = { Marketing: "blue", Utility: "zinc", Authentication: "violet" };
-const STATUS_TONE = { Approved: "green", Pending: "amber", Rejected: "red" };
+const CATEGORY_TONE = { Marketing: "info", Utility: "neutral", Authentication: "purple" };
+const STATUS_TONE = { Approved: "success", Pending: "warning", Rejected: "danger" };
 const CATEGORIES = ["Marketing", "Utility", "Authentication"];
 const LANGUAGES = ["English (US)", "Spanish", "French", "German"];
 
@@ -75,7 +76,7 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Template name" htmlFor="wa-name">
-            <Input id="wa-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. order_confirmation" className="bg-background border-border" />
+            <Input id="wa-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. order_confirmation" className="border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Category">
@@ -96,8 +97,8 @@ function CreateTemplateDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create template</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create template</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -118,105 +119,112 @@ export function WhatsAppScreen() {
     );
   }, [templates, query, category]);
 
+  const columns = [
+    {
+      key: "template",
+      header: "Template",
+      render: (t) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+            <MessageCircle className="h-4 w-4" />
+          </span>
+          <span className="font-medium text-foreground">{t.name}</span>
+        </div>
+      ),
+    },
+    { key: "category", header: "Category", render: (t) => <Badge variant={CATEGORY_TONE[t.category]}>{t.category}</Badge> },
+    { key: "language", header: "Language", className: "whitespace-nowrap text-muted-foreground", render: (t) => t.language },
+    { key: "status", header: "Status", render: (t) => <Badge variant={STATUS_TONE[t.status]}>{t.status}</Badge> },
+    { key: "updated", header: "Updated", className: "whitespace-nowrap text-muted-foreground", render: (t) => t.updated },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (t) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setTemplates((p) => p.filter((x) => x.id !== t.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="WhatsApp"
         description="Manage your WhatsApp Business number and approved message templates."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create template
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
-        <div className="rounded-xl border border-border bg-surface-subtle p-5">
+      <div>
+        <SectionCard>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
                 <MessageCircle className="h-5 w-5" />
               </span>
               <div className="flex min-w-0 flex-col">
-                <span className="font-medium text-foreground">Geiger Studio</span>
+                <span className="font-medium text-foreground">Halcyon Studio</span>
                 <span className="text-xs text-text-secondary">+1 415 555 0142</span>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5">Status <Pill tone="green">Connected</Pill></span>
-              <span className="inline-flex items-center gap-1.5">Quality: <Pill tone="green">High</Pill></span>
+              <span className="inline-flex items-center gap-1.5">Status <Badge variant="success">Connected</Badge></span>
+              <span className="inline-flex items-center gap-1.5">Quality: <Badge variant="success">High</Badge></span>
               <span className="text-xs text-text-secondary">Messaging limit · 10K / 24h</span>
             </div>
           </div>
+        </SectionCard>
+      </div>
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {category === "All" ? "All categories" : category}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44 bg-surface-card">
+              <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
+              {["All", ...CATEGORIES].map((c) => (
+                <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover", category === c && "font-medium")}>
+                  {c === "All" ? "All categories" : c}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <SearchInput value={query} onChange={setQuery} placeholder="Search templates…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {category === "All" ? "All categories" : category}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...CATEGORIES].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", category === c && "text-white")}>
-                {c === "All" ? "All categories" : c}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Template</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Language</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Updated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((t) => (
-              <TableRow key={t.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                      <MessageCircle className="h-4 w-4" />
-                    </span>
-                    <span className="font-medium text-foreground">{t.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell><Pill tone={CATEGORY_TONE[t.category]}>{t.category}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{t.language}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[t.status]}>{t.status}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{t.updated}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setTemplates((p) => p.filter((x) => x.id !== t.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No templates found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(t) => t.id}
+        empty={
+          <EmptyState
+            icon={MessageCircle}
+            title="No templates found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> Create template
+              </Button>
+            }
+          />
+        }
+      />
 
       <CreateTemplateDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(t) => setTemplates((p) => [{ id: Date.now(), ...t }, ...p])} />
     </MainScreenWrapper>

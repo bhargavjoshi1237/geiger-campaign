@@ -18,7 +18,8 @@ import { ChevronDown, Search, MoreVertical, PanelLeft, Bell, HelpCircle, X } fro
 import { SidebarOption } from "./sidebar_option";
 import { workspaceNav } from "./sidebar_nav";
 import { NotificationsDropdown } from "../topbar/dialogue/notifications_dropdown";
-import { roleHasPermission, tabPermissionKey } from "@/lib/rbac";
+import { tabPermissionKey } from "@/lib/rbac";
+import { useRbac } from "@/context/rbac-context";
 
 function MobileSidebarHeader() {
   const { isMobile, toggleSidebar } = useSidebar();
@@ -35,7 +36,7 @@ function MobileSidebarHeader() {
             <img
               src="/logo1.svg"
               alt=""
-              className="w-5 h-5"
+              className="geiger-logo w-5 h-5"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.parentElement.innerHTML =
@@ -53,13 +54,10 @@ function MobileSidebarHeader() {
 export function AppSidebar({
   activeTab = "Overview",
   onTabChange = () => {},
-  roleId = "workspace_owner",
-  roles = [],
 }) {
   const { toggleSidebar } = useSidebar();
-  const visibleNav = workspaceNav.filter((item) =>
-    roleHasPermission(roles, roleId, tabPermissionKey(item.title)),
-  );
+  const { can } = useRbac();
+  const visibleNav = workspaceNav.filter((item) => can(tabPermissionKey(item.title)));
 
   return (
     <Sidebar

@@ -5,10 +5,7 @@ import {
   Type, AlignLeft, Image as ImageIcon, MousePointerClick, Minus, MoveVertical,
   Columns2, Share2, Monitor, Smartphone, Eye, Send, Save, Trash2, GripVertical,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Input,
@@ -18,6 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
+  cn,
+  ScreenHeader,
+  SectionCard,
+  SegmentedTabs,
+  Badge,
+  Field,
 } from "@geiger/ui";
 
 const BLOCK_LIBRARY = [
@@ -29,6 +32,12 @@ const BLOCK_LIBRARY = [
   { type: "Spacer", icon: MoveVertical },
   { type: "Columns", icon: Columns2 },
   { type: "Social", icon: Share2 },
+];
+
+// Icon-only device switch; labels stay for screen readers.
+const DEVICE_TABS = [
+  { value: "desktop", icon: Monitor, label: <span className="sr-only">Desktop</span> },
+  { value: "mobile", icon: Smartphone, label: <span className="sr-only">Mobile</span> },
 ];
 
 let uid = 100;
@@ -59,7 +68,7 @@ function CanvasBlock({ block, selected, onSelect }) {
       onClick={onSelect}
       className={cn(
         "relative block w-full rounded-lg border px-4 py-3 text-left transition-colors",
-        selected ? "border-white/80 bg-surface-card" : "border-transparent hover:border-border hover:bg-[#1d1d1d]",
+        selected ? "border-foreground/80 bg-surface-card" : "border-transparent hover:border-border hover:bg-surface-hover",
       )}
     >
       <span className="absolute left-1 top-1/2 -translate-y-1/2 text-[#3a3a3a]"><GripVertical className="h-4 w-4" /></span>
@@ -108,49 +117,44 @@ export function EmailBuilderScreen() {
   };
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Email Builder"
         description="Compose your email by stacking content blocks — no code required."
         actions={
           <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-lg border border-border bg-surface-subtle p-1">
-              <Button variant="ghost" size="icon-sm" onClick={() => setDevice("desktop")} className={cn("text-text-secondary", device === "desktop" && "bg-surface-hover text-white")}><Monitor className="h-4 w-4" /></Button>
-              <Button variant="ghost" size="icon-sm" onClick={() => setDevice("mobile")} className={cn("text-text-secondary", device === "mobile" && "bg-surface-hover text-white")}><Smartphone className="h-4 w-4" /></Button>
-            </div>
-            <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle"><Eye className="h-4 w-4" /> Preview</Button>
-            <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle"><Send className="h-4 w-4" /> Send test</Button>
-            <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Save className="h-4 w-4" /> Save</Button>
+            <SegmentedTabs tabs={DEVICE_TABS} value={device} onChange={setDevice} buttonClassName="px-2" />
+            <Button variant="outline" className="bg-surface-card"><Eye className="h-4 w-4" /> Preview</Button>
+            <Button variant="outline" className="bg-surface-card"><Send className="h-4 w-4" /> Send test</Button>
+            <Button><Save className="h-4 w-4" /> Save</Button>
           </div>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
-        <Field label="Subject line" htmlFor="eb-subject">
-          <Input id="eb-subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="bg-background border-border" />
-        </Field>
-      </div>
+      <Field label="Subject line" htmlFor="eb-subject">
+        <Input id="eb-subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="border-border" />
+      </Field>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[200px_1fr_280px]">
         {/* Block library */}
-        <div className="rounded-xl border border-border bg-surface-subtle p-3">
-          <p className="px-1 pb-2 text-[11px] font-medium uppercase tracking-wider text-text-secondary">Blocks</p>
+        <SectionCard title="Blocks" contentClassName="p-3">
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
             {BLOCK_LIBRARY.map((b) => (
-              <button
+              <Button
                 key={b.type}
                 type="button"
+                variant="outline"
                 onClick={() => addBlock(b.type)}
-                className="flex items-center gap-2 rounded-lg border border-border bg-surface-card px-3 py-2 text-sm text-foreground transition-colors hover:border-border-strong hover:bg-surface-active"
+                className="justify-start bg-surface-card hover:border-border-strong"
               >
                 <b.icon className="h-4 w-4 text-muted-foreground" /> {b.type}
-              </button>
+              </Button>
             ))}
           </div>
-        </div>
+        </SectionCard>
 
         {/* Canvas */}
-        <div className="rounded-xl border border-border bg-surface-card p-6">
+        <SectionCard contentClassName="p-6">
           <div className={cn("mx-auto rounded-xl bg-white p-4 shadow-2xl transition-all", device === "mobile" ? "max-w-[360px]" : "max-w-[600px]")}>
             <div className="space-y-1">
               {blocks.map((b) => (
@@ -161,16 +165,15 @@ export function EmailBuilderScreen() {
               )}
             </div>
           </div>
-        </div>
+        </SectionCard>
 
         {/* Properties */}
-        <div className="rounded-xl border border-border bg-surface-subtle p-4">
-          <p className="pb-3 text-[11px] font-medium uppercase tracking-wider text-text-secondary">Properties</p>
+        <SectionCard title="Properties" contentClassName="p-4">
           {selected ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="rounded border border-border bg-surface-active px-2 py-0.5 text-xs text-muted-foreground">{selected.type}</span>
-                <Button variant="ghost" size="icon-sm" onClick={removeSelected} className="text-red-400 hover:bg-red-500/10 hover:text-red-300"><Trash2 className="h-4 w-4" /></Button>
+                <Badge variant="neutral">{selected.type}</Badge>
+                <Button variant="ghost" size="icon-sm" onClick={removeSelected} aria-label="Remove block" className="text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"><Trash2 className="h-4 w-4" /></Button>
               </div>
               {["Heading", "Text", "Button", "Image", "Social"].includes(selected.type) && (
                 <Field label="Content">
@@ -193,7 +196,7 @@ export function EmailBuilderScreen() {
           ) : (
             <p className="text-sm text-text-secondary">Select a block in the canvas to edit its content.</p>
           )}
-        </div>
+        </SectionCard>
       </div>
     </MainScreenWrapper>
   );

@@ -2,13 +2,14 @@
 
 import React, { useMemo, useState } from "react";
 import { Mail, Send } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Pill } from "@/components/internal/shared/screen_kit";
-import { Button, Textarea } from "@geiger/ui";
+import { Button, Textarea, cn, ScreenHeader, Badge, SectionCard, SegmentedTabs, EmptyState } from "@geiger/ui";
 
 const STATUS_FILTERS = ["All", "Open", "Closed"];
+
+// Ghost Button reshaped into a full-width thread list row
+const THREAD_ROW =
+  "h-auto w-full items-start justify-start gap-3 whitespace-normal rounded-none border-b border-surface-active px-3 py-3 text-left font-normal last:border-b-0 hover:bg-surface-hover";
 
 const INITIAL_THREADS = [
   {
@@ -109,41 +110,25 @@ export function ConversationsScreen() {
   };
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Conversations"
         description="Reply to customer email replies and inbound messages in one shared inbox."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[320px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
         {/* Thread list */}
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-surface-subtle p-1">
-            {STATUS_FILTERS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setStatusFilter(s)}
-                className={cn(
-                  "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                  statusFilter === s ? "bg-surface-hover text-white" : "text-text-secondary hover:text-foreground",
-                )}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+          <SegmentedTabs tabs={STATUS_FILTERS} value={statusFilter} onChange={setStatusFilter} fullWidth />
 
-          <div className="overflow-hidden rounded-xl border border-border bg-surface-subtle">
+          <SectionCard bodyPadding={false}>
             {filtered.map((t) => (
-              <button
+              <Button
                 key={t.id}
                 type="button"
+                variant="ghost"
                 onClick={() => openThread(t.id)}
-                className={cn(
-                  "flex w-full items-start gap-3 border-b border-surface-active px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#1d1d1d]",
-                  selectedId === t.id && "bg-surface-card",
-                )}
+                className={cn(THREAD_ROW, selectedId === t.id && "bg-surface-card")}
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-active text-xs font-medium text-muted-foreground">
                   {t.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
@@ -159,28 +144,29 @@ export function ConversationsScreen() {
                   </span>
                 </div>
                 {t.unread && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-400" />}
-              </button>
+              </Button>
             ))}
-            {filtered.length === 0 && (
-              <p className="py-14 text-center text-sm text-text-secondary">No conversations found.</p>
-            )}
-          </div>
+            {filtered.length === 0 && <EmptyState icon={Mail} title="No conversations found." />}
+          </SectionCard>
         </div>
 
         {/* Open conversation */}
-        <div className="flex h-[560px] flex-col rounded-xl border border-border bg-surface-subtle">
+        <SectionCard
+          className="h-[560px]"
+          bodyPadding={false}
+          contentClassName="flex min-h-0 flex-1 flex-col"
+          title={selected ? <span className="block truncate normal-case">{selected.subject}</span> : null}
+          description={
+            selected ? (
+              <span className="inline-flex items-center gap-1.5 truncate text-xs">
+                <Mail className="h-3.5 w-3.5" /> {selected.name} · {selected.email}
+              </span>
+            ) : null
+          }
+          action={selected ? <Badge variant={selected.status === "Open" ? "success" : "neutral"}>{selected.status}</Badge> : null}
+        >
           {selected ? (
             <>
-              <div className="flex items-center justify-between gap-3 border-b border-surface-active px-5 py-3">
-                <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-medium text-foreground">{selected.subject}</span>
-                  <span className="inline-flex items-center gap-1.5 truncate text-xs text-text-secondary">
-                    <Mail className="h-3.5 w-3.5" /> {selected.name} · {selected.email}
-                  </span>
-                </div>
-                <Pill tone={selected.status === "Open" ? "green" : "zinc"}>{selected.status}</Pill>
-              </div>
-
               <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
                 {selected.messages.map((m) => (
                   <div
@@ -204,21 +190,19 @@ export function ConversationsScreen() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder={`Reply to ${selected.name}…`}
-                  className="min-h-[80px] resize-none border-border bg-background"
+                  className="resize-none bg-background"
                 />
                 <div className="mt-2 flex justify-end">
-                  <Button onClick={sendReply} disabled={!draft.trim()} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+                  <Button onClick={sendReply} disabled={!draft.trim()}>
                     <Send className="h-4 w-4" /> Send reply
                   </Button>
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex flex-1 items-center justify-center text-sm text-text-secondary">
-              Select a conversation to read it.
-            </div>
+            <EmptyState icon={Mail} title="Select a conversation to read it." className="flex-1" />
           )}
-        </div>
+        </SectionCard>
       </div>
     </MainScreenWrapper>
   );

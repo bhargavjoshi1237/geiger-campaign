@@ -2,12 +2,10 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, AppWindow, Pencil, Copy, Pause, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -20,22 +18,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  EmptyState,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  Badge,
+  ActionMenu,
+  Field,
+  cn,
 } from "@geiger/ui";
 
-const TYPE_TONE = { Banner: "blue", Modal: "violet", Tooltip: "zinc", "Slide-in": "amber" };
-const STATUS_TONE = { Live: "green", Scheduled: "blue", Draft: "zinc", Paused: "amber" };
+const TYPE_TONE = { Banner: "info", Modal: "purple", Tooltip: "neutral", "Slide-in": "warning" };
+const STATUS_TONE = { Live: "success", Scheduled: "info", Draft: "neutral", Paused: "warning" };
 const TYPES = ["Banner", "Modal", "Tooltip", "Slide-in"];
 const AUDIENCES = ["All users", "Free plan", "Trial users", "Power users"];
 const TRIGGERS = ["On screen view", "On action", "On app open"];
@@ -76,7 +76,7 @@ function CreateMessageDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Message name" htmlFor="ia-name">
-            <Input id="ia-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. New feature announcement" className="bg-background border-border" />
+            <Input id="ia-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. New feature announcement" className="border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -100,8 +100,8 @@ function CreateMessageDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create message</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create message</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -122,88 +122,100 @@ export function InAppScreen() {
     );
   }, [messages, query, type]);
 
+  const columns = [
+    {
+      key: "message",
+      header: "Message",
+      render: (m) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+            <AppWindow className="h-4 w-4" />
+          </span>
+          <div className="flex min-w-0 flex-col">
+            <span className="font-medium text-foreground">{m.name}</span>
+            <span className="truncate text-xs text-text-secondary">{m.description}</span>
+          </div>
+        </div>
+      ),
+    },
+    { key: "type", header: "Type", render: (m) => <Badge variant={TYPE_TONE[m.type]}>{m.type}</Badge> },
+    { key: "audience", header: "Audience", className: "text-muted-foreground", render: (m) => m.audience },
+    { key: "status", header: "Status", render: (m) => <Badge variant={STATUS_TONE[m.status]}>{m.status}</Badge> },
+    {
+      key: "impressions",
+      header: "Impressions",
+      className: "tabular-nums text-muted-foreground",
+      render: (m) => (m.impressions ? m.impressions.toLocaleString() : "—"),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (m) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { label: "Pause", icon: Pause },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setMessages((p) => p.filter((x) => x.id !== m.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="In-App"
         description="Reach users with messages shown while they're active in your product."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create message
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {type === "All" ? "All types" : type}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44 bg-surface-card">
+              <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
+              {["All", ...TYPES].map((t) => (
+                <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-surface-hover", type === t && "font-medium")}>
+                  {t === "All" ? "All types" : t}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search messages…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {type === "All" ? "All types" : type}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", type === t && "text-white")}>
-                {t === "All" ? "All types" : t}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Message</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Audience</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Impressions</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((m) => (
-              <TableRow key={m.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                      <AppWindow className="h-4 w-4" />
-                    </span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-foreground">{m.name}</span>
-                      <span className="truncate text-xs text-text-secondary">{m.description}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell><Pill tone={TYPE_TONE[m.type]}>{m.type}</Pill></TableCell>
-                <TableCell className="text-muted-foreground">{m.audience}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[m.status]}>{m.status}</Pill></TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{m.impressions ? m.impressions.toLocaleString() : "—"}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Pause", icon: Pause },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setMessages((p) => p.filter((x) => x.id !== m.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No messages found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(m) => m.id}
+        empty={
+          <EmptyState
+            icon={AppWindow}
+            title="No messages found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> Create message
+              </Button>
+            }
+          />
+        }
+      />
 
       <CreateMessageDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(m) => setMessages((p) => [{ id: Date.now(), ...m }, ...p])} />
     </MainScreenWrapper>

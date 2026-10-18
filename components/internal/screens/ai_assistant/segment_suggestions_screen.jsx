@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { Sparkles, Plus, X, Users } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Button } from "@geiger/ui";
+import { Button, ScreenHeader, EmptyState, Badge } from "@geiger/ui";
 
 const SEED = [
   {
@@ -53,18 +52,18 @@ export function SegmentSuggestionsScreen() {
   const refresh = () => setSuggestions(SEED);
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Segment Suggestions"
         description="AI-surfaced audience segments worth targeting next."
         actions={
-          <Button onClick={refresh} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={refresh}>
             <Sparkles className="h-4 w-4" /> Refresh suggestions
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
+      <div>
         <p className="text-sm text-muted-foreground">
           Based on recent behavior across your list, here are {suggestions.length} segment
           {suggestions.length === 1 ? "" : "s"} that look ready to act on.
@@ -72,9 +71,17 @@ export function SegmentSuggestionsScreen() {
       </div>
 
       {suggestions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
-          No suggestions right now. Refresh to surface new ones.
-        </div>
+        <EmptyState
+          icon={Users}
+          title="No suggestions right now"
+          description="Refresh to surface new ones."
+          action={
+            <Button onClick={refresh}>
+              <Sparkles className="h-4 w-4" /> Refresh suggestions
+            </Button>
+          }
+          className="rounded-xl border border-dashed border-border bg-surface-subtle"
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {suggestions.map((s) => (
@@ -89,14 +96,14 @@ export function SegmentSuggestionsScreen() {
               <p className="mt-3 text-sm tabular-nums text-muted-foreground">≈ {s.size.toLocaleString()} contacts</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {s.conditions.map((c) => (
-                  <span key={c} className="rounded border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">{c}</span>
+                  <Badge key={c} variant="neutral">{c}</Badge>
                 ))}
               </div>
               <div className="mt-5 flex items-center gap-2 border-t border-surface-active pt-4">
-                <Button size="sm" className="h-8 bg-white text-black hover:bg-[#e5e5e5]">
+                <Button size="sm">
                   <Plus className="h-3.5 w-3.5" /> Create segment
                 </Button>
-                <Button onClick={() => dismiss(s.id)} size="sm" variant="ghost" className="h-8 text-muted-foreground hover:bg-surface-active hover:text-foreground">
+                <Button onClick={() => dismiss(s.id)} size="sm" variant="ghost" className="text-muted-foreground">
                   <X className="h-3.5 w-3.5" /> Dismiss
                 </Button>
               </div>

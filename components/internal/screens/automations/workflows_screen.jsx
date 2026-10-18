@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, Workflow, Pencil, Copy, BarChart3, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -33,6 +30,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  SectionCard,
+  EmptyState,
 } from "@geiger/ui";
 
 const TRIGGERS = ["Joins a list", "Submits a form", "Abandons cart", "Tag added", "Birthday", "Makes a purchase", "Becomes inactive"];
@@ -45,7 +51,7 @@ const INITIAL = [
   { id: 5, name: "Birthday reward", description: "Annual coupon on the contact's birthday", trigger: "Birthday", steps: 2, enrolled: 0, conversion: 0, status: "Draft" },
 ];
 
-const STATUS_TONE = { Active: "green", Paused: "amber", Draft: "zinc" };
+const STATUS_TONE = { Active: "success", Paused: "warning", Draft: "neutral" };
 
 function CreateWorkflowDialog({ open, onOpenChange, onCreate }) {
   const [form, setForm] = useState({ name: "", trigger: TRIGGERS[0], goal: "" });
@@ -65,7 +71,7 @@ function CreateWorkflowDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Workflow name" htmlFor="wf-name">
-            <Input id="wf-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome series" className="bg-background border-border" />
+            <Input id="wf-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome series" />
           </Field>
           <Field label="Entry trigger">
             <Select value={form.trigger} onValueChange={set("trigger")}>
@@ -74,12 +80,12 @@ function CreateWorkflowDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Goal" htmlFor="wf-goal" hint="Optional — what should a contact do to count as converted?">
-            <Input id="wf-goal" value={form.goal} onChange={(e) => set("goal")(e.target.value)} placeholder="e.g. Completes a purchase" className="bg-background border-border" />
+            <Input id="wf-goal" value={form.goal} onChange={(e) => set("goal")(e.target.value)} placeholder="e.g. Completes a purchase" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create workflow</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create workflow</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -100,88 +106,102 @@ export function WorkflowsScreen() {
   const toggle = (id) => setWorkflows((p) => p.map((w) => (w.id === id ? { ...w, status: w.status === "Active" ? "Paused" : "Active" } : w)));
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Workflows"
         description="Automated, multi-step sequences that run when a contact meets a trigger."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> Create workflow</Button>
+          <Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create workflow</Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-9 justify-between bg-surface-card sm:w-40">
+                {statusFilter === "All" ? "All statuses" : statusFilter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {["All", "Active", "Paused", "Draft"].map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer", statusFilter === s && "font-medium")}>
+                  {s === "All" ? "All statuses" : s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search workflows…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {statusFilter === "All" ? "All statuses" : statusFilter}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", "Active", "Paused", "Draft"].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
-                {s === "All" ? "All statuses" : s}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Workflow</TableHead>
-              <TableHead>Trigger</TableHead>
-              <TableHead>Steps</TableHead>
-              <TableHead>Enrolled</TableHead>
-              <TableHead>Conversion</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((w) => (
-              <TableRow key={w.id} className={cn("border-border", w.status !== "Active" && "opacity-70")}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                      <Workflow className="h-4 w-4" />
-                    </span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-foreground">{w.name}</span>
-                      <span className="truncate text-xs text-text-secondary">{w.description}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{w.trigger}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{w.steps}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{w.enrolled.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums font-medium text-foreground">{w.conversion}%</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Switch checked={w.status === "Active"} onCheckedChange={() => toggle(w.id)} disabled={w.status === "Draft"} />
-                    <Pill tone={STATUS_TONE[w.status]}>{w.status}</Pill>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <RowActions items={[
-                    { label: "Edit workflow", icon: Pencil },
-                    { label: "Duplicate", icon: Copy },
-                    { label: "View report", icon: BarChart3 },
-                    { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setWorkflows((p) => p.filter((x) => x.id !== w.id)) },
-                  ]} />
-                </TableCell>
+      {/* Table keeps shadcn Table for the per-row inactive dimming */}
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon={Workflow}
+          title="No workflows found"
+          description="No workflows match your filters."
+          className="rounded-xl border border-border bg-surface-subtle"
+          action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create workflow</Button>}
+        />
+      ) : (
+        <SectionCard bodyPadding={false}>
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead>Workflow</TableHead>
+                <TableHead>Trigger</TableHead>
+                <TableHead>Steps</TableHead>
+                <TableHead>Enrolled</TableHead>
+                <TableHead>Conversion</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No workflows match your filters.</TableCell></TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((w) => (
+                <TableRow key={w.id} className={cn("border-border", w.status !== "Active" && "opacity-70")}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+                        <Workflow className="h-4 w-4" />
+                      </span>
+                      <div className="flex min-w-0 flex-col">
+                        <span className="font-medium text-foreground">{w.name}</span>
+                        <span className="truncate text-xs text-text-secondary">{w.description}</span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{w.trigger}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{w.steps}</TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">{w.enrolled.toLocaleString()}</TableCell>
+                  <TableCell className="tabular-nums font-medium text-foreground">{w.conversion}%</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Switch checked={w.status === "Active"} onCheckedChange={() => toggle(w.id)} disabled={w.status === "Draft"} aria-label={`Toggle ${w.name}`} />
+                      <Badge variant={STATUS_TONE[w.status]}>{w.status}</Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <ActionMenu
+                      label={`Actions for ${w.name}`}
+                      items={[
+                        { label: "Edit workflow", icon: Pencil },
+                        { label: "Duplicate", icon: Copy },
+                        { label: "View report", icon: BarChart3 },
+                        { separator: true },
+                        { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setWorkflows((p) => p.filter((x) => x.id !== w.id)) },
+                      ]}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </SectionCard>
+      )}
 
       <CreateWorkflowDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(w) => setWorkflows((p) => [{ id: Date.now(), ...w }, ...p])} />
     </MainScreenWrapper>

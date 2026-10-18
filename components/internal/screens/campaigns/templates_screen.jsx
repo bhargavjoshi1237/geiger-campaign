@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, FileText, Pencil, Copy, Trash2, Mail, ShoppingBag, Megaphone, CalendarDays, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SearchInput, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -26,6 +23,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const CATEGORY_META = {
@@ -65,7 +70,7 @@ function NewTemplateDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Template name" htmlFor="t-name">
-            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring Newsletter" className="bg-background border-border" />
+            <Input id="t-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Spring Newsletter" className="border-border" />
           </Field>
           <Field label="Category">
             <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
@@ -75,8 +80,8 @@ function NewTemplateDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create template</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create template</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -95,34 +100,34 @@ export function TemplatesScreen() {
   }, [templates, query, category]);
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Templates"
         description="Reusable email designs your team can launch campaigns from in seconds."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> New template</Button>
+          <Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New template</Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <SearchInput value={query} onChange={setQuery} placeholder="Search templates…" />
+      <Toolbar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
+            <Button variant="outline" className="h-9 justify-between bg-surface-card sm:w-44">
               {category === "All" ? "All categories" : category}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+          <DropdownMenuContent className="w-48">
             <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
+            <DropdownMenuSeparator />
             {["All", ...CATEGORIES].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", category === c && "text-white")}>
+              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer", category === c && "font-medium")}>
                 {c === "All" ? "All categories" : c}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search templates…" />
+      </Toolbar>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filtered.map((t) => {
@@ -136,10 +141,11 @@ export function TemplatesScreen() {
               >
                 <Icon className="h-9 w-9 text-white/90" />
                 <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
-                  <RowActions items={[
+                  <ActionMenu items={[
                     { label: "Edit", icon: Pencil },
                     { label: "Duplicate", icon: Copy },
-                    { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setTemplates((p) => p.filter((x) => x.id !== t.id)) },
+                    { separator: true },
+                    { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setTemplates((p) => p.filter((x) => x.id !== t.id)) },
                   ]} />
                 </div>
               </div>
@@ -148,11 +154,11 @@ export function TemplatesScreen() {
                   <h3 className="truncate font-medium text-foreground">{t.name}</h3>
                 </div>
                 <div className="mt-1 flex items-center gap-2 text-xs text-text-secondary">
-                  <span className="rounded border border-border bg-surface-active px-1.5 py-0.5">{t.category}</span>
+                  <Badge variant="neutral">{t.category}</Badge>
                   <span>·</span>
                   <span>Edited {t.edited}</span>
                 </div>
-                <Button variant="outline" className="mt-3 h-8 w-full border-border bg-surface-card text-xs text-foreground hover:bg-surface-active">
+                <Button variant="outline" size="sm" className="mt-3 w-full bg-surface-card text-xs">
                   Use template
                 </Button>
               </div>
@@ -162,9 +168,13 @@ export function TemplatesScreen() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
-          No templates match your filters.
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="No templates found"
+          description="No templates match your filters."
+          className="rounded-xl border border-dashed border-border bg-surface-subtle"
+          action={<Button variant="outline" onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New template</Button>}
+        />
       )}
 
       <NewTemplateDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(t) => setTemplates((p) => [{ id: Date.now(), ...t }, ...p])} />

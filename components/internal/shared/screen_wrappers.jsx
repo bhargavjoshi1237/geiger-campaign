@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@geiger/ui";
 
 export function MainScreenWrapper({ children, className, ...props }) {
   return (

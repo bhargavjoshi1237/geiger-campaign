@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Plus, Copy, Trash2 } from "lucide-react";
+import { Plus, Copy, Trash2, Link2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -15,12 +13,13 @@ import {
   DialogTitle,
   Input,
   Progress,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const INITIAL = [
@@ -77,27 +76,26 @@ function UtmBuilderDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Destination URL" htmlFor="utm-url">
-            <Input id="utm-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://geiger.app/lp/your-page" className="bg-background border-border font-mono" />
+            <Input id="utm-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://geiger.app/lp/your-page" className="font-mono" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Source" hint="e.g. google">
-              <Input value={form.source} onChange={(e) => set("source")(e.target.value)} placeholder="google" className="bg-background border-border" />
+              <Input value={form.source} onChange={(e) => set("source")(e.target.value)} placeholder="google" />
             </Field>
             <Field label="Medium" hint="e.g. cpc">
-              <Input value={form.medium} onChange={(e) => set("medium")(e.target.value)} placeholder="cpc" className="bg-background border-border" />
+              <Input value={form.medium} onChange={(e) => set("medium")(e.target.value)} placeholder="cpc" />
             </Field>
           </div>
           <Field label="Campaign" htmlFor="utm-campaign">
-            <Input id="utm-campaign" value={form.campaign} onChange={(e) => set("campaign")(e.target.value)} placeholder="summer_sale_2026" className="bg-background border-border" />
+            <Input id="utm-campaign" value={form.campaign} onChange={(e) => set("campaign")(e.target.value)} placeholder="summer_sale_2026" />
           </Field>
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground">Assembled URL</p>
+          <Field label="Assembled URL">
             <div className="break-all rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{assembled}</div>
-          </div>
+          </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Create link</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!valid}>Create link</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -119,71 +117,86 @@ export function SourceTrackingScreen() {
     );
   }, [links, query]);
 
+  const columns = [
+    {
+      key: "source",
+      header: "Source / Medium",
+      render: (l) => <span className="font-mono text-sm text-foreground">{l.source} / {l.medium}</span>,
+    },
+    {
+      key: "campaign",
+      header: "Campaign",
+      render: (l) => <span className="font-mono text-xs text-muted-foreground">{l.campaign}</span>,
+    },
+    { key: "visits", header: "Visits", className: "tabular-nums text-muted-foreground", render: (l) => l.visits.toLocaleString() },
+    { key: "signups", header: "Signups", className: "tabular-nums text-muted-foreground", render: (l) => l.signups.toLocaleString() },
+    {
+      key: "conversion",
+      header: "Conversion",
+      render: (l) => {
+        const c = conv(l);
+        return c > 0 ? (
+          <div className="w-[120px] space-y-1.5">
+            <Progress value={c} className="h-1.5 bg-surface-hover" />
+            <p className="text-xs text-text-secondary">{c}%</p>
+          </div>
+        ) : <span className="text-text-secondary">—</span>;
+      },
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (l) => {
+        const link = `${l.url}?utm_source=${encodeURIComponent(l.source)}&utm_medium=${encodeURIComponent(l.medium)}&utm_campaign=${encodeURIComponent(l.campaign)}`;
+        return (
+          <ActionMenu
+            items={[
+              { label: "Copy link", icon: Copy, onSelect: () => { try { navigator.clipboard?.writeText(link); } catch {} } },
+              { separator: true },
+              { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setLinks((prev) => prev.filter((x) => x.id !== l.id)) },
+            ]}
+          />
+        );
+      },
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Source Tracking"
         description="Attribute signups and revenue to the channels that drove them."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New tracked link
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
+      <Toolbar>
+        <div />
         <SearchInput value={query} onChange={setQuery} placeholder="Search by source, medium, or campaign…" />
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Source / Medium</TableHead>
-              <TableHead>Campaign</TableHead>
-              <TableHead>Visits</TableHead>
-              <TableHead>Signups</TableHead>
-              <TableHead>Conversion</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((l) => {
-              const c = conv(l);
-              const link = `${l.url}?utm_source=${encodeURIComponent(l.source)}&utm_medium=${encodeURIComponent(l.medium)}&utm_campaign=${encodeURIComponent(l.campaign)}`;
-              return (
-                <TableRow key={l.id} className="border-border">
-                  <TableCell><span className="font-mono text-sm text-foreground">{l.source} / {l.medium}</span></TableCell>
-                  <TableCell><span className="font-mono text-xs text-muted-foreground">{l.campaign}</span></TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{l.visits.toLocaleString()}</TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{l.signups.toLocaleString()}</TableCell>
-                  <TableCell>
-                    {c > 0 ? (
-                      <div className="w-[120px] space-y-1.5">
-                        <Progress value={c} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                        <p className="text-xs text-text-secondary">{c}%</p>
-                      </div>
-                    ) : <span className="text-text-secondary">—</span>}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Copy link", icon: Copy, onSelect: () => { try { navigator.clipboard?.writeText(link); } catch {} } },
-                        { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setLinks((prev) => prev.filter((x) => x.id !== l.id)) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No tracked links match your search.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(l) => l.id}
+        empty={
+          <EmptyState
+            icon={Link2}
+            title="No tracked links match your search"
+            description="Try a different source, medium, or campaign, or build a new tracked link."
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> New tracked link
+              </Button>
+            }
+            className="rounded-xl border border-border bg-surface-subtle"
+          />
+        }
+      />
 
       <UtmBuilderDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(l) => setLinks((prev) => [{ id: Date.now(), ...l }, ...prev])} />
     </MainScreenWrapper>

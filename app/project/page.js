@@ -7,7 +7,7 @@ import {
   useProject,
   pickDefaultProjectId,
 } from "@/context/project-context";
-import { LoadingArea } from "@/components/internal/workspace/workspace_states";
+import { LoadingArea } from "@geiger/ui";
 
 // Entry resolver for the project-scoped workspace. Opens the last-used (or
 // first) project; with no reachable projects it returns to the landing page.

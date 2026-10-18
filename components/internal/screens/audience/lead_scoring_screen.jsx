@@ -1,16 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Pencil, Trash2, Gauge, Flame, ThermometerSun, Snowflake } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Pencil, Trash2, Flame, ThermometerSun, Snowflake } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import {
-  TableShell,
-  Pill,
-  RowActions,
-  Field,
-} from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -32,12 +24,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  cn,
+  ScreenHeader,
+  Badge,
+  ActionMenu,
+  Field,
+  StatGrid,
+  SectionCard,
 } from "@geiger/ui";
 
 const BANDS = [
-  { key: "hot", label: "Hot", range: "75–100", count: 1240, icon: Flame, tone: "text-red-400", bg: "bg-red-500/10 border-red-500/25" },
-  { key: "warm", label: "Warm", range: "40–74", count: 6820, icon: ThermometerSun, tone: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/25" },
-  { key: "cold", label: "Cold", range: "0–39", count: 14160, icon: Snowflake, tone: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/25" },
+  { key: "hot", label: "Hot", range: "75–100", count: 1240, icon: Flame },
+  { key: "warm", label: "Warm", range: "40–74", count: 6820, icon: ThermometerSun },
+  { key: "cold", label: "Cold", range: "0–39", count: 14160, icon: Snowflake },
 ];
 
 const TRIGGERS = [
@@ -85,7 +84,7 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Rule name" htmlFor="r-name">
-            <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Clicked a campaign link" className="bg-background border-border" />
+            <Input id="r-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Clicked a campaign link" />
           </Field>
           <Field label="When a contact">
             <Select value={form.trigger} onValueChange={(v) => setForm((f) => ({ ...f, trigger: v }))}>
@@ -106,7 +105,7 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
             <Field label="Points" htmlFor="r-points">
-              <Input id="r-points" type="number" min="0" value={form.points} onChange={(e) => setForm((f) => ({ ...f, points: e.target.value }))} className="bg-background border-border" />
+              <Input id="r-points" type="number" min="0" value={form.points} onChange={(e) => setForm((f) => ({ ...f, points: e.target.value }))} />
             </Field>
           </div>
           <Field label="Apply">
@@ -120,8 +119,8 @@ function CreateRuleDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create rule</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create rule</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -136,43 +135,33 @@ export function LeadScoringScreen() {
     setRules((p) => p.map((r) => (r.id === id ? { ...r, active: !r.active } : r)));
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Lead Scoring"
         description="Rank contacts by engagement so sales and automations focus on the warmest leads."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New rule
           </Button>
         }
       />
 
       {/* Score bands */}
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 sm:grid-cols-3">
-        {BANDS.map((b) => (
-          <div key={b.key} className="rounded-xl border border-border bg-surface-subtle p-4">
-            <div className="flex items-center justify-between">
-              <span className={cn("flex h-9 w-9 items-center justify-center rounded-lg border", b.bg)}>
-                <b.icon className={cn("h-4 w-4", b.tone)} />
-              </span>
-              <span className="font-mono text-xs text-text-secondary">{b.range}</span>
-            </div>
-            <p className="mt-3 text-2xl font-bold text-white tabular-nums">{b.count.toLocaleString()}</p>
-            <p className="text-sm text-muted-foreground">{b.label} leads</p>
-          </div>
-        ))}
-      </div>
+      <StatGrid
+        columns={3}
+        stats={BANDS.map((b) => ({
+          label: `${b.label} leads`,
+          value: b.count.toLocaleString(),
+          hint: `Score ${b.range}`,
+          icon: b.icon,
+        }))}
+      />
 
-      {/* Rules table */}
-      <div className="flex items-center gap-2">
-        <Gauge className="h-4 w-4 text-text-secondary" />
-        <h2 className="text-sm font-semibold text-foreground">Scoring rules</h2>
-      </div>
-
-      <TableShell>
+      {/* Rules table keeps shadcn Table for the per-row inactive dimming */}
+      <SectionCard title="Scoring rules" bodyPadding={false}>
         <Table>
           <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
+            <TableRow className="border-border hover:bg-transparent">
               <TableHead>Rule</TableHead>
               <TableHead>Trigger</TableHead>
               <TableHead>Points</TableHead>
@@ -187,19 +176,21 @@ export function LeadScoringScreen() {
                 <TableCell className="font-medium text-foreground">{r.name}</TableCell>
                 <TableCell className="text-muted-foreground">{r.trigger}</TableCell>
                 <TableCell>
-                  <span className={cn("font-semibold tabular-nums", r.points >= 0 ? "text-emerald-400" : "text-red-400")}>
+                  <span className={cn("font-semibold tabular-nums", r.points >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
                     {r.points >= 0 ? `+${r.points}` : r.points}
                   </span>
                 </TableCell>
-                <TableCell><Pill tone={r.frequency === "Once" ? "violet" : "zinc"}>{r.frequency}</Pill></TableCell>
+                <TableCell><Badge variant={r.frequency === "Once" ? "purple" : "neutral"}>{r.frequency}</Badge></TableCell>
                 <TableCell>
-                  <Switch checked={r.active} onCheckedChange={() => toggleActive(r.id)} />
+                  <Switch checked={r.active} onCheckedChange={() => toggleActive(r.id)} aria-label={`Toggle ${r.name}`} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <RowActions
+                  <ActionMenu
+                    label={`Actions for ${r.name}`}
                     items={[
                       { label: "Edit rule", icon: Pencil },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setRules((p) => p.filter((x) => x.id !== r.id)) },
+                      { separator: true },
+                      { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setRules((p) => p.filter((x) => x.id !== r.id)) },
                     ]}
                   />
                 </TableCell>
@@ -207,7 +198,7 @@ export function LeadScoringScreen() {
             ))}
           </TableBody>
         </Table>
-      </TableShell>
+      </SectionCard>
 
       <CreateRuleDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(r) => setRules((p) => [{ id: Date.now(), ...r }, ...p])} />
     </MainScreenWrapper>

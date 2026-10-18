@@ -3,17 +3,14 @@
 import React, { useMemo, useState } from "react";
 import { Play, Mail, Globe, Building2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Progress,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  Toolbar,
+  SearchInput,
+  DataTable,
+  EmptyState,
 } from "@geiger/ui";
 
 const PROVIDER_META = {
@@ -32,6 +29,39 @@ const INITIAL = [
   { id: 5, provider: "Corporate", inbox: 73, spam: 19, missing: 8, tested: "Jun 5, 2026" },
 ];
 
+function ProviderCell({ provider }) {
+  const meta = PROVIDER_META[provider];
+  const Icon = meta.icon;
+  return (
+    <div className="flex items-center gap-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="flex min-w-0 flex-col">
+        <span className="font-medium text-foreground">{provider}</span>
+        <span className="truncate text-xs text-text-secondary">{meta.label}</span>
+      </div>
+    </div>
+  );
+}
+
+const COLUMNS = [
+  { key: "provider", header: "Provider", render: (r) => <ProviderCell provider={r.provider} /> },
+  {
+    key: "inbox",
+    header: "Inbox %",
+    render: (r) => (
+      <div className="flex w-40 items-center gap-3">
+        <Progress value={r.inbox} className="h-1.5 bg-surface-hover" />
+        <span className="tabular-nums text-xs font-medium text-emerald-700 dark:text-emerald-300">{r.inbox}%</span>
+      </div>
+    ),
+  },
+  { key: "spam", header: "Spam %", className: "tabular-nums text-muted-foreground", render: (r) => `${r.spam}%` },
+  { key: "missing", header: "Missing %", className: "tabular-nums text-muted-foreground", render: (r) => `${r.missing}%` },
+  { key: "tested", header: "Last tested", className: "whitespace-nowrap text-muted-foreground", render: (r) => r.tested },
+];
+
 export function InboxPlacementScreen() {
   const [rows, setRows] = useState(INITIAL);
   const [query, setQuery] = useState("");
@@ -46,69 +76,34 @@ export function InboxPlacementScreen() {
   };
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Inbox Placement"
         description="See where your mail lands across major mailbox providers."
         actions={
-          <Button onClick={runTest} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={runTest}>
             <Play className="h-4 w-4" /> Run test
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
+      <Toolbar>
+        <div />
         <SearchInput value={query} onChange={setQuery} placeholder="Search providers…" />
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Provider</TableHead>
-              <TableHead>Inbox %</TableHead>
-              <TableHead>Spam %</TableHead>
-              <TableHead>Missing %</TableHead>
-              <TableHead>Last tested</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((r) => {
-              const meta = PROVIDER_META[r.provider];
-              const Icon = meta.icon;
-              return (
-                <TableRow key={r.id} className="border-border">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <div className="flex min-w-0 flex-col">
-                        <span className="font-medium text-foreground">{r.provider}</span>
-                        <span className="truncate text-xs text-text-secondary">{meta.label}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex w-40 items-center gap-3">
-                      <Progress value={r.inbox} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                      <span className="tabular-nums text-xs font-medium text-emerald-300">{r.inbox}%</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{r.spam}%</TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{r.missing}%</TableCell>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{r.tested}</TableCell>
-                </TableRow>
-              );
-            })}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No providers found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={COLUMNS}
+        data={filtered}
+        getRowKey={(r) => r.id}
+        empty={
+          <EmptyState
+            icon={Mail}
+            title="No providers found."
+            className="rounded-xl border border-border bg-surface-subtle"
+          />
+        }
+      />
     </MainScreenWrapper>
   );
 }

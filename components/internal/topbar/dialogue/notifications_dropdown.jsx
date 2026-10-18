@@ -167,7 +167,7 @@ export function NotificationsDropdown({ children }) {
                             <div className="bg-surface-subtle border border-border rounded-lg p-3 text-[12px] text-muted-foreground leading-relaxed">
                               <div className="flex items-center justify-between gap-2 mb-2">
                                 <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
-                                  <MessageSquare className="w-3.5 h-3.5 text-emerald-300" />
+                                  <MessageSquare className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-300" />
                                   {extraContent.channel}
                                 </span>
                                 <span className="text-[10px] text-text-secondary">

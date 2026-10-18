@@ -2,10 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, FlaskConical, Trophy, Pencil, BarChart3, StopCircle, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -20,15 +17,17 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
-const STATUS_TONE = { Running: "amber", Completed: "green", Draft: "zinc" };
+const STATUS_TONE = { Running: "warning", Completed: "success", Draft: "neutral" };
 const TEST_WHAT = ["Subject line", "Email content", "Send time", "From name"];
 const METRICS = ["Open rate", "Click-through rate", "Revenue", "Conversions"];
 
@@ -57,7 +56,7 @@ function CreateTestDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Test name" htmlFor="ab-name">
-            <Input id="ab-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Subject line test" className="bg-background border-border" />
+            <Input id="ab-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Subject line test" className="border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="What to test">
@@ -81,8 +80,8 @@ function CreateTestDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create test</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create test</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -96,73 +95,79 @@ export function ABTestingScreen() {
 
   const filtered = tests.filter((t) => t.name.toLowerCase().includes(query.trim().toLowerCase()));
 
+  const columns = [
+    {
+      key: "test",
+      header: "Test",
+      render: (t) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+            <FlaskConical className="h-4 w-4" />
+          </span>
+          <span className="font-medium text-foreground">{t.name}</span>
+        </div>
+      ),
+    },
+    { key: "testing", header: "Testing", className: "text-muted-foreground", render: (t) => t.testing },
+    { key: "variants", header: "Variants", className: "tabular-nums text-muted-foreground", render: (t) => t.variants },
+    { key: "metric", header: "Metric", className: "text-muted-foreground", render: (t) => t.metric },
+    { key: "status", header: "Status", render: (t) => <Badge variant={STATUS_TONE[t.status]}>{t.status}</Badge> },
+    {
+      key: "result",
+      header: "Result",
+      render: (t) =>
+        t.status === "Completed" ? (
+          <span className="inline-flex items-center gap-1.5 text-sm">
+            <Trophy className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+            <span className="font-medium text-foreground">{t.winner}</span>
+            <span className="text-emerald-600 dark:text-emerald-400 tabular-nums">+{t.uplift}%</span>
+          </span>
+        ) : <span className="text-text-secondary">—</span>,
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (t) => (
+        <ActionMenu items={[
+          { label: "Edit test", icon: Pencil },
+          { label: "View results", icon: BarChart3 },
+          { label: "Stop test", icon: StopCircle },
+          { separator: true },
+          { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setTests((p) => p.filter((x) => x.id !== t.id)) },
+        ]} />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="A/B Testing"
         description="Experiment with subject lines, content, and send times — and ship the winner."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> Create test</Button>
+          <Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create test</Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
+      <Toolbar>
+        <div />
         <SearchInput value={query} onChange={setQuery} placeholder="Search tests…" />
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Test</TableHead>
-              <TableHead>Testing</TableHead>
-              <TableHead>Variants</TableHead>
-              <TableHead>Metric</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Result</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((t) => (
-              <TableRow key={t.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                      <FlaskConical className="h-4 w-4" />
-                    </span>
-                    <span className="font-medium text-foreground">{t.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{t.testing}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{t.variants}</TableCell>
-                <TableCell className="text-muted-foreground">{t.metric}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[t.status]}>{t.status}</Pill></TableCell>
-                <TableCell>
-                  {t.status === "Completed" ? (
-                    <span className="inline-flex items-center gap-1.5 text-sm">
-                      <Trophy className="h-3.5 w-3.5 text-amber-400" />
-                      <span className="font-medium text-foreground">{t.winner}</span>
-                      <span className="text-emerald-400 tabular-nums">+{t.uplift}%</span>
-                    </span>
-                  ) : <span className="text-text-secondary">—</span>}
-                </TableCell>
-                <TableCell className="text-right">
-                  <RowActions items={[
-                    { label: "Edit test", icon: Pencil },
-                    { label: "View results", icon: BarChart3 },
-                    { label: "Stop test", icon: StopCircle },
-                    { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setTests((p) => p.filter((x) => x.id !== t.id)) },
-                  ]} />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No tests found.</TableCell></TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(t) => t.id}
+        empty={
+          <EmptyState
+            icon={FlaskConical}
+            title="No tests found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button variant="outline" onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create test</Button>}
+          />
+        }
+      />
 
       <CreateTestDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(t) => setTests((p) => [{ id: Date.now(), ...t }, ...p])} />
     </MainScreenWrapper>

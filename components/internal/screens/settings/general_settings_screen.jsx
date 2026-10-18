@@ -1,75 +1,77 @@
 "use client";
 
-import React, { useState } from "react";
-import { Building2, Link2, Clock, Languages, Check } from "lucide-react";
+import React from "react";
+import { Link2, Mail, Megaphone } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Field } from "@/components/internal/shared/screen_kit";
 import {
-  Button,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
+  ScreenHeader,
+  SectionCard,
+  SettingsList,
+  SettingRow,
+  Field,
 } from "@geiger/ui";
+import { SaveChangesButton, useSettingsForm } from "./settings_form";
+
+const DEFAULTS = {
+  name: "Halcyon Studio",
+  subdomain: "halcyon",
+  timezone: "America/New_York",
+  language: "en",
+  dateFormat: "MM/DD/YYYY",
+  weeklySummary: true,
+  productUpdates: true,
+};
 
 export function GeneralSettingsScreen() {
-  const [name, setName] = useState("Geiger Studio");
-  const [subdomain, setSubdomain] = useState("acme");
-  const [timezone, setTimezone] = useState("America/New_York");
-  const [language, setLanguage] = useState("en");
-  const [dateFormat, setDateFormat] = useState("MM/DD/YYYY");
-  const [weeklySummary, setWeeklySummary] = useState(true);
-  const [productUpdates, setProductUpdates] = useState(true);
+  const { form, set, dirty, saving, save } = useSettingsForm(DEFAULTS);
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="General"
         description="Core settings for your Campaign workspace."
+        actions={<SaveChangesButton dirty={dirty} saving={saving} onClick={save} />}
       />
 
-      <div className="space-y-4 border-t border-surface-active pt-4">
-        {/* Workspace identity */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Workspace</h2>
+      <div className="space-y-6">
+        <SectionCard title="Workspace" description="How your workspace is named and addressed.">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Workspace name" htmlFor="ws-name">
+              <Input id="ws-name" value={form.name} onChange={(e) => set("name")(e.target.value)} />
+            </Field>
+
+            <Field
+              label="Workspace URL"
+              htmlFor="ws-subdomain"
+              hint="Your public subdomain. Lowercase letters, numbers and hyphens only."
+            >
+              <div className="flex items-center gap-2">
+                <span className="flex shrink-0 items-center gap-2 rounded-md border border-border bg-surface-card px-3 py-2 font-mono text-sm text-muted-foreground">
+                  <Link2 className="h-4 w-4 text-text-secondary" />
+                  geiger.studio/
+                </span>
+                <Input
+                  id="ws-subdomain"
+                  value={form.subdomain}
+                  onChange={(e) => set("subdomain")(e.target.value)}
+                  placeholder="acme"
+                  className="min-w-0"
+                />
+              </div>
+            </Field>
           </div>
+        </SectionCard>
 
-          <Field label="Workspace name" htmlFor="ws-name">
-            <Input id="ws-name" value={name} onChange={(e) => setName(e.target.value)} className="bg-background border-border" />
-          </Field>
-
-          <Field label="Workspace URL" hint="Your public subdomain. Lowercase letters, numbers and hyphens only.">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">
-                <Link2 className="h-4 w-4 text-text-secondary" />
-                geiger.studio/{subdomain || "…"}
-              </span>
-              <Input
-                value={subdomain}
-                onChange={(e) => setSubdomain(e.target.value)}
-                placeholder="acme"
-                className="max-w-[180px] bg-background border-border"
-              />
-            </div>
-          </Field>
-        </div>
-
-        {/* Localization */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Localization</h2>
-          </div>
-
+        <SectionCard title="Localization" description="Defaults for dates, times and language across the workspace.">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label="Timezone">
-              <Select value={timezone} onValueChange={setTimezone}>
+              <Select value={form.timezone} onValueChange={set("timezone")}>
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="America/Los_Angeles">(GMT-08:00) Pacific Time</SelectItem>
@@ -82,7 +84,7 @@ export function GeneralSettingsScreen() {
             </Field>
 
             <Field label="Default language">
-              <Select value={language} onValueChange={setLanguage}>
+              <Select value={form.language} onValueChange={set("language")}>
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="en">English (US)</SelectItem>
@@ -95,7 +97,7 @@ export function GeneralSettingsScreen() {
             </Field>
 
             <Field label="Date format">
-              <Select value={dateFormat} onValueChange={setDateFormat}>
+              <Select value={form.dateFormat} onValueChange={set("dateFormat")}>
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
@@ -106,38 +108,26 @@ export function GeneralSettingsScreen() {
               </Select>
             </Field>
           </div>
-        </div>
+        </SectionCard>
 
-        {/* Notifications */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
-            <Languages className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Notifications</h2>
-          </div>
-
-          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">Weekly summary email</p>
-              <p className="text-xs text-text-secondary">A digest of campaign performance every Monday.</p>
-            </div>
-            <Switch checked={weeklySummary} onCheckedChange={setWeeklySummary} />
-          </div>
-
-          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">Product update announcements</p>
-              <p className="text-xs text-text-secondary">Occasional emails about new features and changes.</p>
-            </div>
-            <Switch checked={productUpdates} onCheckedChange={setProductUpdates} />
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end">
-          <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
-            <Check className="h-4 w-4" /> Save changes
-          </Button>
-        </div>
+        <SectionCard title="Notifications" description="Workspace emails sent to you.">
+          <SettingsList>
+            <SettingRow
+              icon={Mail}
+              title="Weekly summary email"
+              description="A digest of campaign performance every Monday."
+              checked={form.weeklySummary}
+              onCheckedChange={set("weeklySummary")}
+            />
+            <SettingRow
+              icon={Megaphone}
+              title="Product update announcements"
+              description="Occasional emails about new features and changes."
+              checked={form.productUpdates}
+              onCheckedChange={set("productUpdates")}
+            />
+          </SettingsList>
+        </SectionCard>
       </div>
     </MainScreenWrapper>
   );

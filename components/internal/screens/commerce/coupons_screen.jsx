@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Plus, Pencil, Copy, Ban, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Pencil, Copy, Ban, Trash2, TicketPercent } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -20,6 +18,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  EmptyState,
   Input,
   Progress,
   Select,
@@ -27,17 +26,17 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  Toolbar,
+  Badge,
+  ActionMenu,
+  Field,
+  cn,
 } from "@geiger/ui";
 
-const STATUS_TONE = { Active: "green", Scheduled: "blue", Expired: "zinc" };
+const STATUS_TONE = { Active: "success", Scheduled: "info", Expired: "neutral" };
 
-const TYPE_TONE = { Percentage: "violet", "Fixed amount": "amber", "Free shipping": "blue" };
+const TYPE_TONE = { Percentage: "purple", "Fixed amount": "warning", "Free shipping": "info" };
 const TYPES = ["Percentage", "Fixed amount", "Free shipping"];
 const STATUSES = ["Active", "Scheduled", "Expired"];
 
@@ -86,7 +85,7 @@ function CreateCouponDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Code" htmlFor="c-code">
-            <Input id="c-code" value={form.code} onChange={(e) => set("code")(e.target.value.toUpperCase())} placeholder="SUMMER20" className="bg-background border-border font-mono uppercase" />
+            <Input id="c-code" value={form.code} onChange={(e) => set("code")(e.target.value.toUpperCase())} placeholder="SUMMER20" className="border-border font-mono uppercase" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -98,21 +97,21 @@ function CreateCouponDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
             <Field label="Value" hint={form.type === "Free shipping" ? "Not needed for free shipping." : 'e.g. "20" or "15"'}>
-              <Input value={form.value} onChange={(e) => set("value")(e.target.value)} disabled={form.type === "Free shipping"} placeholder={form.type === "Percentage" ? "20" : "15"} className="bg-background border-border disabled:opacity-50" />
+              <Input value={form.value} onChange={(e) => set("value")(e.target.value)} disabled={form.type === "Free shipping"} placeholder={form.type === "Percentage" ? "20" : "15"} className="border-border" />
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Usage limit" htmlFor="c-limit">
-              <Input id="c-limit" type="number" min="0" value={form.limit} onChange={(e) => set("limit")(e.target.value)} placeholder="500" className="bg-background border-border" />
+              <Input id="c-limit" type="number" min="0" value={form.limit} onChange={(e) => set("limit")(e.target.value)} placeholder="500" className="border-border" />
             </Field>
             <Field label="Expiry" htmlFor="c-expiry">
-              <Input id="c-expiry" type="date" value={form.expires} onChange={(e) => set("expires")(e.target.value)} className="bg-background border-border" />
+              <Input id="c-expiry" type="date" value={form.expires} onChange={(e) => set("expires")(e.target.value)} className="border-border" />
             </Field>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Create coupon</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!valid}>Create coupon</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -132,87 +131,93 @@ export function CouponsScreen() {
   const deactivate = (id) =>
     setCoupons((p) => p.map((c) => (c.id === id ? { ...c, status: "Expired" } : c)));
 
+  const columns = [
+    { key: "code", header: "Code", className: "font-mono font-medium uppercase text-foreground", render: (c) => c.code },
+    { key: "type", header: "Type", render: (c) => <Badge variant={TYPE_TONE[c.type]}>{c.type}</Badge> },
+    { key: "value", header: "Value", className: "tabular-nums text-muted-foreground", render: (c) => formatValue(c.type, c.value) },
+    {
+      key: "usage",
+      header: "Usage",
+      render: (c) => {
+        const pct = c.limit > 0 ? Math.min(100, Math.round((c.used / c.limit) * 100)) : 0;
+        return (
+          <div className="w-[120px] space-y-1.5">
+            <p className="text-xs tabular-nums text-muted-foreground">{c.used.toLocaleString()} / {c.limit.toLocaleString()}</p>
+            <Progress value={pct} className="h-1.5 bg-surface-hover" />
+          </div>
+        );
+      },
+    },
+    { key: "expires", header: "Expires", className: "whitespace-nowrap text-muted-foreground", render: (c) => c.expires },
+    { key: "status", header: "Status", render: (c) => <Badge variant={STATUS_TONE[c.status]}>{c.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (c) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Copy code", icon: Copy },
+            { label: "Deactivate", icon: Ban, onSelect: () => deactivate(c.id) },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setCoupons((p) => p.filter((x) => x.id !== c.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Coupons"
         description="Create and track discount codes for your campaigns."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create coupon
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {statusFilter === "All" ? "All statuses" : statusFilter}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...STATUSES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
-                {s === "All" ? "All statuses" : s}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {statusFilter === "All" ? "All statuses" : statusFilter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44 bg-surface-card">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
+              {["All", ...STATUSES].map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover", statusFilter === s && "font-medium")}>
+                  {s === "All" ? "All statuses" : s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Code</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead>Usage</TableHead>
-              <TableHead>Expires</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((c) => {
-              const pct = c.limit > 0 ? Math.min(100, Math.round((c.used / c.limit) * 100)) : 0;
-              return (
-                <TableRow key={c.id} className="border-border">
-                  <TableCell className="font-mono font-medium uppercase text-foreground">{c.code}</TableCell>
-                  <TableCell><Pill tone={TYPE_TONE[c.type]}>{c.type}</Pill></TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{formatValue(c.type, c.value)}</TableCell>
-                  <TableCell>
-                    <div className="w-[120px] space-y-1.5">
-                      <p className="text-xs tabular-nums text-muted-foreground">{c.used.toLocaleString()} / {c.limit.toLocaleString()}</p>
-                      <Progress value={pct} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                    </div>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{c.expires}</TableCell>
-                  <TableCell><Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill></TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Edit", icon: Pencil },
-                        { label: "Copy code", icon: Copy },
-                        { label: "Deactivate", icon: Ban, onSelect: () => deactivate(c.id) },
-                        { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setCoupons((p) => p.filter((x) => x.id !== c.id)) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No coupons found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(c) => c.id}
+        empty={
+          <EmptyState
+            icon={TicketPercent}
+            title="No coupons found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> Create coupon
+              </Button>
+            }
+          />
+        }
+      />
 
       <CreateCouponDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(c) => setCoupons((p) => [{ id: Date.now(), ...c }, ...p])} />
     </MainScreenWrapper>

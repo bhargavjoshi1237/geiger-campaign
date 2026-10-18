@@ -3,14 +3,6 @@
 import React, { useState } from "react";
 import { Plus, Filter, Pencil, RefreshCw, Copy, Trash2, X } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import {
-  TableShell,
-  SearchInput,
-  Pill,
-  RowActions,
-  Field,
-} from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -25,12 +17,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  DataTable,
+  EmptyState,
 } from "@geiger/ui";
 
 const INITIAL_SEGMENTS = [
@@ -83,7 +77,7 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-5 py-4">
           <Field label="Segment name" htmlFor="s-name">
-            <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Engaged — last 90 days" className="bg-background border-border" />
+            <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Engaged — last 90 days" />
           </Field>
 
           <div className="space-y-3 rounded-xl border border-border bg-surface-card p-4">
@@ -118,13 +112,14 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
                     value={c.value}
                     onChange={(e) => updateCond(c.id, "value", e.target.value)}
                     placeholder="value"
-                    className="flex-1 bg-background border-border"
+                    className="flex-1"
                   />
                   <Button
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => setConditions((cs) => (cs.length > 1 ? cs.filter((x) => x.id !== c.id) : cs))}
-                    className="shrink-0 text-text-secondary hover:bg-surface-hover hover:text-foreground disabled:opacity-30"
+                    aria-label="Remove condition"
+                    className="shrink-0 text-text-secondary disabled:opacity-30"
                     disabled={conditions.length === 1}
                   >
                     <X className="h-4 w-4" />
@@ -137,15 +132,15 @@ function CreateSegmentDialog({ open, onOpenChange, onCreate }) {
               variant="ghost"
               size="sm"
               onClick={() => setConditions((cs) => [...cs, emptyCondition()])}
-              className="text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+              className="text-muted-foreground"
             >
               <Plus className="h-4 w-4" /> Add condition
             </Button>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create segment</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!name.trim()}>Create segment</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -159,72 +154,93 @@ export function SegmentsScreen() {
 
   const filtered = segments.filter((s) => s.name.toLowerCase().includes(query.trim().toLowerCase()));
 
+  const columns = [
+    {
+      key: "segment",
+      header: "Segment",
+      render: (s) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+            <Filter className="h-4 w-4" />
+          </span>
+          <div className="flex min-w-0 flex-col">
+            <span className="font-medium text-foreground">{s.name}</span>
+            <span className="truncate text-xs text-text-secondary">{s.description}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "match",
+      header: "Match",
+      render: (s) => <Badge variant={s.match === "all" ? "info" : "warning"}>Match {s.match}</Badge>,
+    },
+    {
+      key: "conditions",
+      header: "Conditions",
+      className: "tabular-nums text-muted-foreground",
+      render: (s) => s.conditions,
+    },
+    {
+      key: "contacts",
+      header: "Contacts",
+      className: "tabular-nums font-medium text-foreground",
+      render: (s) => s.contacts.toLocaleString(),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (s) => (
+        <ActionMenu
+          label={`Actions for ${s.name}`}
+          items={[
+            { label: "Edit conditions", icon: Pencil },
+            { label: "Re-evaluate", icon: RefreshCw },
+            { label: "Duplicate", icon: Copy },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setSegments((p) => p.filter((x) => x.id !== s.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Segments"
         description="Live, rule-based slices of your audience that update as contacts change."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create segment
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
+      <Toolbar>
+        <div />
         <SearchInput value={query} onChange={setQuery} placeholder="Search segments…" />
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Segment</TableHead>
-              <TableHead>Match</TableHead>
-              <TableHead>Conditions</TableHead>
-              <TableHead>Contacts</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((s) => (
-              <TableRow key={s.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                      <Filter className="h-4 w-4" />
-                    </span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-foreground">{s.name}</span>
-                      <span className="truncate text-xs text-text-secondary">{s.description}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Pill tone={s.match === "all" ? "blue" : "amber"}>Match {s.match}</Pill>
-                </TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{s.conditions}</TableCell>
-                <TableCell className="tabular-nums font-medium text-foreground">{s.contacts.toLocaleString()}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit conditions", icon: Pencil },
-                      { label: "Re-evaluate", icon: RefreshCw },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setSegments((p) => p.filter((x) => x.id !== s.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No segments found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(s) => s.id}
+        empty={
+          <EmptyState
+            icon={Filter}
+            title="No segments found"
+            description="Try a different search, or create a new segment."
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> Create segment
+              </Button>
+            }
+          />
+        }
+      />
 
       <CreateSegmentDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(s) => setSegments((p) => [{ id: Date.now(), ...s }, ...p])} />
     </MainScreenWrapper>

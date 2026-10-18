@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, ClipboardList, Pencil, BarChart3, XCircle, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -26,16 +23,19 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
-const TYPE_TONE = { NPS: "violet", CSAT: "blue", Poll: "amber", Feedback: "zinc" };
-const STATUS_TONE = { Live: "green", Closed: "zinc", Draft: "zinc" };
+const TYPE_TONE = { NPS: "purple", CSAT: "info", Poll: "warning", Feedback: "neutral" };
+const STATUS_TONE = { Live: "success", Closed: "neutral", Draft: "neutral" };
 
 const STATUSES = ["All", "Live", "Closed", "Draft"];
 const SURVEY_TYPES = ["NPS", "CSAT", "Poll", "Feedback"];
@@ -70,7 +70,7 @@ function CreateSurveyDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Survey name" htmlFor="survey-name">
-            <Input id="survey-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Quarterly NPS" className="bg-background border-border" />
+            <Input id="survey-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Quarterly NPS" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -88,8 +88,8 @@ function CreateSurveyDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create survey</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create survey</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -110,86 +110,99 @@ export function SurveysScreen() {
     );
   }, [surveys, query, status]);
 
+  const columns = [
+    {
+      key: "survey",
+      header: "Survey",
+      render: (s) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><ClipboardList className="h-4 w-4" /></span>
+          <div className="flex min-w-0 flex-col">
+            <span className="font-medium text-foreground">{s.name}</span>
+            <span className="truncate text-xs text-text-secondary">{s.audience}</span>
+          </div>
+        </div>
+      ),
+    },
+    { key: "type", header: "Type", render: (s) => <Badge variant={TYPE_TONE[s.type]}>{s.type}</Badge> },
+    {
+      key: "responses",
+      header: "Responses",
+      className: "tabular-nums text-muted-foreground",
+      render: (s) => (s.responses ? s.responses.toLocaleString() : "—"),
+    },
+    { key: "score", header: "Avg score", className: "tabular-nums text-foreground", render: (s) => s.score },
+    { key: "status", header: "Status", render: (s) => <Badge variant={STATUS_TONE[s.status]}>{s.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (s) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "View results", icon: BarChart3 },
+            { label: "Close", icon: XCircle },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setSurveys((prev) => prev.filter((x) => x.id !== s.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Surveys"
         description="Collect feedback and measure satisfaction."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create survey
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {status === "All" ? "All statuses" : status}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {STATUSES.map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer", status === s && "font-medium")}>
+                  {s === "All" ? "All statuses" : s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search surveys…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {status === "All" ? "All statuses" : status}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {STATUSES.map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", status === s && "text-white")}>
-                {s === "All" ? "All statuses" : s}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Survey</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Responses</TableHead>
-              <TableHead>Avg score</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((s) => (
-              <TableRow key={s.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><ClipboardList className="h-4 w-4" /></span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-foreground">{s.name}</span>
-                      <span className="truncate text-xs text-text-secondary">{s.audience}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell><Pill tone={TYPE_TONE[s.type]}>{s.type}</Pill></TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{s.responses ? s.responses.toLocaleString() : "—"}</TableCell>
-                <TableCell className="tabular-nums text-foreground">{s.score}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[s.status]}>{s.status}</Pill></TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "View results", icon: BarChart3 },
-                      { label: "Close", icon: XCircle },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setSurveys((prev) => prev.filter((x) => x.id !== s.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No surveys match your filters.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(s) => s.id}
+        empty={
+          <EmptyState
+            icon={ClipboardList}
+            title="No surveys match your filters"
+            description="Try a different search or status, or create a new survey."
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> Create survey
+              </Button>
+            }
+            className="rounded-xl border border-border bg-surface-subtle"
+          />
+        }
+      />
 
       <CreateSurveyDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(s) => setSurveys((prev) => [{ id: Date.now(), ...s }, ...prev])} />
     </MainScreenWrapper>

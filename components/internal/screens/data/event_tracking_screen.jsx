@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, Code2, ScrollText, Pencil, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -26,12 +23,16 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  cn,
+  ScreenHeader,
+  SectionCard,
+  Toolbar,
+  SearchInput,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const TRACK_SNIPPET = `geiger.track("product_viewed", {
@@ -42,7 +43,7 @@ const TRACK_SNIPPET = `geiger.track("product_viewed", {
 });`;
 
 const SOURCES = ["Web", "Mobile", "Server", "API"];
-const STATUSES = { Active: "green", "No data": "zinc" };
+const STATUSES = { Active: "success", "No data": "neutral" };
 
 const INITIAL = [
   { id: 1, name: "product_viewed", source: "Web", last24h: 8421, total: 1284902, lastSeen: "12 seconds ago", status: "Active" },
@@ -82,7 +83,7 @@ function CreateEventDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Event name" htmlFor="e-name" hint="Lowercase with underscores, e.g. product_viewed.">
-            <Input id="e-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. product_viewed" className="bg-background border-border font-mono" />
+            <Input id="e-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. product_viewed" className="border-border font-mono" />
           </Field>
           <Field label="Source">
             <Select value={form.source} onValueChange={(v) => setForm((f) => ({ ...f, source: v }))}>
@@ -91,12 +92,12 @@ function CreateEventDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Description" htmlFor="e-desc">
-            <Input id="e-desc" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="What does this event represent?" className="bg-background border-border" />
+            <Input id="e-desc" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="What does this event represent?" className="border-border" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create event</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create event</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -119,92 +120,89 @@ export function EventTrackingScreen() {
 
   const remove = (id) => setEvents((p) => p.filter((e) => e.id !== id));
 
+  const columns = [
+    { key: "name", header: "Event", className: "font-mono text-foreground" },
+    { key: "source", header: "Source", className: "text-muted-foreground" },
+    { key: "last24h", header: "Last 24h", className: "tabular-nums text-muted-foreground", render: (e) => e.last24h.toLocaleString() },
+    { key: "total", header: "Total", className: "tabular-nums text-muted-foreground", render: (e) => e.total.toLocaleString() },
+    { key: "lastSeen", header: "Last seen", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "status", header: "Status", render: (e) => <Badge variant={STATUSES[e.status]}>{e.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (e) => (
+        <ActionMenu
+          items={[
+            { label: "View payloads", icon: ScrollText },
+            { label: "Rename", icon: Pencil },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => remove(e.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Event Tracking"
         description="Capture custom behavioral events to power automations and segments."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New event
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
-        <div className="space-y-3 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
+      <SectionCard
+        title={
+          <span className="flex items-center gap-2 text-sm">
             <Code2 className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Send an event</h2>
-          </div>
-          <p className="text-xs text-text-secondary">Drop the SDK on your site, then call <span className="font-mono text-muted-foreground">geiger.track()</span> wherever a user does something worth tracking.</p>
-          <pre className="overflow-x-auto rounded-lg border border-border bg-background p-4 text-xs leading-relaxed text-muted-foreground font-mono">
+            Send an event
+          </span>
+        }
+        description={<>Drop the SDK on your site, then call <span className="font-mono text-muted-foreground">geiger.track()</span> wherever a user does something worth tracking.</>}
+      >
+        <pre className="overflow-x-auto rounded-lg border border-border bg-background p-4 text-xs leading-relaxed text-muted-foreground font-mono">
 {TRACK_SNIPPET}
-          </pre>
-        </div>
-      </div>
+        </pre>
+      </SectionCard>
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <SearchInput value={query} onChange={setQuery} placeholder="Search events…" />
+      <Toolbar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
+            <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
               {sourceFilter === "All" ? "All sources" : sourceFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+          <DropdownMenuContent className="w-44 bg-surface-card">
             <DropdownMenuLabel className="text-text-secondary">Filter by source</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...SOURCES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setSourceFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", sourceFilter === s && "text-white")}>
+              <DropdownMenuItem key={s} onSelect={() => setSourceFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover", sourceFilter === s && "font-medium")}>
                 {s === "All" ? "All sources" : s}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search events…" />
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Event</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Last 24h</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Last seen</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((e) => (
-              <TableRow key={e.id} className="border-border">
-                <TableCell className="font-mono text-foreground">{e.name}</TableCell>
-                <TableCell className="text-muted-foreground">{e.source}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{e.last24h.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{e.total.toLocaleString()}</TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{e.lastSeen}</TableCell>
-                <TableCell><Pill tone={STATUSES[e.status]}>{e.status}</Pill></TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "View payloads", icon: ScrollText },
-                      { label: "Rename", icon: Pencil },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => remove(e.id) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No events found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(e) => e.id}
+        empty={
+          <EmptyState
+            icon={Code2}
+            title="No events found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New event</Button>}
+          />
+        }
+      />
 
       <CreateEventDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(e) => setEvents((p) => [{ id: Date.now(), ...e }, ...p])} />
     </MainScreenWrapper>

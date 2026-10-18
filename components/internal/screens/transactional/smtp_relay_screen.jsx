@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { Plus, Server, KeyRound, Ban, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -19,12 +17,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  Badge,
+  ActionMenu,
+  Field,
+  SectionCard,
+  DataTable,
+  EmptyState,
 } from "@geiger/ui";
 
 const INITIAL = [
@@ -59,15 +58,15 @@ function CreateCredentialDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Credential name" htmlFor="c-name">
-            <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Production app" className="bg-background border-border" />
+            <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Production app" className="border-border" />
           </Field>
           <Field label="Generated username" hint="A password will be shown once after creation.">
             <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{username}</div>
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create credential</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!name.trim()}>Create credential</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -83,25 +82,51 @@ export function SmtpRelayScreen() {
   const revoke = (id) => setCreds((p) => p.map((c) => (c.id === id ? { ...c, status: "Revoked" } : c)));
   const remove = (id) => setCreds((p) => p.filter((c) => c.id !== id));
 
+  const columns = [
+    { key: "name", header: "Name", className: "font-medium text-foreground" },
+    { key: "username", header: "Username", className: "font-mono text-muted-foreground" },
+    { key: "created", header: "Created", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "status", header: "Status", render: (c) => <Badge variant={c.status === "Active" ? "success" : "neutral"}>{c.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (c) => (
+        <ActionMenu
+          items={[
+            { label: "Reset password", icon: KeyRound },
+            { separator: true },
+            { label: "Revoke", icon: Ban, destructive: true, onSelect: () => revoke(c.id) },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => remove(c.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="SMTP Relay"
         description="Send through a standard SMTP relay using credentials you control."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create credential
           </Button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         {/* Connection settings */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
-            <Server className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Connection settings</h2>
-          </div>
+        <SectionCard
+          title={
+            <span className="flex items-center gap-2">
+              <Server className="h-4 w-4 text-text-secondary" />
+              Connection settings
+            </span>
+          }
+          contentClassName="space-y-4"
+        >
           <Field label="Host">
             <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">smtp.geiger.studio</div>
           </Field>
@@ -126,52 +151,32 @@ export function SmtpRelayScreen() {
             </Select>
           </Field>
           <p className="text-xs text-text-secondary">Point your app's SMTP client at this host using one of the credentials on the right.</p>
-        </div>
+        </SectionCard>
 
         {/* Credentials */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <KeyRound className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Credentials</h2>
-          </div>
-          <TableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {creds.map((c) => (
-                  <TableRow key={c.id} className="border-border">
-                    <TableCell className="font-medium text-foreground">{c.name}</TableCell>
-                    <TableCell className="font-mono text-muted-foreground">{c.username}</TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{c.created}</TableCell>
-                    <TableCell><Pill tone={c.status === "Active" ? "green" : "zinc"}>{c.status}</Pill></TableCell>
-                    <TableCell className="text-right">
-                      <RowActions
-                        items={[
-                          { label: "Reset password", icon: KeyRound },
-                          { label: "Revoke", icon: Ban, danger: true, separatorBefore: true, onSelect: () => revoke(c.id) },
-                          { label: "Delete", icon: Trash2, danger: true, onSelect: () => remove(c.id) },
-                        ]}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {creds.length === 0 && (
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No credentials found.</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableShell>
-        </div>
+        <SectionCard
+          bare
+          title={
+            <span className="flex items-center gap-2">
+              <KeyRound className="h-4 w-4 text-text-secondary" />
+              Credentials
+            </span>
+          }
+        >
+          <DataTable
+            columns={columns}
+            data={creds}
+            getRowKey={(c) => c.id}
+            empty={
+              <EmptyState
+                icon={KeyRound}
+                title="No credentials found"
+                className="rounded-xl border border-border bg-surface-subtle"
+                action={<Button variant="outline" onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create credential</Button>}
+              />
+            }
+          />
+        </SectionCard>
       </div>
 
       <CreateCredentialDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(c) => setCreds((p) => [{ id: Date.now(), ...c }, ...p])} />

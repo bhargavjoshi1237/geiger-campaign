@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Eye, RefreshCw, Trash2 } from "lucide-react";
+import { Plus, Eye, RefreshCw, Trash2, KeyRound } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -19,15 +17,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
-const PERMISSION_TONE = { "Read-only": "zinc", "Read & write": "blue", Admin: "violet" };
+const PERMISSION_TONE = { "Read-only": "neutral", "Read & write": "info", Admin: "purple" };
 const PERMISSIONS = ["Read-only", "Read & write", "Admin"];
 
 const INITIAL = [
@@ -64,7 +62,7 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Key name" htmlFor="k-name">
-            <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production backend" className="bg-background border-border" />
+            <Input id="k-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Production backend" className="border-border" />
           </Field>
           <Field label="Permissions">
             <Select value={form.permission} onValueChange={(v) => setForm((f) => ({ ...f, permission: v }))}>
@@ -87,8 +85,8 @@ function CreateKeyDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create key</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create key</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -101,59 +99,55 @@ export function ApiKeysScreen() {
 
   const remove = (id) => setKeys((p) => p.filter((k) => k.id !== id));
 
+  const columns = [
+    { key: "name", header: "Name", className: "font-medium text-foreground" },
+    { key: "key", header: "Key", className: "font-mono text-muted-foreground" },
+    { key: "permission", header: "Permissions", render: (k) => <Badge variant={PERMISSION_TONE[k.permission]}>{k.permission}</Badge> },
+    { key: "created", header: "Created", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "lastUsed", header: "Last used", className: "whitespace-nowrap text-muted-foreground" },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (k) => (
+        <ActionMenu
+          items={[
+            { label: "Reveal", icon: Eye },
+            { separator: true },
+            { label: "Roll key", icon: RefreshCw },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => remove(k.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="API Keys"
         description="Programmatic access to your Geiger workspace."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create key
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Name</TableHead>
-                <TableHead>Key</TableHead>
-                <TableHead>Permissions</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Last used</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {keys.map((k) => (
-                <TableRow key={k.id} className="border-border">
-                  <TableCell className="font-medium text-foreground">{k.name}</TableCell>
-                  <TableCell className="font-mono text-muted-foreground">{k.key}</TableCell>
-                  <TableCell><Pill tone={PERMISSION_TONE[k.permission]}>{k.permission}</Pill></TableCell>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{k.created}</TableCell>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{k.lastUsed}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Reveal", icon: Eye },
-                        { label: "Roll key", icon: RefreshCw, separatorBefore: true },
-                        { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => remove(k.id) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {keys.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No API keys found.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
-      </div>
+      <DataTable
+        columns={columns}
+        data={keys}
+        getRowKey={(k) => k.id}
+        empty={
+          <EmptyState
+            icon={KeyRound}
+            title="No API keys found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create key</Button>}
+          />
+        }
+      />
 
       <CreateKeyDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(k) => setKeys((p) => [{ id: Date.now(), ...k }, ...p])} />
     </MainScreenWrapper>

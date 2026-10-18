@@ -2,35 +2,34 @@
 
 import React, { useState } from "react";
 import { Plus, Smartphone, Globe, Settings2, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  SettingRow,
+  SettingsList,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const PLATFORM_ICON = { iOS: Smartphone, Android: Smartphone, Web: Globe };
-const STATUS_TONE = { Connected: "green", "Not configured": "zinc" };
+const STATUS_TONE = { Connected: "success", "Not configured": "neutral" };
 const PLATFORMS = ["iOS", "Android", "Web"];
 const CREDENTIAL_BY_PLATFORM = { iOS: "APNs key", Android: "FCM key", Web: "VAPID key" };
 
@@ -39,18 +38,6 @@ const INITIAL = [
   { id: 2, platform: "Android", identifier: "com.geiger.app", credential: "FCM key", status: "Connected" },
   { id: 3, platform: "Web", identifier: "studio.geiger.web", credential: "VAPID key", status: "Not configured" },
 ];
-
-function ToggleRow({ title, description, checked, onCheckedChange }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-      <div className="space-y-0.5 pr-3">
-        <p className="text-sm font-medium text-[#e5e5e5]">{title}</p>
-        <p className="text-xs text-text-secondary">{description}</p>
-      </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
-    </div>
-  );
-}
 
 function AddPlatformDialog({ open, onOpenChange, onCreate }) {
   const [form, setForm] = useState({ platform: "iOS", identifier: "", credential: "" });
@@ -82,15 +69,15 @@ function AddPlatformDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="App identifier" htmlFor="push-id">
-            <Input id="push-id" value={form.identifier} onChange={(e) => set("identifier")(e.target.value)} placeholder="com.yourcompany.app" className="bg-background border-border" />
+            <Input id="push-id" value={form.identifier} onChange={(e) => set("identifier")(e.target.value)} placeholder="com.yourcompany.app" className="border-border" />
           </Field>
           <Field label="Credential reference" htmlFor="push-cred" hint="Name of the stored key/certificate.">
-            <Input id="push-cred" value={form.credential} onChange={(e) => set("credential")(e.target.value)} placeholder="e.g. APNs key" className="bg-background border-border" />
+            <Input id="push-cred" value={form.credential} onChange={(e) => set("credential")(e.target.value)} placeholder="e.g. APNs key" className="border-border" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Add platform</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit}>Add platform</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -105,25 +92,61 @@ export function PushScreen() {
   const [collapse, setCollapse] = useState(false);
   const [sound, setSound] = useState("Default");
 
+  const columns = [
+    {
+      key: "platform",
+      header: "Platform",
+      render: (p) => {
+        const Icon = PLATFORM_ICON[p.platform] || Smartphone;
+        return (
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+              <Icon className="h-4 w-4" />
+            </span>
+            <span className="font-medium text-foreground">{p.platform}</span>
+          </div>
+        );
+      },
+    },
+    { key: "identifier", header: "App identifier", className: "font-mono text-sm text-muted-foreground", render: (p) => p.identifier },
+    { key: "credential", header: "Credential", className: "text-muted-foreground", render: (p) => p.credential },
+    { key: "status", header: "Status", render: (p) => <Badge variant={STATUS_TONE[p.status]}>{p.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (p) => (
+        <ActionMenu
+          items={[
+            { label: "Reconfigure", icon: Settings2 },
+            { separator: true },
+            { label: "Remove", icon: Trash2, destructive: true, onSelect: () => setPlatforms((prev) => prev.filter((x) => x.id !== p.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Push"
         description="Connect your apps and control how push notifications are delivered."
         actions={
-          <Button onClick={() => setAddOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4" /> Add platform
           </Button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         {/* Delivery settings */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <h3 className="text-sm font-semibold text-foreground">Delivery settings</h3>
-          <ToggleRow title="Show badge counts" description="Display unread counts on the app icon." checked={badgeCounts} onCheckedChange={setBadgeCounts} />
-          <ToggleRow title="Respect quiet hours" description="Hold notifications during a user's quiet window." checked={quietHours} onCheckedChange={setQuietHours} />
-          <ToggleRow title="Collapse similar notifications" description="Stack duplicate alerts into one." checked={collapse} onCheckedChange={setCollapse} />
+        <SectionCard title="Delivery settings" contentClassName="space-y-4">
+          <SettingsList>
+            <SettingRow title="Show badge counts" description="Display unread counts on the app icon." checked={badgeCounts} onCheckedChange={setBadgeCounts} />
+            <SettingRow title="Respect quiet hours" description="Hold notifications during a user's quiet window." checked={quietHours} onCheckedChange={setQuietHours} />
+            <SettingRow title="Collapse similar notifications" description="Stack duplicate alerts into one." checked={collapse} onCheckedChange={setCollapse} />
+          </SettingsList>
           <Field label="Default sound">
             <Select value={sound} onValueChange={setSound}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -134,57 +157,28 @@ export function PushScreen() {
               </SelectContent>
             </Select>
           </Field>
-        </div>
+        </SectionCard>
 
         {/* Connected platforms */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-foreground">Connected platforms</h3>
-          <TableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                  <TableHead>Platform</TableHead>
-                  <TableHead>App identifier</TableHead>
-                  <TableHead>Credential</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {platforms.map((p) => {
-                  const Icon = PLATFORM_ICON[p.platform] || Smartphone;
-                  return (
-                    <TableRow key={p.id} className="border-border">
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                            <Icon className="h-4 w-4" />
-                          </span>
-                          <span className="font-medium text-foreground">{p.platform}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm text-muted-foreground">{p.identifier}</TableCell>
-                      <TableCell className="text-muted-foreground">{p.credential}</TableCell>
-                      <TableCell><Pill tone={STATUS_TONE[p.status]}>{p.status}</Pill></TableCell>
-                      <TableCell className="text-right">
-                        <RowActions
-                          items={[
-                            { label: "Reconfigure", icon: Settings2 },
-                            { label: "Remove", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setPlatforms((prev) => prev.filter((x) => x.id !== p.id)) },
-                          ]}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {platforms.length === 0 && (
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No platforms found.</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableShell>
+          <DataTable
+            columns={columns}
+            data={platforms}
+            getRowKey={(p) => p.id}
+            empty={
+              <EmptyState
+                icon={Smartphone}
+                title="No platforms found"
+                className="rounded-xl border border-border bg-surface-subtle"
+                action={
+                  <Button onClick={() => setAddOpen(true)}>
+                    <Plus className="h-4 w-4" /> Add platform
+                  </Button>
+                }
+              />
+            }
+          />
         </div>
       </div>
 

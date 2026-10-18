@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Plus, Phone, Mail, Calendar, StickyNote, Handshake } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Phone, Mail, Calendar, StickyNote, Handshake, Activity } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -27,14 +24,19 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
+  cn,
+  ScreenHeader,
+  Toolbar,
+  EmptyState,
+  Field,
 } from "@geiger/ui";
 
 const TYPE_META = {
-  Call: { icon: Phone, color: "bg-blue-500/15 text-blue-300 border-blue-500/30" },
-  Email: { icon: Mail, color: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
-  Meeting: { icon: Calendar, color: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+  Call: { icon: Phone, color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30" },
+  Email: { icon: Mail, color: "bg-violet-500/15 text-violet-700 dark:text-violet-300 border-violet-500/30" },
+  Meeting: { icon: Calendar, color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30" },
   Note: { icon: StickyNote, color: "bg-zinc-500/15 text-muted-foreground border-zinc-500/30" },
-  Deal: { icon: Handshake, color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+  Deal: { icon: Handshake, color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30" },
 };
 
 const TYPES = ["Call", "Email", "Meeting", "Note", "Deal"];
@@ -44,11 +46,11 @@ const INITIAL_ACTIVITY = [
   { id: 1, type: "Call", who: "Alex Rivera", action: "logged a call with Northwind Logistics", detail: "Discussed renewal scope and rollout timeline. Decision expected next week.", when: "12 min ago" },
   { id: 2, type: "Email", who: "Priya Nair", action: "sent a proposal to Brightmail Co.", detail: "Onboarding services package — $12,400, valid for 14 days.", when: "1 hour ago" },
   { id: 3, type: "Deal", who: "Alex Rivera", action: "moved Migration & integration to Won", detail: "Vela Studios · $21,500 closed-won.", when: "3 hours ago" },
-  { id: 4, type: "Meeting", who: "Hana Sato", action: "booked a demo with Kaisho Industries", detail: "Enterprise rollout walkthrough scheduled for Jun 10, 2:00 PM JST.", when: "Yesterday" },
-  { id: 5, type: "Note", who: "Marcus Cole", action: "added a note on Lumen Analytics", detail: "Champion is the VP of Data; budget cycle resets in Q3.", when: "Yesterday" },
-  { id: 6, type: "Email", who: "Hana Sato", action: "replied to Aria Telecom", detail: "Confirmed multi-region SLA terms; legal review in progress.", when: "2 days ago" },
+  { id: 4, type: "Meeting", who: "Maya Chen", action: "booked a demo with Kaisho Industries", detail: "Enterprise rollout walkthrough scheduled for Jun 10, 2:00 PM JST.", when: "Yesterday" },
+  { id: 5, type: "Note", who: "Noor Haddad", action: "added a note on Lumen Analytics", detail: "Champion is the VP of Data; budget cycle resets in Q3.", when: "Yesterday" },
+  { id: 6, type: "Email", who: "Maya Chen", action: "replied to Aria Telecom", detail: "Confirmed multi-region SLA terms; legal review in progress.", when: "2 days ago" },
   { id: 7, type: "Call", who: "Priya Nair", action: "logged a call with Crestwood Bank", detail: "Renewal at Growth tier confirmed verbally — sending quote.", when: "2 days ago" },
-  { id: 8, type: "Deal", who: "Marcus Cole", action: "created Premium support contract", detail: "Hverk GmbH · $33,200 · stage Qualified.", when: "3 days ago" },
+  { id: 8, type: "Deal", who: "Noor Haddad", action: "created Premium support contract", detail: "Hverk GmbH · $33,200 · stage Qualified.", when: "3 days ago" },
   { id: 9, type: "Meeting", who: "Alex Rivera", action: "held a discovery call with Plinth Robotics", detail: "Pilot scope unclear; flagged as low priority for now.", when: "4 days ago" },
   { id: 10, type: "Note", who: "Priya Nair", action: "added a note on Brightmail Co.", detail: "Prefers async updates over email; avoid Friday calls.", when: "5 days ago" },
 ];
@@ -88,18 +90,18 @@ function LogActivityDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Summary" htmlFor="a-summary">
-            <Input id="a-summary" value={form.summary} onChange={(e) => set("summary")(e.target.value)} placeholder="e.g. logged a call with Northwind Logistics" className="bg-background border-border" />
+            <Input id="a-summary" value={form.summary} onChange={(e) => set("summary")(e.target.value)} placeholder="e.g. logged a call with Northwind Logistics" className="border-border" />
           </Field>
           <Field label="Related to" htmlFor="a-related" hint="Deal, company, or contact.">
-            <Input id="a-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Northwind Logistics" className="bg-background border-border" />
+            <Input id="a-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Northwind Logistics" className="border-border" />
           </Field>
           <Field label="Note">
-            <Textarea value={form.note} onChange={(e) => set("note")(e.target.value)} placeholder="Add context or next steps…" className="min-h-[80px] bg-background border-border" />
+            <Textarea value={form.note} onChange={(e) => set("note")(e.target.value)} placeholder="Add context or next steps…" className="bg-background" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Log activity</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!valid}>Log activity</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -117,39 +119,45 @@ export function ActivityScreen() {
   );
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Activity"
         description="A chronological feed of every interaction across your CRM."
         actions={
-          <Button onClick={() => setLogOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> Log activity</Button>
+          <Button onClick={() => setLogOpen(true)}><Plus className="h-4 w-4" /> Log activity</Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
+            <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
               {typeFilter === "All" ? "All types" : typeFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+          <DropdownMenuContent className="w-44 bg-surface-card">
             <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-surface-hover" />
             {TYPE_FILTERS.map((t) => (
               <DropdownMenuItem
                 key={t}
                 onSelect={() => setTypeFilter(t)}
-                className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}
+                className={cn("cursor-pointer focus:bg-surface-hover", typeFilter === t && "font-medium")}
               >
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <div className="border-t border-surface-active pt-4">
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon={Activity}
+          title="No activity found"
+          className="rounded-xl border border-border bg-surface-subtle"
+        />
+      ) : (
         <ol className="space-y-1">
           {filtered.map((a) => {
             const meta = TYPE_META[a.type] || TYPE_META.Note;
@@ -162,7 +170,7 @@ export function ActivityScreen() {
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-sm text-foreground">
-                      <span className="font-semibold text-white">{a.who}</span> {a.action}
+                      <span className="font-semibold text-foreground">{a.who}</span> {a.action}
                     </p>
                     <p className="mt-0.5 text-xs text-text-secondary">{a.detail}</p>
                   </div>
@@ -171,11 +179,8 @@ export function ActivityScreen() {
               </li>
             );
           })}
-          {filtered.length === 0 && (
-            <li className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">No activity found.</li>
-          )}
         </ol>
-      </div>
+      )}
 
       <LogActivityDialog
         open={logOpen}

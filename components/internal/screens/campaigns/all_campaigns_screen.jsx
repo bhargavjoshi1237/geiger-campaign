@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Plus, Mail, Smartphone, Bell, Copy, Pencil, BarChart3, Pause, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Mail, Smartphone, Bell, Copy, Pencil, BarChart3, Pause, Trash2, Megaphone } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -27,16 +24,19 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const STATUS_TONE = {
-  Draft: "zinc", Scheduled: "blue", Sending: "amber", Sent: "green", Paused: "zinc",
+  Draft: "neutral", Scheduled: "info", Sending: "warning", Sent: "success", Paused: "neutral",
 };
 const CHANNEL_ICON = { Email: Mail, SMS: Smartphone, Push: Bell };
 
@@ -77,7 +77,7 @@ function CreateCampaignDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Campaign name" htmlFor="cmp-name">
-            <Input id="cmp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo 2026" className="bg-background border-border" />
+            <Input id="cmp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo 2026" className="border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -107,8 +107,8 @@ function CreateCampaignDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create campaign</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create campaign</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -119,15 +119,15 @@ function FilterMenu({ label, value, options, onChange, width = "sm:w-40" }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className={cn("h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle", width)}>
+        <Button variant="outline" className={cn("h-9 justify-between bg-surface-card", width)}>
           {value === "All" ? label : value}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+      <DropdownMenuContent className="w-44">
         <DropdownMenuLabel className="text-text-secondary">{label}</DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-surface-hover" />
+        <DropdownMenuSeparator />
         {options.map((o) => (
-          <DropdownMenuItem key={o} onSelect={() => onChange(o)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", value === o && "text-white")}>
+          <DropdownMenuItem key={o} onSelect={() => onChange(o)} className={cn("cursor-pointer", value === o && "font-medium")}>
             {o === "All" ? label : o}
           </DropdownMenuItem>
         ))}
@@ -152,88 +152,101 @@ export function AllCampaignsScreen() {
     );
   }, [campaigns, query, status, type]);
 
+  const columns = [
+    {
+      key: "campaign",
+      header: "Campaign",
+      render: (c) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium text-foreground">{c.name}</span>
+          <span className="line-clamp-1 text-xs text-text-secondary">{c.description}</span>
+        </div>
+      ),
+    },
+    { key: "type", header: "Type", className: "text-muted-foreground", render: (c) => c.type },
+    {
+      key: "channel",
+      header: "Channel",
+      render: (c) => {
+        const ChannelIcon = CHANNEL_ICON[c.channel] || Mail;
+        return (
+          <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+            <ChannelIcon className="h-3.5 w-3.5" /> {c.channel}
+          </span>
+        );
+      },
+    },
+    { key: "status", header: "Status", render: (c) => <Badge variant={STATUS_TONE[c.status]}>{c.status}</Badge> },
+    { key: "recipients", header: "Recipients", className: "tabular-nums text-muted-foreground", render: (c) => (c.recipients ? c.recipients.toLocaleString() : "—") },
+    {
+      key: "openRate",
+      header: "Open rate",
+      render: (c) =>
+        c.openRate > 0 ? (
+          <div className="w-[120px] space-y-1.5">
+            <Progress value={c.openRate} className="h-1.5" />
+            <p className="text-xs text-text-secondary">{c.openRate}%</p>
+          </div>
+        ) : <span className="text-text-secondary">—</span>,
+    },
+    { key: "date", header: "Date", className: "whitespace-nowrap text-muted-foreground", render: (c) => c.date },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (c) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { label: "View report", icon: BarChart3 },
+            { label: "Pause", icon: Pause },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setCampaigns((p) => p.filter((x) => x.id !== c.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="All Campaigns"
         description="Every broadcast, automated, and A/B campaign across your channels."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create campaign
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterMenu label="All statuses" value={status} options={STATUSES} onChange={setStatus} />
+          <FilterMenu label="All types" value={type} options={TYPES} onChange={setType} />
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search campaigns…" />
-        <FilterMenu label="All statuses" value={status} options={STATUSES} onChange={setStatus} />
-        <FilterMenu label="All types" value={type} options={TYPES} onChange={setType} />
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Campaign</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Channel</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Recipients</TableHead>
-              <TableHead>Open rate</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((c) => {
-              const ChannelIcon = CHANNEL_ICON[c.channel] || Mail;
-              return (
-                <TableRow key={c.id} className="border-border">
-                  <TableCell>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-medium text-foreground">{c.name}</span>
-                      <span className="line-clamp-1 text-xs text-text-secondary">{c.description}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{c.type}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <ChannelIcon className="h-3.5 w-3.5" /> {c.channel}
-                    </span>
-                  </TableCell>
-                  <TableCell><Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill></TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{c.recipients ? c.recipients.toLocaleString() : "—"}</TableCell>
-                  <TableCell>
-                    {c.openRate > 0 ? (
-                      <div className="w-[120px] space-y-1.5">
-                        <Progress value={c.openRate} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                        <p className="text-xs text-text-secondary">{c.openRate}%</p>
-                      </div>
-                    ) : <span className="text-text-secondary">—</span>}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{c.date}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Edit", icon: Pencil },
-                        { label: "Duplicate", icon: Copy },
-                        { label: "View report", icon: BarChart3 },
-                        { label: "Pause", icon: Pause },
-                        { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setCampaigns((p) => p.filter((x) => x.id !== c.id)) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={8} className="py-14 text-center text-sm text-text-secondary">No campaigns match your filters.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(c) => c.id}
+        empty={
+          <EmptyState
+            icon={Megaphone}
+            title="No campaigns found"
+            description="No campaigns match your filters."
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button variant="outline" onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> Create campaign
+              </Button>
+            }
+          />
+        }
+      />
 
       <CreateCampaignDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(c) => setCampaigns((p) => [{ id: Date.now(), ...c }, ...p])} />
     </MainScreenWrapper>

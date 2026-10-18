@@ -3,39 +3,39 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Copy, Trash2, Sparkles } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  SettingRow,
+  SettingsList,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
-const STATUS_TONE = { Active: "green", Paused: "amber" };
+const STATUS_TONE = { Active: "success", Paused: "warning" };
 
 const STRATEGY_TONE = {
-  "Best sellers": "green",
-  "Recently viewed": "blue",
-  "Cross-sell": "violet",
-  "AI personalized": "amber",
-  Trending: "zinc",
+  "Best sellers": "success",
+  "Recently viewed": "info",
+  "Cross-sell": "purple",
+  "AI personalized": "warning",
+  Trending: "neutral",
 };
 
 const STRATEGIES = ["Best sellers", "Recently viewed", "Cross-sell", "AI personalized", "Trending"];
@@ -77,7 +77,7 @@ function NewBlockDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Block name" htmlFor="b-name">
-            <Input id="b-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. You may also like" className="bg-background border-border" />
+            <Input id="b-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. You may also like" className="border-border" />
           </Field>
           <Field label="Strategy">
             <Select value={form.strategy} onValueChange={set("strategy")}>
@@ -107,8 +107,8 @@ function NewBlockDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create block</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create block</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -123,72 +123,74 @@ export function RecommendationsScreen() {
   const duplicate = (b) =>
     setBlocks((prev) => [{ ...b, id: Date.now(), name: `${b.name} (Copy)` }, ...prev]);
 
+  const columns = [
+    { key: "block", header: "Block", className: "font-medium text-foreground", render: (b) => b.name },
+    { key: "strategy", header: "Strategy", render: (b) => <Badge variant={STRATEGY_TONE[b.strategy]}>{b.strategy}</Badge> },
+    { key: "placement", header: "Placement", className: "text-muted-foreground", render: (b) => b.placement },
+    { key: "items", header: "Items shown", className: "tabular-nums text-muted-foreground", render: (b) => b.items },
+    { key: "status", header: "Status", render: (b) => <Badge variant={STATUS_TONE[b.status]}>{b.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (b) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy, onSelect: () => duplicate(b) },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setBlocks((prev) => prev.filter((x) => x.id !== b.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Recommendations"
         description="Personalized product blocks powered by shopper behavior."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New block
           </Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
-        <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-500/25 bg-amber-500/10 text-amber-400"><Sparkles className="h-4 w-4" /></span>
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">AI personalized recommendations</p>
-              <p className="text-xs text-text-secondary">Let Geiger tailor product picks per shopper using browse and purchase history.</p>
-            </div>
-          </div>
-          <Switch checked={aiEnabled} onCheckedChange={setAiEnabled} />
-        </div>
+      <div>
+        <SectionCard>
+          <SettingsList>
+            <SettingRow
+              icon={Sparkles}
+              title="AI personalized recommendations"
+              description="Let Geiger tailor product picks per shopper using browse and purchase history."
+              checked={aiEnabled}
+              onCheckedChange={setAiEnabled}
+            />
+          </SettingsList>
+        </SectionCard>
       </div>
 
       <h2 className="text-sm font-semibold text-foreground">Recommendation blocks</h2>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Block</TableHead>
-              <TableHead>Strategy</TableHead>
-              <TableHead>Placement</TableHead>
-              <TableHead>Items shown</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {blocks.map((b) => (
-              <TableRow key={b.id} className="border-border">
-                <TableCell className="font-medium text-foreground">{b.name}</TableCell>
-                <TableCell><Pill tone={STRATEGY_TONE[b.strategy]}>{b.strategy}</Pill></TableCell>
-                <TableCell className="text-muted-foreground">{b.placement}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{b.items}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[b.status]}>{b.status}</Pill></TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Duplicate", icon: Copy, onSelect: () => duplicate(b) },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setBlocks((prev) => prev.filter((x) => x.id !== b.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {blocks.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No recommendation blocks found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={blocks}
+        getRowKey={(b) => b.id}
+        empty={
+          <EmptyState
+            icon={Sparkles}
+            title="No recommendation blocks found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> New block
+              </Button>
+            }
+          />
+        }
+      />
 
       <NewBlockDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(b) => setBlocks((prev) => [{ id: Date.now(), ...b }, ...prev])} />
     </MainScreenWrapper>

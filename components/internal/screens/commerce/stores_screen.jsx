@@ -3,38 +3,36 @@
 import React, { useState } from "react";
 import { Plus, Store, RefreshCw, Settings, Unplug } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const PLATFORM_TONE = {
-  Shopify: "green",
-  WooCommerce: "violet",
-  Magento: "amber",
-  BigCommerce: "blue",
+  Shopify: "success",
+  WooCommerce: "purple",
+  Magento: "warning",
+  BigCommerce: "info",
 };
 
-const STATUS_TONE = { Connected: "green", Syncing: "amber", Error: "red" };
+const STATUS_TONE = { Connected: "success", Syncing: "warning", Error: "danger" };
 
 const PLATFORMS = ["Shopify", "WooCommerce", "Magento", "BigCommerce"];
 
@@ -72,7 +70,7 @@ function ConnectStoreDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Store name" htmlFor="store-name">
-            <Input id="store-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Northwind Apparel" className="bg-background border-border" />
+            <Input id="store-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Northwind Apparel" className="border-border" />
           </Field>
           <Field label="Platform">
             <Select value={form.platform} onValueChange={set("platform")}>
@@ -83,12 +81,12 @@ function ConnectStoreDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Store URL" htmlFor="store-url" hint="The public domain of your storefront.">
-            <Input id="store-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://store.myshopify.com" className="bg-background border-border" />
+            <Input id="store-url" value={form.url} onChange={(e) => set("url")(e.target.value)} placeholder="https://store.myshopify.com" className="border-border" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Connect store</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Connect store</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -102,67 +100,72 @@ export function StoresScreen() {
   const syncNow = (id) =>
     setStores((p) => p.map((s) => (s.id === id ? { ...s, status: "Syncing", lastSync: "Syncing now" } : s)));
 
+  const columns = [
+    {
+      key: "store",
+      header: "Store",
+      render: (s) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><Store className="h-4 w-4" /></span>
+          <div className="flex min-w-0 flex-col">
+            <span className="font-medium text-foreground">{s.name}</span>
+            <span className="truncate text-xs text-text-secondary">{s.platform}</span>
+          </div>
+        </div>
+      ),
+    },
+    { key: "platform", header: "Platform", render: (s) => <Badge variant={PLATFORM_TONE[s.platform]}>{s.platform}</Badge> },
+    { key: "products", header: "Products", className: "tabular-nums text-muted-foreground", render: (s) => s.products.toLocaleString() },
+    { key: "orders", header: "Orders (30d)", className: "tabular-nums text-muted-foreground", render: (s) => s.orders.toLocaleString() },
+    { key: "status", header: "Status", render: (s) => <Badge variant={STATUS_TONE[s.status]}>{s.status}</Badge> },
+    { key: "lastSync", header: "Last sync", className: "whitespace-nowrap text-muted-foreground", render: (s) => s.lastSync },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (s) => (
+        <ActionMenu
+          items={[
+            { label: "Sync now", icon: RefreshCw, onSelect: () => syncNow(s.id) },
+            { label: "Settings", icon: Settings },
+            { separator: true },
+            { label: "Disconnect", icon: Unplug, destructive: true, onSelect: () => setStores((p) => p.filter((x) => x.id !== s.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Stores"
         description="Connect your storefronts to sync products, orders, and customers."
         actions={
-          <Button onClick={() => setConnectOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setConnectOpen(true)}>
             <Plus className="h-4 w-4" /> Connect store
           </Button>
         }
       />
 
-      <TableShell className="mt-4">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Store</TableHead>
-              <TableHead>Platform</TableHead>
-              <TableHead>Products</TableHead>
-              <TableHead>Orders (30d)</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Last sync</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {stores.map((s) => (
-              <TableRow key={s.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><Store className="h-4 w-4" /></span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-foreground">{s.name}</span>
-                      <span className="truncate text-xs text-text-secondary">{s.platform}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell><Pill tone={PLATFORM_TONE[s.platform]}>{s.platform}</Pill></TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{s.products.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{s.orders.toLocaleString()}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[s.status]}>{s.status}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{s.lastSync}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Sync now", icon: RefreshCw, onSelect: () => syncNow(s.id) },
-                      { label: "Settings", icon: Settings },
-                      { label: "Disconnect", icon: Unplug, danger: true, separatorBefore: true, onSelect: () => setStores((p) => p.filter((x) => x.id !== s.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {stores.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No stores connected.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        className="mt-4"
+        columns={columns}
+        data={stores}
+        getRowKey={(s) => s.id}
+        empty={
+          <EmptyState
+            icon={Store}
+            title="No stores connected"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={
+              <Button onClick={() => setConnectOpen(true)}>
+                <Plus className="h-4 w-4" /> Connect store
+              </Button>
+            }
+          />
+        }
+      />
 
       <ConnectStoreDialog open={connectOpen} onOpenChange={setConnectOpen} onCreate={(s) => setStores((p) => [{ id: Date.now(), ...s }, ...p])} />
     </MainScreenWrapper>

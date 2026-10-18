@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { Plus, GitFork, Target, Pencil, Copy, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -20,12 +18,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  DataTable,
+  EmptyState,
 } from "@geiger/ui";
 
 const COND_FIELDS = ["Email engagement", "Tag", "List membership", "Lead score", "Country", "Last purchase"];
@@ -39,7 +39,7 @@ const INITIAL_CONDITIONS = [
 ];
 
 const GOAL_METRICS = ["Purchase", "Form submission", "Page visit", "Email click", "Custom event"];
-const METRIC_TONE = { Purchase: "green", "Form submission": "blue", "Page visit": "violet", "Email click": "amber", "Custom event": "zinc" };
+const METRIC_TONE = { Purchase: "success", "Form submission": "info", "Page visit": "purple", "Email click": "warning", "Custom event": "neutral" };
 
 const INITIAL_GOALS = [
   { id: 1, name: "Completed checkout", metric: "Purchase", target: "Order value > $0", conversions: 1840 },
@@ -65,7 +65,7 @@ function CreateConditionDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Condition name" htmlFor="cd-name">
-            <Input id="cd-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. High lead score" className="bg-background border-border" />
+            <Input id="cd-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. High lead score" />
           </Field>
           <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface-card p-3 sm:flex-row">
             <Select value={form.field} onValueChange={set("field")}>
@@ -76,12 +76,12 @@ function CreateConditionDialog({ open, onOpenChange, onCreate }) {
               <SelectTrigger className="w-full sm:w-40"><SelectValue /></SelectTrigger>
               <SelectContent>{COND_OPS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>
-            <Input value={form.value} onChange={(e) => set("value")(e.target.value)} placeholder="value" className="flex-1 bg-background border-border" />
+            <Input value={form.value} onChange={(e) => set("value")(e.target.value)} placeholder="value" className="flex-1" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create condition</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create condition</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -106,7 +106,7 @@ function CreateGoalDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Goal name" htmlFor="gl-name">
-            <Input id="gl-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Completed checkout" className="bg-background border-border" />
+            <Input id="gl-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Completed checkout" />
           </Field>
           <Field label="Conversion metric">
             <Select value={form.metric} onValueChange={set("metric")}>
@@ -115,12 +115,12 @@ function CreateGoalDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Target definition" htmlFor="gl-target" hint="What exactly counts as a conversion?">
-            <Input id="gl-target" value={form.target} onChange={(e) => set("target")(e.target.value)} placeholder="e.g. Order value > $0" className="bg-background border-border" />
+            <Input id="gl-target" value={form.target} onChange={(e) => set("target")(e.target.value)} placeholder="e.g. Order value > $0" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create goal</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create goal</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -139,14 +139,66 @@ export function ConditionsGoalsScreen() {
   const fConditions = conditions.filter((c) => c.name.toLowerCase().includes(q));
   const fGoals = goals.filter((g) => g.name.toLowerCase().includes(q));
 
+  const conditionColumns = [
+    { key: "name", header: "Condition", className: "font-medium text-foreground", render: (c) => c.name },
+    { key: "logic", header: "Logic", className: "font-mono text-xs text-muted-foreground", render: (c) => c.logic },
+    { key: "usedIn", header: "Used in", className: "tabular-nums text-muted-foreground", render: (c) => `${c.usedIn} automations` },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (c) => (
+        <ActionMenu
+          label={`Actions for ${c.name}`}
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setConditions((p) => p.filter((x) => x.id !== c.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  const goalColumns = [
+    { key: "name", header: "Goal", className: "font-medium text-foreground", render: (g) => g.name },
+    { key: "metric", header: "Metric", render: (g) => <Badge variant={METRIC_TONE[g.metric]}>{g.metric}</Badge> },
+    { key: "target", header: "Target", className: "font-mono text-xs text-muted-foreground", render: (g) => g.target },
+    { key: "conversions", header: "Conversions", className: "tabular-nums font-medium text-foreground", render: (g) => g.conversions.toLocaleString() },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (g) => (
+        <ActionMenu
+          label={`Actions for ${g.name}`}
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setGoals((p) => p.filter((x) => x.id !== g.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Conditions & Goals"
         description="Reusable branching rules and the outcomes your automations optimize for."
+        actions={
+          tab === "conditions" ? (
+            <Button onClick={() => setCondOpen(true)}><Plus className="h-4 w-4" /> New condition</Button>
+          ) : (
+            <Button onClick={() => setGoalOpen(true)}><Plus className="h-4 w-4" /> New goal</Button>
+          )
+        }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <Toolbar>
         <SegmentedTabs
           value={tab}
           onChange={setTab}
@@ -155,82 +207,39 @@ export function ConditionsGoalsScreen() {
             { label: "Goals", value: "goals", icon: Target },
           ]}
         />
-        <div className="flex items-center gap-2">
-          <SearchInput value={query} onChange={setQuery} placeholder={tab === "conditions" ? "Search conditions…" : "Search goals…"} />
-          {tab === "conditions" ? (
-            <Button onClick={() => setCondOpen(true)} className="h-9 shrink-0 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> New condition</Button>
-          ) : (
-            <Button onClick={() => setGoalOpen(true)} className="h-9 shrink-0 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> New goal</Button>
-          )}
-        </div>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder={tab === "conditions" ? "Search conditions…" : "Search goals…"} />
+      </Toolbar>
 
       {tab === "conditions" ? (
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Condition</TableHead>
-                <TableHead>Logic</TableHead>
-                <TableHead>Used in</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {fConditions.map((c) => (
-                <TableRow key={c.id} className="border-border">
-                  <TableCell className="font-medium text-foreground">{c.name}</TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{c.logic}</TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{c.usedIn} automations</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setConditions((p) => p.filter((x) => x.id !== c.id)) },
-                    ]} />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {fConditions.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={4} className="py-14 text-center text-sm text-text-secondary">No conditions found.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
+        <DataTable
+          columns={conditionColumns}
+          data={fConditions}
+          getRowKey={(c) => c.id}
+          empty={
+            <EmptyState
+              icon={GitFork}
+              title="No conditions found"
+              description="Try a different search, or create a new condition."
+              className="rounded-xl border border-border bg-surface-subtle"
+              action={<Button onClick={() => setCondOpen(true)}><Plus className="h-4 w-4" /> New condition</Button>}
+            />
+          }
+        />
       ) : (
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Goal</TableHead>
-                <TableHead>Metric</TableHead>
-                <TableHead>Target</TableHead>
-                <TableHead>Conversions</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {fGoals.map((g) => (
-                <TableRow key={g.id} className="border-border">
-                  <TableCell className="font-medium text-foreground">{g.name}</TableCell>
-                  <TableCell><Pill tone={METRIC_TONE[g.metric]}>{g.metric}</Pill></TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{g.target}</TableCell>
-                  <TableCell className="tabular-nums font-medium text-foreground">{g.conversions.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setGoals((p) => p.filter((x) => x.id !== g.id)) },
-                    ]} />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {fGoals.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent"><TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No goals found.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
+        <DataTable
+          columns={goalColumns}
+          data={fGoals}
+          getRowKey={(g) => g.id}
+          empty={
+            <EmptyState
+              icon={Target}
+              title="No goals found"
+              description="Try a different search, or create a new goal."
+              className="rounded-xl border border-border bg-surface-subtle"
+              action={<Button onClick={() => setGoalOpen(true)}><Plus className="h-4 w-4" /> New goal</Button>}
+            />
+          }
+        />
       )}
 
       <CreateConditionDialog open={condOpen} onOpenChange={setCondOpen} onCreate={(c) => setConditions((p) => [{ id: Date.now(), ...c }, ...p])} />

@@ -1,24 +1,23 @@
 "use client";
 
 import React from "react";
-import { Bar, BarChart, CartesianGrid, Legend, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell } from "@/components/internal/shared/screen_kit";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  Toolbar,
+  DataTable,
 } from "@geiger/ui";
 
-const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
+const SERIES = ["var(--chart-series-1)", "var(--chart-series-2)", "var(--chart-series-3)", "var(--chart-series-4)", "var(--chart-series-5)"];
 const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
+const AXIS_STROKE = "var(--muted-foreground)";
 
 const CAMPAIGNS = [
   { key: "summer", name: "Summer Sale" },
@@ -47,62 +46,52 @@ const METRICS = [
   { metric: "Revenue", summer: "$8,240", digest: "$3,110", winback: "$5,980", launch: "$12,470" },
 ];
 
+// One metric column, then one right-aligned column per compared campaign.
+const COLUMNS = [
+  { key: "metric", header: "Metric", className: "font-medium text-foreground" },
+  ...CAMPAIGNS.map((c) => ({
+    key: c.key,
+    header: c.name,
+    align: "right",
+    className: "tabular-nums text-muted-foreground",
+  })),
+];
+
 export function CampaignComparisonScreen() {
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Campaign Comparison"
         description="Put campaigns side by side to see what worked."
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
         <p className="text-sm text-muted-foreground">
           Comparing <span className="font-medium text-foreground">{CAMPAIGNS.length}</span> campaigns
         </p>
-      </div>
+      </Toolbar>
 
-      <div className="rounded-xl border border-border bg-surface-subtle p-5">
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold text-foreground">Open rate vs click rate</h3>
-          <p className="text-xs text-text-secondary">Grouped comparison across selected campaigns (%).</p>
+      <SectionCard
+        title="Open rate vs click rate"
+        description="Grouped comparison across selected campaigns (%)."
+        bodyPadding={false}
+      >
+        <div className="px-3 pb-3 pt-4">
+          <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[280px] w-full">
+            <BarChart data={CHART_DATA} margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
+              <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
+              <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} stroke={AXIS_STROKE} />
+              <YAxis tickLine={false} axisLine={false} width={40} stroke={AXIS_STROKE} tickFormatter={(v) => `${v}%`} />
+              <ChartTooltip cursor={{ fill: "var(--chart-cursor-fill)" }} content={<ChartTooltipContent className={TOOLTIP_CLASS} />} />
+              <ChartLegend content={<ChartLegendContent className="text-muted-foreground" />} />
+              <Bar dataKey="openRate" fill={SERIES[0]} radius={[6, 6, 0, 0]} />
+              <Bar dataKey="clickRate" fill={SERIES[1]} radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ChartContainer>
         </div>
-        <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[280px] w-full">
-          <BarChart data={CHART_DATA} margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
-            <CartesianGrid vertical={false} stroke="#2a2a2a" />
-            <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} stroke="#737373" />
-            <YAxis tickLine={false} axisLine={false} width={40} stroke="#737373" tickFormatter={(v) => `${v}%`} />
-            <ChartTooltip cursor={{ fill: "#ffffff10" }} content={<ChartTooltipContent className={TOOLTIP_CLASS} />} />
-            <Legend wrapperStyle={{ fontSize: 12, color: "#a3a3a3" }} />
-            <Bar dataKey="openRate" fill={SERIES[0]} radius={[6, 6, 0, 0]} />
-            <Bar dataKey="clickRate" fill={SERIES[1]} radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ChartContainer>
-      </div>
+      </SectionCard>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Metric</TableHead>
-              {CAMPAIGNS.map((c) => (
-                <TableHead key={c.key} className="text-right">{c.name}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {METRICS.map((row) => (
-              <TableRow key={row.metric} className="border-border">
-                <TableCell className="font-medium text-foreground">{row.metric}</TableCell>
-                {CAMPAIGNS.map((c) => (
-                  <TableCell key={c.key} className="text-right tabular-nums text-muted-foreground">
-                    {row[c.key]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable columns={COLUMNS} data={METRICS} getRowKey={(row) => row.metric} />
     </MainScreenWrapper>
   );
 }

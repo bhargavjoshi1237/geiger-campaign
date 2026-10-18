@@ -1,26 +1,24 @@
 "use client";
 
 import React from "react";
-import { Area, AreaChart, CartesianGrid, Legend, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Monitor, Smartphone, Tablet } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell } from "@/components/internal/shared/screen_kit";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   Progress,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  DataTable,
 } from "@geiger/ui";
 
-const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
+const SERIES = ["var(--chart-series-1)", "var(--chart-series-2)", "var(--chart-series-3)", "var(--chart-series-4)", "var(--chart-series-5)"];
 const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
+const AXIS_STROKE = "var(--muted-foreground)";
 
 const ENGAGEMENT = [
   { day: "Mon", opens: 4120, clicks: 640 },
@@ -51,95 +49,93 @@ const DEVICES = [
   { label: "Tablet", icon: Tablet, share: 9 },
 ];
 
+const LINK_COLUMNS = [
+  { key: "url", header: "Link", className: "max-w-[280px] truncate font-mono text-xs text-muted-foreground" },
+  {
+    key: "clicks",
+    header: "Clicks",
+    align: "right",
+    className: "tabular-nums text-muted-foreground",
+    render: (l) => l.clicks.toLocaleString(),
+  },
+  {
+    key: "unique",
+    header: "Unique",
+    align: "right",
+    className: "tabular-nums text-muted-foreground",
+    render: (l) => l.unique.toLocaleString(),
+  },
+  {
+    key: "ctr",
+    header: "CTR",
+    align: "right",
+    className: "tabular-nums text-foreground",
+    render: (l) => `${l.ctr}%`,
+  },
+];
+
 export function EngagementScreen() {
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Engagement"
         description="How recipients interact with your messages over time."
       />
 
-      <div className="rounded-xl border border-border bg-surface-subtle p-5">
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold text-foreground">Opens & clicks over time</h3>
-          <p className="text-xs text-text-secondary">Daily interaction counts for the last week.</p>
+      <SectionCard
+        title="Opens & clicks over time"
+        description="Daily interaction counts for the last week."
+        bodyPadding={false}
+      >
+        <div className="px-3 pb-3 pt-4">
+          <ChartContainer config={ENGAGEMENT_CONFIG} className="aspect-auto h-[280px] w-full">
+            <AreaChart data={ENGAGEMENT} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
+              <defs>
+                <linearGradient id="eng-opens" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-opens)" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="var(--color-opens)" stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="eng-clicks" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-clicks)" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="var(--color-clicks)" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
+              <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} stroke={AXIS_STROKE} />
+              <YAxis tickLine={false} axisLine={false} width={40} stroke={AXIS_STROKE} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
+              <ChartTooltip cursor={{ stroke: "var(--chart-cursor)" }} content={<ChartTooltipContent className={TOOLTIP_CLASS} />} />
+              <ChartLegend content={<ChartLegendContent className="text-muted-foreground" />} />
+              <Area dataKey="opens" type="monotone" stroke="var(--color-opens)" strokeWidth={2} fill="url(#eng-opens)" />
+              <Area dataKey="clicks" type="monotone" stroke="var(--color-clicks)" strokeWidth={2} fill="url(#eng-clicks)" />
+            </AreaChart>
+          </ChartContainer>
         </div>
-        <ChartContainer config={ENGAGEMENT_CONFIG} className="aspect-auto h-[280px] w-full">
-          <AreaChart data={ENGAGEMENT} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
-            <defs>
-              <linearGradient id="eng-opens" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--color-opens)" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="var(--color-opens)" stopOpacity={0.02} />
-              </linearGradient>
-              <linearGradient id="eng-clicks" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--color-clicks)" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="var(--color-clicks)" stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} stroke="#2a2a2a" />
-            <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} stroke="#737373" />
-            <YAxis tickLine={false} axisLine={false} width={40} stroke="#737373" tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
-            <ChartTooltip cursor={{ stroke: "#333333" }} content={<ChartTooltipContent className={TOOLTIP_CLASS} />} />
-            <Legend wrapperStyle={{ fontSize: 12, color: "#a3a3a3" }} />
-            <Area dataKey="opens" type="monotone" stroke="var(--color-opens)" strokeWidth={2} fill="url(#eng-opens)" />
-            <Area dataKey="clicks" type="monotone" stroke="var(--color-clicks)" strokeWidth={2} fill="url(#eng-clicks)" />
-          </AreaChart>
-        </ChartContainer>
-      </div>
+      </SectionCard>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-3">
-          <div>
-            <h3 className="text-sm font-semibold text-foreground">Top links</h3>
-            <p className="text-xs text-text-secondary">Most-clicked destinations across recent sends.</p>
-          </div>
-          <TableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                  <TableHead>Link</TableHead>
-                  <TableHead className="text-right">Clicks</TableHead>
-                  <TableHead className="text-right">Unique</TableHead>
-                  <TableHead className="text-right">CTR</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {TOP_LINKS.map((l) => (
-                  <TableRow key={l.url} className="border-border">
-                    <TableCell className="max-w-[280px] truncate font-mono text-xs text-muted-foreground">{l.url}</TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">{l.clicks.toLocaleString()}</TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">{l.unique.toLocaleString()}</TableCell>
-                    <TableCell className="text-right tabular-nums text-foreground">{l.ctr}%</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableShell>
-        </div>
+        <SectionCard bare title="Top links" description="Most-clicked destinations across recent sends.">
+          <DataTable columns={LINK_COLUMNS} data={TOP_LINKS} getRowKey={(l) => l.url} />
+        </SectionCard>
 
-        <div className="rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-foreground">Engagement by device</h3>
-            <p className="text-xs text-text-secondary">Share of opens by device type.</p>
-          </div>
+        <SectionCard title="Engagement by device" description="Share of opens by device type.">
           <div className="space-y-4">
             {DEVICES.map((d) => {
               const Icon = d.icon;
               return (
                 <div key={d.label} className="space-y-1.5">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-[#c4c4c4]">
+                    <span className="flex items-center gap-2 text-text-secondary">
                       <Icon className="h-4 w-4 text-text-secondary" />
                       {d.label}
                     </span>
                     <span className="tabular-nums font-medium text-foreground">{d.share}%</span>
                   </div>
-                  <Progress value={d.share} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
+                  <Progress value={d.share} className="h-1.5 bg-surface-hover" />
                 </div>
               );
             })}
           </div>
-        </div>
+        </SectionCard>
       </div>
     </MainScreenWrapper>
   );

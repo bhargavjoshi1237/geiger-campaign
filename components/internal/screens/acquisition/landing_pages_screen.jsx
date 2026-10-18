@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, Layout, LayoutTemplate, LayoutGrid, LayoutPanelTop, Pencil, Copy, ExternalLink, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -26,9 +23,17 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
-const STATUS_TONE = { Published: "green", Draft: "zinc", Archived: "amber" };
+const STATUS_TONE = { Published: "success", Draft: "neutral", Archived: "warning" };
 const STATUSES = ["All", "Published", "Draft", "Archived"];
 
 const TEMPLATE_META = {
@@ -71,10 +76,10 @@ function NewPageDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Page name" htmlFor="lp-name">
-            <Input id="lp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Holiday Promo" className="bg-background border-border" />
+            <Input id="lp-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Holiday Promo" />
           </Field>
           <Field label="URL slug" htmlFor="lp-slug" hint="Leave blank to generate one from the name.">
-            <Input id="lp-slug" value={form.slug} onChange={(e) => set("slug")(e.target.value)} placeholder="/lp/holiday-promo" className="bg-background border-border font-mono" />
+            <Input id="lp-slug" value={form.slug} onChange={(e) => set("slug")(e.target.value)} placeholder="/lp/holiday-promo" className="font-mono" />
           </Field>
           <Field label="Template">
             <Select value={form.template} onValueChange={set("template")}>
@@ -84,8 +89,8 @@ function NewPageDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create page</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create page</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -107,36 +112,38 @@ export function LandingPagesScreen() {
   }, [pages, query, status]);
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Landing Pages"
         description="Standalone pages built to convert campaign traffic."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New page
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {status === "All" ? "All statuses" : status}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {STATUSES.map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer", status === s && "font-medium")}>
+                  {s === "All" ? "All statuses" : s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search pages…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {status === "All" ? "All statuses" : status}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {STATUSES.map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", status === s && "text-white")}>
-                {s === "All" ? "All statuses" : s}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((p) => {
@@ -147,18 +154,19 @@ export function LandingPagesScreen() {
               <div className="relative flex h-28 items-center justify-center" style={{ background: `linear-gradient(135deg, ${meta.from}, ${meta.to})` }}>
                 <Icon className="h-9 w-9 text-white/90" />
                 <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
-                  <RowActions items={[
+                  <ActionMenu items={[
                     { label: "Edit", icon: Pencil },
                     { label: "Duplicate", icon: Copy },
                     { label: "View", icon: ExternalLink },
-                    { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setPages((prev) => prev.filter((x) => x.id !== p.id)) },
+                    { separator: true },
+                    { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setPages((prev) => prev.filter((x) => x.id !== p.id)) },
                   ]} />
                 </div>
               </div>
               <div className="p-4">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="truncate font-medium text-foreground">{p.name}</h3>
-                  <Pill tone={STATUS_TONE[p.status]}>{p.status}</Pill>
+                  <Badge variant={STATUS_TONE[p.status]}>{p.status}</Badge>
                 </div>
                 <p className="mt-1 truncate font-mono text-xs text-text-secondary">{p.slug}</p>
                 <div className="mt-3 flex items-center gap-5 border-t border-surface-active pt-3 text-xs">
@@ -178,9 +186,17 @@ export function LandingPagesScreen() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
-          No pages match your filters.
-        </div>
+        <EmptyState
+          icon={LayoutTemplate}
+          title="No pages match your filters"
+          description="Try a different search or status, or start a new page."
+          action={
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" /> New page
+            </Button>
+          }
+          className="rounded-xl border border-border bg-surface-subtle"
+        />
       )}
 
       <NewPageDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(p) => setPages((prev) => [{ id: Date.now(), ...p }, ...prev])} />

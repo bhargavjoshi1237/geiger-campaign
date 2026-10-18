@@ -2,16 +2,13 @@
 
 import React from "react";
 import { Sparkles, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Pill } from "@/components/internal/shared/screen_kit";
-import { Button } from "@geiger/ui";
+import { Button, cn, ScreenHeader, SectionCard, Badge } from "@geiger/ui";
 
 const STATUS = {
-  good: { icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/25", action: "Review" },
-  warn: { icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/25", action: "Fix" },
-  bad: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/10 border-red-500/25", action: "Fix" },
+  good: { icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/25", action: "Review" },
+  warn: { icon: AlertTriangle, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10 border-amber-500/25", action: "Fix" },
+  bad: { icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-500/10 border-red-500/25", action: "Fix" },
 };
 
 const CHECKS = [
@@ -61,32 +58,32 @@ const CHECKS = [
 
 export function CampaignHealthScreen() {
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Campaign Health"
         description="An AI audit of your sending health with prioritized fixes."
         actions={
-          <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button>
             <Sparkles className="h-4 w-4" /> Re-run audit
           </Button>
         }
       />
 
       {/* Overall score */}
-      <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
+      <SectionCard contentClassName="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-baseline gap-3">
-          <span className="text-4xl font-bold tabular-nums text-white">82</span>
+          <span className="text-4xl font-bold tabular-nums text-foreground">82</span>
           <span className="text-lg text-text-secondary">/ 100</span>
-          <Pill tone="green">Good</Pill>
+          <Badge variant="success">Good</Badge>
         </div>
         <p className="max-w-md text-sm text-muted-foreground">
           Your sending is healthy overall. Fixing authentication and easing send frequency
           would push you into excellent territory.
         </p>
-      </div>
+      </SectionCard>
 
       {/* Health checks */}
-      <div className="flex items-center gap-2 border-t border-surface-active pt-4">
+      <div className="flex items-center gap-2">
         <h2 className="text-sm font-semibold text-foreground">Health checks</h2>
         <span className="text-xs text-text-secondary">{CHECKS.length} checks</span>
       </div>
@@ -105,7 +102,7 @@ export function CampaignHealthScreen() {
                 <p className="mt-1 text-sm text-muted-foreground">{c.finding}</p>
                 <p className="mt-1 text-sm text-text-secondary">{c.recommendation}</p>
               </div>
-              <Button size="sm" variant="ghost" className="h-8 shrink-0 text-muted-foreground hover:bg-surface-active hover:text-foreground">
+              <Button size="sm" variant="ghost" className="shrink-0 text-muted-foreground">
                 {s.action}
               </Button>
             </div>

@@ -3,8 +3,6 @@
 import React, { useMemo, useState } from "react";
 import { Flame } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, Field } from "@/components/internal/shared/screen_kit";
 import {
   Input,
   Select,
@@ -12,13 +10,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  SettingsList,
+  SettingRow,
+  DataTable,
+  Badge,
+  Field,
 } from "@geiger/ui";
 
 const IPS = ["198.51.100.24", "203.0.113.88", "192.0.2.140"];
@@ -34,7 +32,15 @@ const SCHEDULE = [
   { id: 8, day: 8, date: "Jun 3, 2026", cap: 64000, sent: 0, status: "Scheduled" },
 ];
 
-const STATUS_TONE = { Complete: "green", "In progress": "amber", Scheduled: "zinc" };
+const STATUS_TONE = { Complete: "success", "In progress": "warning", Scheduled: "neutral" };
+
+const SCHEDULE_COLUMNS = [
+  { key: "day", header: "Day", className: "font-medium text-foreground", render: (s) => `Day ${s.day}` },
+  { key: "date", header: "Date", className: "whitespace-nowrap text-muted-foreground", render: (s) => s.date },
+  { key: "cap", header: "Daily cap", className: "tabular-nums text-muted-foreground", render: (s) => s.cap.toLocaleString() },
+  { key: "sent", header: "Sent", className: "tabular-nums text-muted-foreground", render: (s) => s.sent.toLocaleString() },
+  { key: "status", header: "Status", render: (s) => <Badge variant={STATUS_TONE[s.status]}>{s.status}</Badge> },
+];
 
 export function IpWarmupScreen() {
   const [ip, setIp] = useState(IPS[1]);
@@ -45,19 +51,22 @@ export function IpWarmupScreen() {
   const schedule = useMemo(() => SCHEDULE, []);
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="IP Warmup"
         description="Gradually ramp sending volume to build a strong IP reputation."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-foreground">Warmup settings</h2>
-          </div>
+        <SectionCard
+          title={
+            <span className="inline-flex items-center gap-2">
+              <Flame className="h-4 w-4 text-text-secondary" /> Warmup settings
+            </span>
+          }
+          contentClassName="space-y-4"
+        >
           <Field label="IP address">
             <Select value={ip} onValueChange={setIp}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -66,15 +75,16 @@ export function IpWarmupScreen() {
               </SelectContent>
             </Select>
           </Field>
-          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">Enable automatic warmup</p>
-              <p className="text-xs text-text-secondary">Caps grow each day until the target is reached.</p>
-            </div>
-            <Switch checked={enabled} onCheckedChange={setEnabled} />
-          </div>
+          <SettingsList>
+            <SettingRow
+              title="Enable automatic warmup"
+              description="Caps grow each day until the target is reached."
+              checked={enabled}
+              onCheckedChange={setEnabled}
+            />
+          </SettingsList>
           <Field label="Target daily volume" htmlFor="w-target" hint="Maximum messages per day after warmup completes.">
-            <Input id="w-target" type="number" value={target} onChange={(e) => setTarget(e.target.value)} className="bg-background border-border" />
+            <Input id="w-target" type="number" value={target} onChange={(e) => setTarget(e.target.value)} className="border-border" />
           </Field>
           <Field label="Ramp duration">
             <Select value={duration} onValueChange={setDuration}>
@@ -86,35 +96,12 @@ export function IpWarmupScreen() {
               </SelectContent>
             </Select>
           </Field>
-        </div>
+        </SectionCard>
 
         {/* Schedule */}
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-foreground">Warmup schedule</h2>
-          <TableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                  <TableHead>Day</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Daily cap</TableHead>
-                  <TableHead>Sent</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {schedule.map((s) => (
-                  <TableRow key={s.id} className="border-border">
-                    <TableCell className="font-medium text-foreground">Day {s.day}</TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{s.date}</TableCell>
-                    <TableCell className="tabular-nums text-muted-foreground">{s.cap.toLocaleString()}</TableCell>
-                    <TableCell className="tabular-nums text-muted-foreground">{s.sent.toLocaleString()}</TableCell>
-                    <TableCell><Pill tone={STATUS_TONE[s.status]}>{s.status}</Pill></TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableShell>
+          <DataTable columns={SCHEDULE_COLUMNS} data={schedule} getRowKey={(s) => s.id} />
         </div>
       </div>
     </MainScreenWrapper>

@@ -1,24 +1,24 @@
 "use client";
 
 import React from "react";
-import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill } from "@/components/internal/shared/screen_kit";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  DataTable,
+  Badge,
+  cn,
 } from "@geiger/ui";
 
-const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
+const SERIES = ["var(--chart-series-1)", "var(--chart-series-2)", "var(--chart-series-3)", "var(--chart-series-4)", "var(--chart-series-5)"];
 const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
+const AXIS_STROKE = "var(--muted-foreground)";
 
 const TRENDS = [
   { week: "W1", delivered: 96.4, bounced: 2.4, complaint: 0.08 },
@@ -38,65 +38,78 @@ const CHART_CONFIG = {
 };
 
 const DOMAINS = [
-  { domain: "mail.acme.com", sent: 142800, delivered: 97.8, bounce: 1.9, complaint: 0.03, status: "Healthy", tone: "green" },
-  { domain: "send.acme.com", sent: 86400, delivered: 96.2, bounce: 3.1, complaint: 0.08, status: "Healthy", tone: "green" },
-  { domain: "news.acme.io", sent: 41200, delivered: 93.4, bounce: 5.8, complaint: 0.14, status: "At risk", tone: "amber" },
-  { domain: "promo.acme.net", sent: 19600, delivered: 89.1, bounce: 9.2, complaint: 0.31, status: "Throttled", tone: "red" },
+  { domain: "mail.halcyon.studio", sent: 142800, delivered: 97.8, bounce: 1.9, complaint: 0.03, status: "Healthy", tone: "success" },
+  { domain: "send.halcyon.studio", sent: 86400, delivered: 96.2, bounce: 3.1, complaint: 0.08, status: "Healthy", tone: "success" },
+  { domain: "news.halcyon.studio", sent: 41200, delivered: 93.4, bounce: 5.8, complaint: 0.14, status: "At risk", tone: "warning" },
+  { domain: "promo.halcyon.studio", sent: 19600, delivered: 89.1, bounce: 9.2, complaint: 0.31, status: "Throttled", tone: "danger" },
+];
+
+const COLUMNS = [
+  { key: "domain", header: "Domain", className: "font-mono text-xs text-muted-foreground" },
+  {
+    key: "sent",
+    header: "Sent",
+    align: "right",
+    className: "tabular-nums text-muted-foreground",
+    render: (d) => d.sent.toLocaleString(),
+  },
+  {
+    key: "delivered",
+    header: "Delivered",
+    align: "right",
+    className: "tabular-nums font-medium text-emerald-600 dark:text-emerald-400",
+    render: (d) => `${d.delivered}%`,
+  },
+  {
+    key: "bounce",
+    header: "Bounce",
+    align: "right",
+    render: (d) => (
+      <span className={cn("tabular-nums", d.bounce >= 5 ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400")}>
+        {d.bounce}%
+      </span>
+    ),
+  },
+  {
+    key: "complaint",
+    header: "Complaint",
+    align: "right",
+    className: "tabular-nums text-muted-foreground",
+    render: (d) => `${d.complaint}%`,
+  },
+  { key: "status", header: "Status", render: (d) => <Badge variant={d.tone}>{d.status}</Badge> },
 ];
 
 export function DeliverabilityReportsScreen() {
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Deliverability Reports"
         description="Delivery, bounce, and complaint trends across your sends."
       />
 
-      <div className="rounded-xl border border-border bg-surface-subtle p-5">
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold text-foreground">Deliverability trends</h3>
-          <p className="text-xs text-text-secondary">Delivered, bounce, and complaint rates per week (%).</p>
+      <SectionCard
+        title="Deliverability trends"
+        description="Delivered, bounce, and complaint rates per week (%)."
+        bodyPadding={false}
+      >
+        <div className="px-3 pb-3 pt-4">
+          <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[280px] w-full">
+            <LineChart data={TRENDS} margin={{ top: 8, right: 16, left: 4, bottom: 0 }}>
+              <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
+              <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={8} stroke={AXIS_STROKE} />
+              <YAxis tickLine={false} axisLine={false} width={40} stroke={AXIS_STROKE} tickFormatter={(v) => `${v}%`} />
+              <ChartTooltip cursor={{ stroke: "var(--chart-cursor)" }} content={<ChartTooltipContent className={TOOLTIP_CLASS} />} />
+              <ChartLegend content={<ChartLegendContent className="text-muted-foreground" />} />
+              <Line dataKey="delivered" type="natural" stroke="var(--color-delivered)" strokeWidth={2} dot={{ fill: "var(--color-delivered)", r: 3 }} activeDot={{ r: 5 }} />
+              <Line dataKey="bounced" type="natural" stroke="var(--color-bounced)" strokeWidth={2} dot={{ fill: "var(--color-bounced)", r: 3 }} activeDot={{ r: 5 }} />
+              <Line dataKey="complaint" type="natural" stroke="var(--color-complaint)" strokeWidth={2} dot={{ fill: "var(--color-complaint)", r: 3 }} activeDot={{ r: 5 }} />
+            </LineChart>
+          </ChartContainer>
         </div>
-        <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[280px] w-full">
-          <LineChart data={TRENDS} margin={{ top: 8, right: 16, left: 4, bottom: 0 }}>
-            <CartesianGrid vertical={false} stroke="#2a2a2a" />
-            <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={8} stroke="#737373" />
-            <YAxis tickLine={false} axisLine={false} width={40} stroke="#737373" tickFormatter={(v) => `${v}%`} />
-            <ChartTooltip cursor={{ stroke: "#333333" }} content={<ChartTooltipContent className={TOOLTIP_CLASS} />} />
-            <Legend wrapperStyle={{ fontSize: 12, color: "#a3a3a3" }} />
-            <Line dataKey="delivered" type="natural" stroke="var(--color-delivered)" strokeWidth={2} dot={{ fill: "var(--color-delivered)", r: 3 }} activeDot={{ r: 5 }} />
-            <Line dataKey="bounced" type="natural" stroke="var(--color-bounced)" strokeWidth={2} dot={{ fill: "var(--color-bounced)", r: 3 }} activeDot={{ r: 5 }} />
-            <Line dataKey="complaint" type="natural" stroke="var(--color-complaint)" strokeWidth={2} dot={{ fill: "var(--color-complaint)", r: 3 }} activeDot={{ r: 5 }} />
-          </LineChart>
-        </ChartContainer>
-      </div>
+      </SectionCard>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Domain</TableHead>
-              <TableHead className="text-right">Sent</TableHead>
-              <TableHead className="text-right">Delivered</TableHead>
-              <TableHead className="text-right">Bounce</TableHead>
-              <TableHead className="text-right">Complaint</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {DOMAINS.map((d) => (
-              <TableRow key={d.domain} className="border-border">
-                <TableCell className="font-mono text-xs text-muted-foreground">{d.domain}</TableCell>
-                <TableCell className="text-right tabular-nums text-muted-foreground">{d.sent.toLocaleString()}</TableCell>
-                <TableCell className="text-right tabular-nums font-medium text-emerald-400">{d.delivered}%</TableCell>
-                <TableCell className={`text-right tabular-nums ${d.bounce >= 5 ? "text-red-400" : "text-amber-400"}`}>{d.bounce}%</TableCell>
-                <TableCell className="text-right tabular-nums text-muted-foreground">{d.complaint}%</TableCell>
-                <TableCell><Pill tone={d.tone}>{d.status}</Pill></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable columns={COLUMNS} data={DOMAINS} getRowKey={(d) => d.domain} />
     </MainScreenWrapper>
   );
 }

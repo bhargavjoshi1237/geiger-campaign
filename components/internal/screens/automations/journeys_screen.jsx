@@ -4,10 +4,7 @@ import React, { useState } from "react";
 import {
   Plus, Route, ChevronRight, Mail, Clock, GitBranch, Flag, LogIn, Pencil, Copy, Trash2, Users,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -22,10 +19,19 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  SectionCard,
+  EmptyState,
+  Progress,
 } from "@geiger/ui";
 
 const STAGE_ICON = { Entry: LogIn, Email: Mail, Wait: Clock, Branch: GitBranch, Goal: Flag };
-const STATUS_TONE = { Active: "green", Paused: "amber", Draft: "zinc" };
+const STATUS_TONE = { Active: "success", Paused: "warning", Draft: "neutral" };
 
 const INITIAL = [
   { id: 1, name: "New customer onboarding", status: "Active", active: 1240, completion: 62, stages: ["Entry", "Email", "Wait", "Email", "Goal"] },
@@ -53,7 +59,7 @@ function CreateJourneyDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Journey name" htmlFor="jr-name">
-            <Input id="jr-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. New customer onboarding" className="bg-background border-border" />
+            <Input id="jr-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. New customer onboarding" />
           </Field>
           <Field label="Entry condition">
             <Select value={form.trigger} onValueChange={(v) => setForm((f) => ({ ...f, trigger: v }))}>
@@ -63,8 +69,8 @@ function CreateJourneyDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create journey</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create journey</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -79,22 +85,23 @@ export function JourneysScreen() {
   const filtered = journeys.filter((j) => j.name.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Journeys"
         description="Visual, multi-stage paths that guide contacts toward a goal."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> Create journey</Button>
+          <Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create journey</Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
+      <Toolbar>
+        <div />
         <SearchInput value={query} onChange={setQuery} placeholder="Search journeys…" />
-      </div>
+      </Toolbar>
 
       <div className="space-y-4">
         {filtered.map((j) => (
-          <div key={j.id} className="rounded-xl border border-border bg-surface-subtle p-5">
+          <SectionCard key={j.id}>
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
@@ -103,7 +110,7 @@ export function JourneysScreen() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium text-foreground">{j.name}</h3>
-                    <Pill tone={STATUS_TONE[j.status]}>{j.status}</Pill>
+                    <Badge variant={STATUS_TONE[j.status]}>{j.status}</Badge>
                   </div>
                   <p className="text-xs text-text-secondary">{j.stages.length} stages</p>
                 </div>
@@ -118,16 +125,18 @@ export function JourneysScreen() {
                 </div>
                 <div className="hidden items-center gap-3 md:flex">
                   <span className="text-xs text-text-secondary">Completion</span>
-                  <div className="h-1.5 w-[140px] overflow-hidden rounded-full bg-surface-hover">
-                    <div className="h-full rounded-full bg-[#ededed]" style={{ width: `${j.completion}%` }} />
-                  </div>
+                  <Progress value={j.completion} className="h-1.5 w-[140px] bg-surface-hover" />
                   <span className="text-xs tabular-nums text-muted-foreground">{j.completion}%</span>
                 </div>
-                <RowActions items={[
-                  { label: "Edit journey", icon: Pencil },
-                  { label: "Duplicate", icon: Copy },
-                  { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setJourneys((p) => p.filter((x) => x.id !== j.id)) },
-                ]} />
+                <ActionMenu
+                  label={`Actions for ${j.name}`}
+                  items={[
+                    { label: "Edit journey", icon: Pencil },
+                    { label: "Duplicate", icon: Copy },
+                    { separator: true },
+                    { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setJourneys((p) => p.filter((x) => x.id !== j.id)) },
+                  ]}
+                />
               </div>
             </div>
 
@@ -155,10 +164,16 @@ export function JourneysScreen() {
               </div>
               <span className="text-xs tabular-nums text-muted-foreground">{j.completion}% complete</span>
             </div>
-          </div>
+          </SectionCard>
         ))}
         {filtered.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">No journeys found.</div>
+          <EmptyState
+            icon={Route}
+            title="No journeys found"
+            description="Try a different search, or create a new journey."
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create journey</Button>}
+          />
         )}
       </div>
 

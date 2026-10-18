@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Pencil, Trash2, ListTodo } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -26,20 +23,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  cn,
+  Checkbox,
+  ScreenHeader,
+  SectionCard,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
-import { Checkbox } from "@/components/ui/checkbox";
 
-const PRIORITY_TONE = { High: "red", Medium: "amber", Low: "zinc" };
+const PRIORITY_TONE = { High: "danger", Medium: "warning", Low: "neutral" };
 const PRIORITIES = ["High", "Medium", "Low"];
-const ASSIGNEES = ["Alex Rivera", "Priya Nair", "Marcus Cole", "Hana Sato"];
+const ASSIGNEES = ["Alex Rivera", "Priya Nair", "Noor Haddad", "Maya Chen"];
 
 const INITIAL_TASKS = [
   { id: 1, title: "Send pricing proposal", related: "Annual platform license", priority: "High", due: "Jun 9, 2026", assignee: "Alex Rivera", done: false },
-  { id: 2, title: "Follow up after demo", related: "Kaisho Industries", priority: "Medium", due: "Jun 10, 2026", assignee: "Hana Sato", done: false },
+  { id: 2, title: "Follow up after demo", related: "Kaisho Industries", priority: "Medium", due: "Jun 10, 2026", assignee: "Maya Chen", done: false },
   { id: 3, title: "Schedule onboarding call", related: "Brightmail Co.", priority: "Medium", due: "Jun 11, 2026", assignee: "Priya Nair", done: false },
-  { id: 4, title: "Confirm contract terms", related: "Multi-region SLA", priority: "High", due: "Jun 8, 2026", assignee: "Hana Sato", done: false },
-  { id: 5, title: "Log meeting notes", related: "Lumen Analytics", priority: "Low", due: "Jun 6, 2026", assignee: "Marcus Cole", done: true },
-  { id: 6, title: "Reply to support question", related: "Hverk GmbH", priority: "Low", due: "Jun 12, 2026", assignee: "Marcus Cole", done: false },
+  { id: 4, title: "Confirm contract terms", related: "Multi-region SLA", priority: "High", due: "Jun 8, 2026", assignee: "Maya Chen", done: false },
+  { id: 5, title: "Log meeting notes", related: "Lumen Analytics", priority: "Low", due: "Jun 6, 2026", assignee: "Noor Haddad", done: true },
+  { id: 6, title: "Reply to support question", related: "Hverk GmbH", priority: "Low", due: "Jun 12, 2026", assignee: "Noor Haddad", done: false },
   { id: 7, title: "Prepare renewal quote", related: "Crestwood Bank", priority: "Medium", due: "Jun 15, 2026", assignee: "Priya Nair", done: false },
 ];
 
@@ -71,10 +75,10 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Task title" htmlFor="t-title">
-            <Input id="t-title" value={form.title} onChange={(e) => set("title")(e.target.value)} placeholder="e.g. Send pricing proposal" className="bg-background border-border" />
+            <Input id="t-title" value={form.title} onChange={(e) => set("title")(e.target.value)} placeholder="e.g. Send pricing proposal" className="border-border" />
           </Field>
           <Field label="Related to" htmlFor="t-related" hint="Deal or contact name.">
-            <Input id="t-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Annual platform license" className="bg-background border-border" />
+            <Input id="t-related" value={form.related} onChange={(e) => set("related")(e.target.value)} placeholder="Annual platform license" className="border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Priority">
@@ -86,7 +90,7 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
               </Select>
             </Field>
             <Field label="Due date" htmlFor="t-due">
-              <Input id="t-due" type="date" value={form.due} onChange={(e) => set("due")(e.target.value)} className="bg-background border-border" />
+              <Input id="t-due" type="date" value={form.due} onChange={(e) => set("due")(e.target.value)} className="border-border" />
             </Field>
           </div>
           <Field label="Assignee">
@@ -99,8 +103,8 @@ function AddTaskDialog({ open, onOpenChange, onCreate }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!valid} className="bg-white text-black hover:bg-[#e5e5e5]">Add task</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!valid}>Add task</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -115,59 +119,64 @@ export function TasksScreen() {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Tasks"
         description="Follow-ups and to-dos tied to your deals and contacts."
         actions={
-          <Button onClick={() => setAddOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> Add task</Button>
+          <Button onClick={() => setAddOpen(true)}><Plus className="h-4 w-4" /> Add task</Button>
         }
       />
 
-      <TableShell className="mt-4">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead className="w-10 pr-0" />
-              <TableHead>Task</TableHead>
-              <TableHead>Related to</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Due date</TableHead>
-              <TableHead>Assignee</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tasks.map((t) => (
-              <TableRow key={t.id} className={cn("border-border", t.done && "opacity-50")}>
-                <TableCell className="pr-0">
-                  <Checkbox checked={t.done} onCheckedChange={() => toggleDone(t.id)} aria-label={`Complete ${t.title}`} />
-                </TableCell>
-                <TableCell>
-                  <span className={cn("font-medium text-foreground", t.done && "line-through")}>{t.title}</span>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{t.related}</TableCell>
-                <TableCell><Pill tone={PRIORITY_TONE[t.priority]}>{t.priority}</Pill></TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{t.due}</TableCell>
-                <TableCell className="text-muted-foreground">{t.assignee}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit task", icon: Pencil },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setTasks((p) => p.filter((x) => x.id !== t.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {tasks.length === 0 && (
+      {tasks.length === 0 ? (
+        <EmptyState
+          icon={ListTodo}
+          title="No tasks found"
+          className="rounded-xl border border-border bg-surface-subtle"
+          action={<Button onClick={() => setAddOpen(true)}><Plus className="h-4 w-4" /> Add task</Button>}
+        />
+      ) : (
+        <SectionCard bodyPadding={false}>
+          <Table>
+            <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No tasks found.</TableCell>
+                <TableHead className="w-10 pr-0" />
+                <TableHead>Task</TableHead>
+                <TableHead>Related to</TableHead>
+                <TableHead>Priority</TableHead>
+                <TableHead>Due date</TableHead>
+                <TableHead>Assignee</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+            </TableHeader>
+            <TableBody>
+              {tasks.map((t) => (
+                <TableRow key={t.id} className={cn("border-border", t.done && "opacity-50")}>
+                  <TableCell className="pr-0">
+                    <Checkbox checked={t.done} onCheckedChange={() => toggleDone(t.id)} aria-label={`Complete ${t.title}`} />
+                  </TableCell>
+                  <TableCell>
+                    <span className={cn("font-medium text-foreground", t.done && "line-through")}>{t.title}</span>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{t.related}</TableCell>
+                  <TableCell><Badge variant={PRIORITY_TONE[t.priority]}>{t.priority}</Badge></TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{t.due}</TableCell>
+                  <TableCell className="text-muted-foreground">{t.assignee}</TableCell>
+                  <TableCell className="text-right">
+                    <ActionMenu
+                      items={[
+                        { label: "Edit task", icon: Pencil },
+                        { separator: true },
+                        { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setTasks((p) => p.filter((x) => x.id !== t.id)) },
+                      ]}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </SectionCard>
+      )}
 
       <AddTaskDialog
         open={addOpen}

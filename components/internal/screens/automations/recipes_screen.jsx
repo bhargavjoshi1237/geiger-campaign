@@ -4,10 +4,7 @@ import React, { useMemo, useState } from "react";
 import {
   BookOpen, Sparkles, ShoppingCart, UserPlus, HeartHandshake, RotateCcw, Calendar, Layers,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SearchInput, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -23,6 +20,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Input,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Field,
+  Toolbar,
+  SectionCard,
+  EmptyState,
+  Badge,
 } from "@geiger/ui";
 
 const RECIPES = [
@@ -48,12 +53,12 @@ function UseRecipeDialog({ recipe, onOpenChange }) {
         </DialogHeader>
         <div className="py-4">
           <Field label="New workflow name" htmlFor="rc-name">
-            <Input id="rc-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={recipe.name} className="bg-background border-border" />
+            <Input id="rc-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={recipe.name} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={() => onOpenChange(null)} className="bg-white text-black hover:bg-[#e5e5e5]">Create from recipe</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(null)}>Cancel</Button>
+          <Button onClick={() => onOpenChange(null)}>Create from recipe</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -71,42 +76,44 @@ export function RecipesScreen() {
   }, [query, category]);
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Recipes"
         description="Pre-built automation templates you can launch in one click and tailor later."
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-9 justify-between bg-surface-card sm:w-44">
+                {category === "All" ? "All categories" : category}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
+              <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {["All", ...CATEGORIES].map((c) => (
+                <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer", category === c && "font-medium")}>
+                  {c === "All" ? "All categories" : c}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search recipes…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
-              {category === "All" ? "All categories" : category}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...CATEGORIES].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", category === c && "text-white")}>
-                {c === "All" ? "All categories" : c}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((r) => {
           const Icon = r.icon;
           return (
-            <div key={r.id} className="flex flex-col rounded-xl border border-border bg-surface-subtle p-5 transition-colors hover:border-border-strong">
+            <SectionCard key={r.id} className="transition-colors hover:border-border-strong" contentClassName="flex flex-1 flex-col">
               <div className="flex items-center justify-between">
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-active text-foreground">
                   <Icon className="h-5 w-5" />
                 </span>
-                <span className="rounded border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">{r.category}</span>
+                <Badge variant="neutral">{r.category}</Badge>
               </div>
               <h3 className="mt-4 font-medium text-foreground">{r.name}</h3>
               <p className="mt-1 flex-1 text-sm text-text-secondary">{r.description}</p>
@@ -114,17 +121,22 @@ export function RecipesScreen() {
                 <span className="inline-flex items-center gap-1.5 text-xs text-text-secondary">
                   <BookOpen className="h-3.5 w-3.5" /> {r.steps} steps
                 </span>
-                <Button onClick={() => setActive(r)} size="sm" className="bg-white text-black hover:bg-[#e5e5e5]">
+                <Button onClick={() => setActive(r)} size="sm">
                   <Sparkles className="h-3.5 w-3.5" /> Use recipe
                 </Button>
               </div>
-            </div>
+            </SectionCard>
           );
         })}
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">No recipes match your filters.</div>
+        <EmptyState
+          icon={BookOpen}
+          title="No recipes found"
+          description="No recipes match your filters."
+          className="rounded-xl border border-border bg-surface-subtle"
+        />
       )}
 
       <UseRecipeDialog recipe={active} onOpenChange={setActive} />

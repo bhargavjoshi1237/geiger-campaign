@@ -10,8 +10,8 @@ import {
   TooltipContent,
   TooltipTrigger,
   useSidebar,
+  cn,
 } from "@geiger/ui";
-import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
 export function SidebarOption({

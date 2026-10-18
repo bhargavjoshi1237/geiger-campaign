@@ -3,35 +3,35 @@
 import React, { useState } from "react";
 import { Plus, Smartphone, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  SettingRow,
+  SettingsList,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const TYPE_TONE = {
-  "Long code": "zinc",
-  "Toll-free": "blue",
-  "Short code": "violet",
+  "Long code": "neutral",
+  "Toll-free": "info",
+  "Short code": "purple",
 };
 
 const COUNTRIES = ["United States", "United Kingdom", "Canada", "Australia"];
@@ -81,12 +81,12 @@ function AddNumberDialog({ open, onOpenChange, onCreate }) {
             </Select>
           </Field>
           <Field label="Preferred area code" htmlFor="n-area" hint="We'll provision an available number.">
-            <Input id="n-area" value={form.areaCode} onChange={(e) => setForm((f) => ({ ...f, areaCode: e.target.value }))} placeholder="e.g. 415" className="bg-background border-border" />
+            <Input id="n-area" value={form.areaCode} onChange={(e) => setForm((f) => ({ ...f, areaCode: e.target.value }))} placeholder="e.g. 415" className="border-border" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} className="bg-white text-black hover:bg-[#e5e5e5]">Add number</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit}>Add number</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -104,23 +104,66 @@ export function SmsScreen() {
 
   const release = (id) => setNumbers((p) => p.filter((n) => n.id !== id));
 
+  const columns = [
+    {
+      key: "number",
+      header: "Number",
+      render: (n) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+            <Smartphone className="h-4 w-4" />
+          </span>
+          <span className="font-mono text-foreground">{n.number}</span>
+        </div>
+      ),
+    },
+    { key: "country", header: "Country", className: "text-muted-foreground", render: (n) => n.country },
+    { key: "type", header: "Type", render: (n) => <Badge variant={TYPE_TONE[n.type]}>{n.type}</Badge> },
+    {
+      key: "capabilities",
+      header: "Capabilities",
+      render: (n) => (
+        <div className="flex flex-wrap gap-1">
+          {n.capabilities.map((c) => (
+            <span key={c} className="rounded-md border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">{c}</span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (n) => <Badge variant={n.status === "Active" ? "success" : "warning"}>{n.status}</Badge>,
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (n) => (
+        <ActionMenu
+          items={[
+            { label: "Release number", icon: Trash2, destructive: true, onSelect: () => release(n.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="SMS"
         description="Manage sending numbers, sender IDs, and opt-out compliance."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Add number
           </Button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
-          <h2 className="text-sm font-semibold text-foreground">SMS settings</h2>
-
+        <SectionCard title="SMS settings" contentClassName="space-y-4">
           <Field label="Default sender number">
             <Select value={defaultNumber} onValueChange={setDefaultNumber}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -130,20 +173,21 @@ export function SmsScreen() {
             </Select>
           </Field>
           <Field label="Opt-out keyword" htmlFor="s-optout">
-            <Input id="s-optout" value={optOutKeyword} onChange={(e) => setOptOutKeyword(e.target.value)} className="bg-background border-border" />
+            <Input id="s-optout" value={optOutKeyword} onChange={(e) => setOptOutKeyword(e.target.value)} className="border-border" />
           </Field>
           <Field label="Help keyword" htmlFor="s-help">
-            <Input id="s-help" value={helpKeyword} onChange={(e) => setHelpKeyword(e.target.value)} className="bg-background border-border" />
+            <Input id="s-help" value={helpKeyword} onChange={(e) => setHelpKeyword(e.target.value)} className="border-border" />
           </Field>
 
-          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">Append opt-out notice to first message</p>
-              <p className="text-xs text-text-secondary">Adds "Reply {optOutKeyword} to unsubscribe" to a contact's first SMS.</p>
-            </div>
-            <Switch checked={appendOptOut} onCheckedChange={setAppendOptOut} />
-          </div>
-        </div>
+          <SettingsList>
+            <SettingRow
+              title="Append opt-out notice to first message"
+              description={`Adds "Reply ${optOutKeyword} to unsubscribe" to a contact's first SMS.`}
+              checked={appendOptOut}
+              onCheckedChange={setAppendOptOut}
+            />
+          </SettingsList>
+        </SectionCard>
 
         {/* Sending numbers */}
         <div className="space-y-3">
@@ -152,58 +196,23 @@ export function SmsScreen() {
             <p className="text-xs text-text-secondary">Numbers and short codes registered to your account.</p>
           </div>
 
-          <TableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                  <TableHead>Number</TableHead>
-                  <TableHead>Country</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Capabilities</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {numbers.map((n) => (
-                  <TableRow key={n.id} className="border-border">
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                          <Smartphone className="h-4 w-4" />
-                        </span>
-                        <span className="font-mono text-foreground">{n.number}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{n.country}</TableCell>
-                    <TableCell><Pill tone={TYPE_TONE[n.type]}>{n.type}</Pill></TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {n.capabilities.map((c) => (
-                          <span key={c} className="rounded-md border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">{c}</span>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Pill tone={n.status === "Active" ? "green" : "amber"}>{n.status}</Pill>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <RowActions
-                        items={[
-                          { label: "Release number", icon: Trash2, danger: true, onSelect: () => release(n.id) },
-                        ]}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {numbers.length === 0 && (
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No sending numbers found.</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableShell>
+          <DataTable
+            columns={columns}
+            data={numbers}
+            getRowKey={(n) => n.id}
+            empty={
+              <EmptyState
+                icon={Smartphone}
+                title="No sending numbers found"
+                className="rounded-xl border border-border bg-surface-subtle"
+                action={
+                  <Button onClick={() => setCreateOpen(true)}>
+                    <Plus className="h-4 w-4" /> Add number
+                  </Button>
+                }
+              />
+            }
+          />
         </div>
       </div>
 

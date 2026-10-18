@@ -2,16 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, Tag as TagIcon, Pencil, Trash2, Merge, Hash } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import {
-  TableShell,
-  SearchInput,
-  Pill,
-  RowActions,
-  Field,
-} from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -27,13 +18,18 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  SettingsList,
+  SettingRow,
+  Progress,
 } from "@geiger/ui";
 
 const TAG_COLORS = [
@@ -84,30 +80,33 @@ function CreateTagDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Tag name" htmlFor="t-name">
-            <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP" className="bg-background border-border" />
+            <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP" />
           </Field>
           <Field label="Color">
             <div className="flex flex-wrap gap-2">
               {TAG_COLORS.map((c) => (
-                <button
+                <Button
                   key={c.value}
                   type="button"
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => setColor(c.value)}
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors",
-                    color === c.value ? "border-white" : "border-transparent hover:border-border-strong",
+                    "rounded-full border-2 hover:bg-transparent",
+                    color === c.value ? "border-foreground" : "border-transparent hover:border-border-strong",
                   )}
                   aria-label={c.name}
+                  aria-pressed={color === c.value}
                 >
                   <span className="h-4 w-4 rounded-full" style={{ backgroundColor: c.value }} />
-                </button>
+                </Button>
               ))}
             </div>
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create tag</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!name.trim()}>Create tag</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -134,7 +133,7 @@ function CreateFieldDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Field label" htmlFor="f-label">
-            <Input id="f-label" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} placeholder="e.g. Company" className="bg-background border-border" />
+            <Input id="f-label" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} placeholder="e.g. Company" />
           </Field>
           <Field label="API key" hint="Auto-generated from the label; used in personalization and the API.">
             <div className="flex items-center rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">
@@ -149,17 +148,18 @@ function CreateFieldDialog({ open, onOpenChange, onCreate }) {
               </SelectContent>
             </Select>
           </Field>
-          <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-[#e5e5e5]">Required field</p>
-              <p className="text-xs text-text-secondary">Forms must collect this value before submitting.</p>
-            </div>
-            <Switch checked={form.required} onCheckedChange={(v) => setForm((f) => ({ ...f, required: v }))} />
-          </div>
+          <SettingsList className="rounded-lg border border-border bg-surface-card px-4 py-3">
+            <SettingRow
+              title="Required field"
+              description="Forms must collect this value before submitting."
+              checked={form.required}
+              onCheckedChange={(v) => setForm((f) => ({ ...f, required: v }))}
+            />
+          </SettingsList>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.label.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create field</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.label.trim()}>Create field</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -178,14 +178,100 @@ export function TagsFieldsScreen() {
   const filteredTags = tags.filter((t) => t.name.toLowerCase().includes(q));
   const filteredFields = fields.filter((f) => f.label.toLowerCase().includes(q) || f.key.includes(q));
 
+  const tagColumns = [
+    {
+      key: "tag",
+      header: "Tag",
+      render: (t) => (
+        <span className="inline-flex items-center gap-2 rounded-md border border-border bg-surface-active px-2.5 py-1 text-sm text-foreground">
+          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.color }} />
+          {t.name}
+        </span>
+      ),
+    },
+    {
+      key: "contacts",
+      header: "Contacts tagged",
+      className: "tabular-nums font-medium text-foreground",
+      render: (t) => t.contacts.toLocaleString(),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (t) => (
+        <ActionMenu
+          label={`Actions for ${t.name}`}
+          items={[
+            { label: "Rename", icon: Pencil },
+            { label: "Merge into…", icon: Merge },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setTags((p) => p.filter((x) => x.id !== t.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  const fieldColumns = [
+    {
+      key: "field",
+      header: "Field",
+      render: (f) => (
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-foreground">{f.label}</span>
+          {f.required && <Badge variant="warning" className="min-w-0">Required</Badge>}
+        </div>
+      ),
+    },
+    { key: "key", header: "API key", className: "font-mono text-xs text-muted-foreground", render: (f) => f.key },
+    { key: "type", header: "Type", render: (f) => <Badge variant="info">{f.type}</Badge> },
+    {
+      key: "filled",
+      header: "Completeness",
+      render: (f) => (
+        <div className="flex items-center gap-2">
+          <Progress value={f.filled} className="h-1.5 w-24 bg-surface-hover" />
+          <span className="text-xs tabular-nums text-text-secondary">{f.filled}%</span>
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (f) => (
+        <ActionMenu
+          label={`Actions for ${f.label}`}
+          items={[
+            { label: "Edit field", icon: Pencil },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setFields((p) => p.filter((x) => x.id !== f.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Tags & Fields"
         description="Label contacts with tags and store structured data in custom fields."
+        actions={
+          tab === "tags" ? (
+            <Button onClick={() => setTagOpen(true)}>
+              <Plus className="h-4 w-4" /> New tag
+            </Button>
+          ) : (
+            <Button onClick={() => setFieldOpen(true)}>
+              <Plus className="h-4 w-4" /> New field
+            </Button>
+          )
+        }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <Toolbar>
         <SegmentedTabs
           value={tab}
           onChange={setTab}
@@ -194,108 +280,47 @@ export function TagsFieldsScreen() {
             { label: "Custom Fields", value: "fields", icon: Hash },
           ]}
         />
-        <div className="flex items-center gap-2">
-          <SearchInput value={query} onChange={setQuery} placeholder={tab === "tags" ? "Search tags…" : "Search fields…"} />
-          {tab === "tags" ? (
-            <Button onClick={() => setTagOpen(true)} className="h-9 shrink-0 bg-white text-black hover:bg-[#e5e5e5]">
-              <Plus className="h-4 w-4" /> New tag
-            </Button>
-          ) : (
-            <Button onClick={() => setFieldOpen(true)} className="h-9 shrink-0 bg-white text-black hover:bg-[#e5e5e5]">
-              <Plus className="h-4 w-4" /> New field
-            </Button>
-          )}
-        </div>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder={tab === "tags" ? "Search tags…" : "Search fields…"} />
+      </Toolbar>
 
       {tab === "tags" ? (
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Tag</TableHead>
-                <TableHead>Contacts tagged</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTags.map((t) => (
-                <TableRow key={t.id} className="border-border">
-                  <TableCell>
-                    <span className="inline-flex items-center gap-2 rounded-md border border-border bg-surface-active px-2.5 py-1 text-sm text-foreground">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.color }} />
-                      {t.name}
-                    </span>
-                  </TableCell>
-                  <TableCell className="tabular-nums font-medium text-foreground">{t.contacts.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Rename", icon: Pencil },
-                        { label: "Merge into…", icon: Merge },
-                        { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setTags((p) => p.filter((x) => x.id !== t.id)) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filteredTags.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableCell colSpan={3} className="py-14 text-center text-sm text-text-secondary">No tags found.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
+        <DataTable
+          columns={tagColumns}
+          data={filteredTags}
+          getRowKey={(t) => t.id}
+          empty={
+            <EmptyState
+              icon={TagIcon}
+              title="No tags found"
+              description="Try a different search, or create a new tag."
+              className="rounded-xl border border-border bg-surface-subtle"
+              action={
+                <Button onClick={() => setTagOpen(true)}>
+                  <Plus className="h-4 w-4" /> New tag
+                </Button>
+              }
+            />
+          }
+        />
       ) : (
-        <TableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                <TableHead>Field</TableHead>
-                <TableHead>API key</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Completeness</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredFields.map((f) => (
-                <TableRow key={f.id} className="border-border">
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-foreground">{f.label}</span>
-                      {f.required && <Pill tone="amber" className="min-w-0">Required</Pill>}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{f.key}</TableCell>
-                  <TableCell><Pill tone="blue">{f.type}</Pill></TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-surface-hover">
-                        <div className="h-full rounded-full bg-[#ededed]" style={{ width: `${f.filled}%` }} />
-                      </div>
-                      <span className="text-xs tabular-nums text-text-secondary">{f.filled}%</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      items={[
-                        { label: "Edit field", icon: Pencil },
-                        { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setFields((p) => p.filter((x) => x.id !== f.id)) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filteredFields.length === 0 && (
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No fields found.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableShell>
+        <DataTable
+          columns={fieldColumns}
+          data={filteredFields}
+          getRowKey={(f) => f.id}
+          empty={
+            <EmptyState
+              icon={Hash}
+              title="No fields found"
+              description="Try a different search, or create a new custom field."
+              className="rounded-xl border border-border bg-surface-subtle"
+              action={
+                <Button onClick={() => setFieldOpen(true)}>
+                  <Plus className="h-4 w-4" /> New field
+                </Button>
+              }
+            />
+          }
+        />
       )}
 
       <CreateTagDialog open={tagOpen} onOpenChange={setTagOpen} onCreate={(t) => setTags((p) => [{ id: Date.now(), ...t }, ...p])} />

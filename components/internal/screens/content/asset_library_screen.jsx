@@ -4,10 +4,7 @@ import React, { useMemo, useState } from "react";
 import {
   Upload, Image as ImageIcon, FileVideo, FileText, Film, Pencil, Download, Link2, Trash2, UploadCloud,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SearchInput, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -28,6 +25,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  EmptyState,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const TYPE_META = {
@@ -68,7 +72,7 @@ function UploadDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="File name" htmlFor="a-name">
-            <Input id="a-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. autumn-hero.png" className="bg-background border-border" />
+            <Input id="a-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. autumn-hero.png" className="border-border" />
           </Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
@@ -83,8 +87,8 @@ function UploadDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Upload</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Upload</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -103,39 +107,43 @@ export function AssetLibraryScreen() {
   }, [assets, query, type]);
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Asset Library"
         description="All your images and media, ready to drop into campaigns."
         actions={
-          <Button onClick={() => setUploadOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Upload className="h-4 w-4" /> Upload</Button>
+          <Button onClick={() => setUploadOpen(true)}><Upload className="h-4 w-4" /> Upload</Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <SearchInput value={query} onChange={setQuery} placeholder="Search assets…" />
+      <Toolbar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
+            <Button variant="outline" className="h-9 justify-between bg-surface-card sm:w-40">
               {type === "All" ? "All types" : type}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+          <DropdownMenuContent className="w-44">
             <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
+            <DropdownMenuSeparator />
             {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", type === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setType(t)} className={cn("cursor-pointer", type === t && "font-medium")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search assets…" />
+      </Toolbar>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
-          No assets match your filters.
-        </div>
+        <EmptyState
+          icon={ImageIcon}
+          title="No assets found"
+          description="No assets match your filters."
+          className="rounded-xl border border-dashed border-border bg-surface-subtle"
+          action={<Button variant="outline" onClick={() => setUploadOpen(true)}><Upload className="h-4 w-4" /> Upload</Button>}
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((a) => {
@@ -149,11 +157,12 @@ export function AssetLibraryScreen() {
                 >
                   <Icon className="h-9 w-9 text-white/90" />
                   <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
-                    <RowActions items={[
+                    <ActionMenu items={[
                       { label: "Rename", icon: Pencil },
                       { label: "Download", icon: Download },
                       { label: "Copy URL", icon: Link2 },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setAssets((p) => p.filter((x) => x.id !== a.id)) },
+                      { separator: true },
+                      { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setAssets((p) => p.filter((x) => x.id !== a.id)) },
                     ]} />
                   </div>
                 </div>

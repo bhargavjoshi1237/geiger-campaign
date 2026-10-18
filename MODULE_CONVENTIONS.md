@@ -16,7 +16,7 @@ and the shared kit (`components/internal/shared`).
 | Page-width wrappers | `components/internal/shared/screen_wrappers.jsx` | `MainScreenWrapper`, `SecondaryScreenWrapper` |
 | Lookups & formatters | `components/internal/screens/<area>/constants.js` | status/type `*_MAP`, `*_FILTER_OPTIONS`, `formatDate`/`currency` |
 | shadcn primitives | `components/ui/*` | `@/components/ui/<name>` |
-| Permissions catalog | `lib/rbac.js` | `WORKSPACE_PERMISSIONS`, dot-namespaced keys |
+| Permissions catalog | `geiger-rbac.config.js` (+ `lib/rbac.js`) | `campaign.<resource>.<action>` keys, `useRbac().can()` |
 | Supabase client | `lib/supabase/client.js` | `createClient()` (browser, activity-tracked) |
 | Data layer (per area) | `lib/supabase/<area>.js` | `list*/get*/create*/update*/softDelete*`, `normalize*/toRow` |
 | Media/storage | `lib/supabase/storage.js` | `products` bucket, `events/<id>/` prefix, public URL persisted |
@@ -171,19 +171,23 @@ idempotency, drift, rollback, seeds. What matters to a screen:
 
 ## Permissions (RBAC)
 
-Authorization here is **advisory UI-gating only** — it hides/disables nav and
-controls; it does not secure data.
+Authorization runs on **`@geiger/rbac`**, the same engine as Geiger Events. UI gating is advisory; RLS (via
+`campaign.rbac_allows()`) is the data boundary.
 
-- The catalog lives in `lib/rbac.js` as `WORKSPACE_PERMISSIONS` — dot-namespaced
-  `{ key, label, group }` entries (`view.*` for nav visibility, plus
-  `team.*`, `roles.*`, `billing.*`, `settings.*`).
-- A nav tab's permission key derives from its title via `tabPermissionKey(title)`
-  → `view.<normalized_title>`. Gate a tab by checking
-  `roleHasPermission(roles, roleId, key)` (returns `true` when no roles are
-  configured, so screens stay reachable by default).
-- Role ids are normalized with `normalizeRoleId` and persisted under
-  `ROLE_STORAGE_KEY`. To add a gated surface: add the permission to
-  `WORKSPACE_PERMISSIONS`, then check it where the nav/control is rendered.
+- **Catalog:** `geiger-rbac.config.js` — keys are `campaign.<resource>.<action>`. Nav sections are
+  `campaign.<section>.view` (derived from the exact `sidebar_data.js` title via `tabPermissionKey(title)`);
+  operations are e.g. `campaign.campaign.send`, `campaign.team.assign`. System roles (owner/admin/manager/member/viewer)
+  are defined there too. `lib/rbac.js` re-exports it (`WORKSPACE_PERMISSIONS`, `permissionsForTab`, `isProductKey`).
+- **Storage:** roles in the shared `public.roles` (one row can hold several products' keys — only ever edit the
+  `campaign.*` half), grants in `campaign.role_grants`. Data layer: `lib/supabase/rbac.js`.
+- **Decisions:** `RbacProvider` (`context/rbac-context.js`) wraps the workspace; use `useRbac().can(key)` or
+  `useCan(key)`. Strict once loaded — a user with no grant sees nothing. On first load the provider seeds the system
+  roles and calls `campaign.rbac_ensure_membership`, which maps the suite org role (Owner → owner, Admin → admin,
+  Manager → manager, anyone else → member).
+- **Gating:** the sidebar hides sections the role lacks and the workspace page renders a no-access state for them.
+  Sub-tabs inherit their section's key; extra per-tab keys live in `permissionsForTab()`.
+- **Adding a gated surface:** add the key to `geiger-rbac.config.js` (and to the system roles that should hold it),
+  check it with `can()` where the control renders, and gate the table with a `toSqlPolicy()` migration if it guards data.
 
 ## UI conventions
 
@@ -210,8 +214,8 @@ controls; it does not secure data.
     `text-text-tertiary`
   - Borders: `border-border`, `border-border-strong`
   - Brand/primary: `bg-primary` + `text-primary-foreground`
-  - Destructive: `text-red-400` / `focus:bg-red-500/10` (delete actions)
-  - Trend/status: `text-emerald-400` (up) / `text-red-400` (down); badges use
+  - Destructive: `text-red-600 dark:text-red-400` / `focus:bg-red-500/10` (delete actions)
+  - Trend/status: `text-emerald-600 dark:text-emerald-400` (up) / `text-red-600 dark:text-red-400` (down); badges use
     tailwind color utilities at `/10` bg + `/20` border.
 
 ## New-screen checklist

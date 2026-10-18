@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { Pie, PieChart } from "recharts";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell } from "@/components/internal/shared/screen_kit";
 import {
   ChartContainer,
   ChartTooltip,
@@ -15,15 +13,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SectionCard,
+  Toolbar,
+  DataTable,
 } from "@geiger/ui";
 
-const SERIES = ["#ffffff", "#a3a3a3", "#525252", "#737373", "#d4d4d4"];
+const SERIES = ["var(--chart-series-1)", "var(--chart-series-2)", "var(--chart-series-3)", "var(--chart-series-4)", "var(--chart-series-5)"];
 const TOOLTIP_CLASS = "bg-surface-subtle border-border text-foreground";
 
 const CHANNELS = [
@@ -43,35 +39,70 @@ const CHART_CONFIG = {
   Direct: { label: "Direct" },
 };
 
+const COLUMNS = [
+  {
+    key: "channel",
+    header: "Channel",
+    render: (c) => (
+      <span className="flex items-center gap-2 font-medium text-foreground">
+        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.fill }} />
+        {c.channel}
+      </span>
+    ),
+  },
+  {
+    key: "touchpoints",
+    header: "Touchpoints",
+    align: "right",
+    className: "tabular-nums text-muted-foreground",
+    render: (c) => c.touchpoints.toLocaleString(),
+  },
+  {
+    key: "revenue",
+    header: "Attributed revenue",
+    align: "right",
+    className: "tabular-nums font-medium text-foreground",
+    render: (c) => `$${c.revenue.toLocaleString()}`,
+  },
+  {
+    key: "share",
+    header: "Share",
+    render: (c) => (
+      <div className="flex items-center gap-3">
+        <Progress value={c.share} className="h-1.5 w-28 bg-surface-hover" />
+        <span className="tabular-nums text-xs text-muted-foreground">{c.share}%</span>
+      </div>
+    ),
+  },
+];
+
 export function AttributionScreen() {
   const [model, setModel] = useState("last");
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Attribution"
         description="Connect revenue back to the campaigns and channels that earned it."
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <Select value={model} onValueChange={setModel}>
-          <SelectTrigger size="sm" className="bg-background border-border sm:w-52">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="first">First touch</SelectItem>
-            <SelectItem value="last">Last touch</SelectItem>
-            <SelectItem value="linear">Linear</SelectItem>
-            <SelectItem value="decay">Time decay</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="rounded-xl border border-border bg-surface-subtle p-5">
-        <div className="mb-2">
-          <h3 className="text-sm font-semibold text-foreground">Revenue by channel</h3>
-          <p className="text-xs text-text-secondary">Attributed revenue split across channels.</p>
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <Select value={model} onValueChange={setModel}>
+            <SelectTrigger size="sm" className="bg-background sm:w-52">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="first">First touch</SelectItem>
+              <SelectItem value="last">Last touch</SelectItem>
+              <SelectItem value="linear">Linear</SelectItem>
+              <SelectItem value="decay">Time decay</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+      </Toolbar>
+
+      <SectionCard title="Revenue by channel" description="Attributed revenue split across channels.">
         <ChartContainer
           config={CHART_CONFIG}
           className="[&_.recharts-text]:fill-foreground mx-auto aspect-square max-h-[240px]"
@@ -81,13 +112,13 @@ export function AttributionScreen() {
               cursor={false}
               content={<ChartTooltipContent hideLabel nameKey="channel" className={TOOLTIP_CLASS} />}
             />
-            <Pie data={CHANNELS} dataKey="revenue" nameKey="channel" innerRadius={60} strokeWidth={2} stroke="#1a1a1a" />
+            <Pie data={CHANNELS} dataKey="revenue" nameKey="channel" innerRadius={60} strokeWidth={2} stroke="var(--surface-subtle)" />
           </PieChart>
         </ChartContainer>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 px-2 pb-1 sm:grid-cols-3">
           {CHANNELS.map((c) => (
             <div key={c.channel} className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-2 text-[#c4c4c4]">
+              <span className="flex items-center gap-2 text-text-secondary">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.fill }} />
                 {c.channel}
               </span>
@@ -95,40 +126,9 @@ export function AttributionScreen() {
             </div>
           ))}
         </div>
-      </div>
+      </SectionCard>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Channel</TableHead>
-              <TableHead className="text-right">Touchpoints</TableHead>
-              <TableHead className="text-right">Attributed revenue</TableHead>
-              <TableHead>Share</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {CHANNELS.map((c) => (
-              <TableRow key={c.channel} className="border-border">
-                <TableCell>
-                  <span className="flex items-center gap-2 font-medium text-foreground">
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.fill }} />
-                    {c.channel}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right tabular-nums text-muted-foreground">{c.touchpoints.toLocaleString()}</TableCell>
-                <TableCell className="text-right tabular-nums font-medium text-foreground">${c.revenue.toLocaleString()}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Progress value={c.share} className="h-1.5 w-28 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                    <span className="tabular-nums text-xs text-muted-foreground">{c.share}%</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable columns={COLUMNS} data={CHANNELS} getRowKey={(c) => c.channel} />
     </MainScreenWrapper>
   );
 }

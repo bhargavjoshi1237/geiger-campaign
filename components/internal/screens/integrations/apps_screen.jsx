@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Blocks } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { SearchInput, Pill } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   DropdownMenu,
@@ -14,6 +11,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  cn,
+  ScreenHeader,
+  Toolbar,
+  SearchInput,
+  EmptyState,
+  Badge,
 } from "@geiger/ui";
 
 const CATEGORIES = ["CRM", "E-commerce", "Analytics", "Productivity", "Support"];
@@ -48,31 +51,31 @@ export function AppsScreen() {
     setApps((p) => p.map((a) => (a.id === id ? { ...a, connected } : a)));
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Apps"
         description="Connect Geiger to the tools your team already uses."
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <SearchInput value={query} onChange={setQuery} placeholder="Search apps…" />
+      <Toolbar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-44">
+            <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-44">
               {category === "All" ? "All categories" : category}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 border-border bg-surface-card text-foreground">
+          <DropdownMenuContent className="w-48 bg-surface-card">
             <DropdownMenuLabel className="text-text-secondary">Filter by category</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...CATEGORIES].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", category === c && "text-white")}>
+              <DropdownMenuItem key={c} onSelect={() => setCategory(c)} className={cn("cursor-pointer focus:bg-surface-hover", category === c && "font-medium")}>
                 {c === "All" ? "All categories" : c}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search apps…" />
+      </Toolbar>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((a) => (
@@ -86,9 +89,9 @@ export function AppsScreen() {
               </span>
               <div className="flex min-w-0 flex-col">
                 <h3 className="truncate font-medium text-foreground">{a.name}</h3>
-                <span className="mt-1 inline-flex w-fit items-center gap-1 rounded border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">
-                  <Blocks className="h-3 w-3" /> {a.category}
-                </span>
+                <Badge variant="neutral" className="mt-1 w-fit">
+                  <Blocks /> {a.category}
+                </Badge>
               </div>
             </div>
 
@@ -97,11 +100,12 @@ export function AppsScreen() {
             <div className="mt-4 flex items-center justify-between border-t border-surface-active pt-4">
               {a.connected ? (
                 <>
-                  <Pill tone="green">Connected</Pill>
+                  <Badge variant="success">Connected</Badge>
                   <Button
                     variant="ghost"
+                    size="sm"
                     onClick={() => setConnected(a.id, false)}
-                    className="h-8 text-muted-foreground hover:bg-surface-active hover:text-foreground"
+                    className="text-muted-foreground"
                   >
                     Disconnect
                   </Button>
@@ -110,8 +114,8 @@ export function AppsScreen() {
                 <>
                   <span className="text-xs text-text-secondary">Not connected</span>
                   <Button
+                    size="sm"
                     onClick={() => setConnected(a.id, true)}
-                    className="h-8 bg-white text-black hover:bg-[#e5e5e5]"
                   >
                     Connect
                   </Button>
@@ -123,9 +127,11 @@ export function AppsScreen() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border bg-surface-subtle py-16 text-center text-sm text-text-secondary">
-          No apps match your filters.
-        </div>
+        <EmptyState
+          icon={Blocks}
+          title="No apps match your filters"
+          className="rounded-xl border border-border bg-surface-subtle"
+        />
       )}
     </MainScreenWrapper>
   );

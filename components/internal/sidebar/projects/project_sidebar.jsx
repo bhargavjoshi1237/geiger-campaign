@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Button,
   Sidebar,
@@ -16,6 +16,8 @@ import {
 import { PanelLeft } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { projectNav, settingsNav } from "./sidebar_data";
+import { useRbac } from "@/context/rbac-context";
+import { permissionsForTab } from "@/lib/rbac";
 
 function MobileSidebarHeader() {
   const { isMobile } = useSidebar();
@@ -32,7 +34,7 @@ function MobileSidebarHeader() {
             <img
               src="/logo1.svg"
               alt=""
-              className="w-5 h-5"
+              className="geiger-logo w-5 h-5"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.parentElement.innerHTML =
@@ -51,7 +53,14 @@ function MobileSidebarHeader() {
 
 export function ProjectSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
   const { toggleSidebar } = useSidebar();
+  const { can } = useRbac();
   const [expandedItems, setExpandedItems] = useState({});
+
+  // Only the sections (and settings sub-tabs) the signed-in user's role carries.
+  const [visibleNav, visibleSettings] = useMemo(() => {
+    const allowed = (item) => permissionsForTab(item.title).every((key) => can(key));
+    return [projectNav.filter(allowed), settingsNav.filter(allowed)];
+  }, [can]);
 
   const toggleExpand = (title) => {
     setExpandedItems((prev) => ({
@@ -72,18 +81,18 @@ export function ProjectSidebar({ activeTab = "Overview", onTabChange = () => {} 
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {projectNav.map((item) => (
+                  {visibleNav.map((item) => (
                     <SidebarOption
                       key={item.title}
                       title={item.title}
                       icon={item.icon}
                       isActive={activeTab === item.title}
-                      subItems={item.hasSubmenu ? settingsNav : item.subItems || null}
+                      subItems={item.hasSubmenu ? visibleSettings : item.subItems || null}
                       isExpanded={
                         expandedItems[item.title] !== undefined
                           ? expandedItems[item.title]
                           : !!(item.hasSubmenu
-                              ? settingsNav
+                              ? visibleSettings
                               : item.subItems
                             )?.find((s) => s.title === activeTab)
                       }

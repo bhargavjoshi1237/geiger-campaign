@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, BookOpen, RefreshCw, Pencil, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -26,18 +23,21 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  cn,
+  ScreenHeader,
+  Toolbar,
+  SearchInput,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const TYPES = ["Products", "Articles", "Events", "Properties"];
-const TYPE_TONE = { Products: "green", Articles: "blue", Events: "violet", Properties: "amber" };
+const TYPE_TONE = { Products: "success", Articles: "info", Events: "purple", Properties: "warning" };
 const SOURCES = ["Shopify", "CSV import", "API", "Contentful", "WooCommerce"];
-const STATUS_TONE = { Synced: "green", Syncing: "amber", Error: "red" };
+const STATUS_TONE = { Synced: "success", Syncing: "warning", Error: "danger" };
 
 const INITIAL = [
   { id: 1, name: "Storefront products", type: "Products", items: 4820, source: "Shopify", lastSync: "4 minutes ago", status: "Synced" },
@@ -75,7 +75,7 @@ function CreateCatalogDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Catalog name" htmlFor="c-name">
-            <Input id="c-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Storefront products" className="bg-background border-border" />
+            <Input id="c-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Storefront products" className="border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -93,8 +93,8 @@ function CreateCatalogDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create catalog</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create catalog</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -118,86 +118,86 @@ export function CatalogsScreen() {
   const remove = (id) => setCatalogs((p) => p.filter((c) => c.id !== id));
   const syncNow = (id) => setCatalogs((p) => p.map((c) => (c.id === id ? { ...c, status: "Syncing", lastSync: "Syncing now" } : c)));
 
+  const columns = [
+    {
+      key: "catalog",
+      header: "Catalog",
+      render: (c) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
+            <BookOpen className="h-4 w-4" />
+          </span>
+          <span className="font-medium text-foreground">{c.name}</span>
+        </div>
+      ),
+    },
+    { key: "type", header: "Type", render: (c) => <Badge variant={TYPE_TONE[c.type]}>{c.type}</Badge> },
+    { key: "items", header: "Items", className: "tabular-nums text-muted-foreground", render: (c) => c.items.toLocaleString() },
+    { key: "source", header: "Source", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "lastSync", header: "Last sync", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "status", header: "Status", render: (c) => <Badge variant={STATUS_TONE[c.status]}>{c.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (c) => (
+        <ActionMenu
+          items={[
+            { label: "Sync now", icon: RefreshCw, onSelect: () => syncNow(c.id) },
+            { label: "Edit", icon: Pencil },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => remove(c.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Catalogs"
         description="Synced product and content catalogs for blocks and recommendations."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> New catalog
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
-        <SearchInput value={query} onChange={setQuery} placeholder="Search catalogs…" />
+      <Toolbar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
+            <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
               {typeFilter === "All" ? "All types" : typeFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+          <DropdownMenuContent className="w-44 bg-surface-card">
             <DropdownMenuLabel className="text-text-secondary">Filter by type</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-surface-hover" />
             {["All", ...TYPES].map((t) => (
-              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", typeFilter === t && "text-white")}>
+              <DropdownMenuItem key={t} onSelect={() => setTypeFilter(t)} className={cn("cursor-pointer focus:bg-surface-hover", typeFilter === t && "font-medium")}>
                 {t === "All" ? "All types" : t}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search catalogs…" />
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Catalog</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Last sync</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((c) => (
-              <TableRow key={c.id} className="border-border">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground">
-                      <BookOpen className="h-4 w-4" />
-                    </span>
-                    <span className="font-medium text-foreground">{c.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell><Pill tone={TYPE_TONE[c.type]}>{c.type}</Pill></TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{c.items.toLocaleString()}</TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{c.source}</TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{c.lastSync}</TableCell>
-                <TableCell><Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill></TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Sync now", icon: RefreshCw, onSelect: () => syncNow(c.id) },
-                      { label: "Edit", icon: Pencil },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => remove(c.id) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No catalogs found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(c) => c.id}
+        empty={
+          <EmptyState
+            icon={BookOpen}
+            title="No catalogs found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New catalog</Button>}
+          />
+        }
+      />
 
       <CreateCatalogDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(c) => setCatalogs((p) => [{ id: Date.now(), ...c }, ...p])} />
     </MainScreenWrapper>

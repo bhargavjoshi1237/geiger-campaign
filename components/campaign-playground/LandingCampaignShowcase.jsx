@@ -1,23 +1,15 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { PlaygroundFrame } from "@/components/landing/PlaygroundFrame";
 
-const CampaignPlayground = dynamic(
-  () =>
-    import("@/components/campaign-playground/CampaignPlayground").then(
-      (mod) => mod.CampaignPlayground,
-    ),
-  {
-    ssr: false,
-  },
-);
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 // Framed, interactive product preview for the landing page. Mirrors the suite's
 // landing showcase structure (geiger-notes components/LandingBoardShowcase):
 // a background-image section holding the intro copy + CTA, with the live
-// workspace running below in its own bordered, fixed-height card.
+// workspace (the /playground route) framed below.
 export default function LandingCampaignShowcase({
   ctaHref = "/org",
   ctaLabel = "Open the workspace",
@@ -37,9 +29,9 @@ export default function LandingCampaignShowcase({
             </h3>
 
             <p className="max-w-lg text-[#bcbcbc]">
-              This playground runs live on the page with the complete workspace —
-              sidebar navigation, the campaign overview, and every screen. No save
-              and no load, just pure exploration.
+              This playground runs the complete workspace live on the page —
+              sidebar navigation, the campaign overview, and every screen. Changes
+              stay in your browser tab, so explore freely.
             </p>
 
             <Link
@@ -52,11 +44,7 @@ export default function LandingCampaignShowcase({
           </div>
         </div>
 
-        <div className=" ">
-          <div className="h-[720px] overflow-hidden rounded-lg border border-border bg-background sm:h-[700px] lg:h-[900px]">
-            <CampaignPlayground />
-          </div>
-        </div>
+        <PlaygroundFrame src={`${BASE_PATH}/playground`} title="Campaign playground" />
       </div>
     </section>
   );

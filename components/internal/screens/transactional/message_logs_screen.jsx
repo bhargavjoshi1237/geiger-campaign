@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Download, Mail, Smartphone, Eye } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -19,33 +16,36 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  SectionCard,
+  Toolbar,
+  DataTable,
+  EmptyState,
 } from "@geiger/ui";
 
 const STATUS_TONE = {
-  Delivered: "green",
-  Opened: "blue",
-  Deferred: "amber",
-  Bounced: "red",
-  Failed: "red",
+  Delivered: "success",
+  Opened: "info",
+  Deferred: "warning",
+  Bounced: "danger",
+  Failed: "danger",
 };
 
 const STATUSES = ["Delivered", "Opened", "Deferred", "Bounced", "Failed"];
 const CHANNELS = ["Email", "SMS"];
 
-const EVENT_COLOR = {
-  Queued: "#737373",
-  Sent: "#3b82f6",
-  Delivered: "#10b981",
-  Opened: "#3b82f6",
-  Deferred: "#f59e0b",
-  Bounced: "#ef4444",
-  Failed: "#ef4444",
+const EVENT_DOT = {
+  Queued: "bg-neutral-500",
+  Sent: "bg-blue-500",
+  Delivered: "bg-emerald-500",
+  Opened: "bg-blue-500",
+  Deferred: "bg-amber-500",
+  Bounced: "bg-red-500",
+  Failed: "bg-red-500",
 };
 
 // Build a realistic event timeline for a given status.
@@ -113,21 +113,21 @@ function MessageDetailDialog({ log, onOpenChange }) {
           <DialogTitle>Message details</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <div className="rounded-xl border border-border bg-surface-subtle p-4">
+          <SectionCard contentClassName="p-4">
             <LabeledRow label="To"><span className="break-all">{log.recipient}</span></LabeledRow>
             <LabeledRow label="Channel"><ChannelCell channel={log.channel} /></LabeledRow>
             <LabeledRow label="Subject"><span className="break-words">{log.subject}</span></LabeledRow>
-            <LabeledRow label="Status"><Pill tone={STATUS_TONE[log.status]}>{log.status}</Pill></LabeledRow>
+            <LabeledRow label="Status"><Badge variant={STATUS_TONE[log.status]}>{log.status}</Badge></LabeledRow>
             <LabeledRow label="Message ID"><span className="font-mono text-muted-foreground">{log.msgId}</span></LabeledRow>
             <LabeledRow label="Sent at"><span className="text-muted-foreground">{log.time}</span></LabeledRow>
-          </div>
+          </SectionCard>
 
           <div className="mt-4">
             <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-secondary">Events</h3>
             <ol className="space-y-3">
               {events.map((ev, i) => (
                 <li key={i} className="flex items-center gap-3">
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: EVENT_COLOR[ev.label] }} />
+                  <span className={cn("h-2 w-2 rounded-full", EVENT_DOT[ev.label])} />
                   <span className="flex-1 text-sm text-foreground">{ev.label}</span>
                   <span className="font-mono text-xs text-text-secondary">{ev.time}</span>
                 </li>
@@ -136,7 +136,7 @@ function MessageDetailDialog({ log, onOpenChange }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(null)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Close</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(null)}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -158,91 +158,88 @@ export function MessageLogsScreen() {
     );
   }, [query, statusFilter, channelFilter]);
 
+  const columns = [
+    { key: "time", header: "Time", className: "whitespace-nowrap text-muted-foreground" },
+    { key: "recipient", header: "Recipient", className: "font-medium text-foreground" },
+    { key: "subject", header: "Subject", className: "max-w-xs truncate text-muted-foreground" },
+    { key: "channel", header: "Channel", render: (l) => <ChannelCell channel={l.channel} /> },
+    { key: "status", header: "Status", render: (l) => <Badge variant={STATUS_TONE[l.status]}>{l.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (l) => (
+        <ActionMenu
+          items={[
+            { label: "View", icon: Eye, onSelect: () => setSelected(l) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Message Logs"
         description="A searchable record of every transactional message and its delivery events."
         actions={
-          <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
+          <Button variant="outline" className="bg-surface-card hover:bg-surface-subtle">
             <Download className="h-4 w-4" /> Export
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {statusFilter === "All" ? "All statuses" : statusFilter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44 bg-surface-card">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
+              {["All", ...STATUSES].map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover", statusFilter === s && "font-medium")}>
+                  {s === "All" ? "All statuses" : s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {channelFilter === "All" ? "All channels" : channelFilter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44 bg-surface-card">
+              <DropdownMenuLabel className="text-text-secondary">Filter by channel</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-surface-hover" />
+              {["All", ...CHANNELS].map((c) => (
+                <DropdownMenuItem key={c} onSelect={() => setChannelFilter(c)} className={cn("cursor-pointer focus:bg-surface-hover", channelFilter === c && "font-medium")}>
+                  {c === "All" ? "All channels" : c}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search recipient or subject…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {statusFilter === "All" ? "All statuses" : statusFilter}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...STATUSES].map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}>
-                {s === "All" ? "All statuses" : s}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {channelFilter === "All" ? "All channels" : channelFilter}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by channel</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {["All", ...CHANNELS].map((c) => (
-              <DropdownMenuItem key={c} onSelect={() => setChannelFilter(c)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", channelFilter === c && "text-white")}>
-                {c === "All" ? "All channels" : c}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Time</TableHead>
-              <TableHead>Recipient</TableHead>
-              <TableHead>Subject</TableHead>
-              <TableHead>Channel</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((l) => (
-              <TableRow key={l.id} className="border-border">
-                <TableCell className="whitespace-nowrap text-muted-foreground">{l.time}</TableCell>
-                <TableCell className="font-medium text-foreground">{l.recipient}</TableCell>
-                <TableCell className="max-w-xs truncate text-muted-foreground">{l.subject}</TableCell>
-                <TableCell><ChannelCell channel={l.channel} /></TableCell>
-                <TableCell><Pill tone={STATUS_TONE[l.status]}>{l.status}</Pill></TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "View", icon: Eye, onSelect: () => setSelected(l) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={6} className="py-14 text-center text-sm text-text-secondary">No messages found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(l) => l.id}
+        empty={
+          <EmptyState
+            icon={Mail}
+            title="No messages found"
+            className="rounded-xl border border-border bg-surface-subtle"
+          />
+        }
+      />
 
       <MessageDetailDialog log={selected} onOpenChange={setSelected} />
     </MainScreenWrapper>

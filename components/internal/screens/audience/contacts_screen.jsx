@@ -12,17 +12,9 @@ import {
   Trash2,
   Mail,
   X,
+  Users,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import {
-  TableShell,
-  SearchInput,
-  Pill,
-  RowActions,
-  Field,
-} from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -49,14 +41,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  cn,
+  Checkbox,
+  ScreenHeader,
+  SearchInput,
+  Badge,
+  ActionMenu,
+  Field,
+  Toolbar,
+  SectionCard,
+  EmptyState,
+  Avatar,
+  AvatarFallback,
 } from "@geiger/ui";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const STATUS_TONE = {
-  Subscribed: "green",
-  Pending: "amber",
-  Unsubscribed: "zinc",
-  Bounced: "red",
+  Subscribed: "success",
+  Pending: "warning",
+  Unsubscribed: "neutral",
+  Bounced: "danger",
 };
 
 const INITIAL_CONTACTS = [
@@ -106,14 +109,14 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-3">
             <Field label="First name" htmlFor="c-first">
-              <Input id="c-first" value={form.first} onChange={(e) => set("first")(e.target.value)} placeholder="Amara" className="bg-background border-border" />
+              <Input id="c-first" value={form.first} onChange={(e) => set("first")(e.target.value)} placeholder="Amara" />
             </Field>
             <Field label="Last name" htmlFor="c-last">
-              <Input id="c-last" value={form.last} onChange={(e) => set("last")(e.target.value)} placeholder="Okafor" className="bg-background border-border" />
+              <Input id="c-last" value={form.last} onChange={(e) => set("last")(e.target.value)} placeholder="Okafor" />
             </Field>
           </div>
           <Field label="Email address" htmlFor="c-email" hint="Used as the unique identifier for this contact.">
-            <Input id="c-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} placeholder="name@company.com" className="bg-background border-border" />
+            <Input id="c-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} placeholder="name@company.com" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
@@ -139,10 +142,10 @@ function AddContactDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={submit} disabled={!form.email.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={submit} disabled={!form.email.trim()}>
             Add contact
           </Button>
         </DialogFooter>
@@ -198,30 +201,50 @@ export function ContactsScreen() {
   };
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Contacts"
         description="Every person in your audience — their subscription status, lists, and engagement."
+        actions={
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Upload className="h-4 w-4" /> Import
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem className="cursor-pointer">
+                  <FileUp className="mr-2 h-4 w-4" /> Upload CSV file
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  <Cloud className="mr-2 h-4 w-4" /> Import from integration
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button onClick={() => setAddOpen(true)}>
+              <UserPlus className="h-4 w-4" /> Add contact
+            </Button>
+          </>
+        }
       />
 
-      {/* Toolbar */}
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <SearchInput value={query} onChange={setQuery} placeholder="Search name or email…" />
+      <Toolbar>
+        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
+              <Button variant="outline" className="h-9 justify-between bg-surface-card sm:w-40">
                 {statusFilter === "All" ? "All statuses" : statusFilter}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
+            <DropdownMenuContent className="w-44">
               <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-surface-hover" />
+              <DropdownMenuSeparator />
               {STATUS_FILTERS.map((s) => (
                 <DropdownMenuItem
                   key={s}
                   onSelect={() => setStatusFilter(s)}
-                  className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", statusFilter === s && "text-white")}
+                  className={cn("cursor-pointer", statusFilter === s && "font-medium")}
                 >
                   {s === "All" ? "All statuses" : s}
                 </DropdownMenuItem>
@@ -229,121 +252,110 @@ export function ContactsScreen() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-9 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
-                <Upload className="h-4 w-4" /> Import
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 border-border bg-surface-card text-foreground">
-              <DropdownMenuItem className="cursor-pointer focus:bg-surface-hover focus:text-foreground">
-                <FileUp className="mr-2 h-4 w-4" /> Upload CSV file
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer focus:bg-surface-hover focus:text-foreground">
-                <Cloud className="mr-2 h-4 w-4" /> Import from integration
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button onClick={() => setAddOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
-            <UserPlus className="h-4 w-4" /> Add contact
-          </Button>
-        </div>
-      </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Search name or email…" />
+      </Toolbar>
 
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex items-center justify-between rounded-xl border border-border bg-surface-card px-4 py-2.5">
           <span className="text-sm text-foreground">
-            <span className="font-semibold text-white">{selected.size}</span> selected
+            <span className="font-semibold">{selected.size}</span> selected
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:bg-surface-hover hover:text-foreground">
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
               <Tag className="h-4 w-4" /> Tag
             </Button>
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:bg-surface-hover hover:text-foreground">
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
               <Mail className="h-4 w-4" /> Add to list
             </Button>
-            <Button variant="ghost" size="sm" onClick={removeSelected} className="text-red-400 hover:bg-red-500/10 hover:text-red-300">
+            <Button variant="ghost" size="sm" onClick={removeSelected} className="text-red-400 hover:bg-red-500/10 hover:text-red-400">
               <Trash2 className="h-4 w-4" /> Delete
             </Button>
-            <Button variant="ghost" size="icon-sm" onClick={() => setSelected(new Set())} className="text-text-secondary hover:bg-surface-hover hover:text-foreground">
+            <Button variant="ghost" size="icon-sm" aria-label="Clear selection" onClick={() => setSelected(new Set())} className="text-text-secondary">
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
       )}
 
-      {/* Table */}
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead className="w-10 pr-0">
-                <Checkbox checked={allVisibleSelected} onCheckedChange={toggleAll} aria-label="Select all" />
-              </TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Lists</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Added</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((c) => (
-              <TableRow key={c.id} data-state={selected.has(c.id) ? "selected" : undefined} className="border-border">
-                <TableCell className="pr-0">
-                  <Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggleOne(c.id)} aria-label={`Select ${c.first}`} />
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-active text-xs font-semibold text-foreground">
-                      {initials(c.first, c.last)}
-                    </span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="font-medium text-foreground">{c.first} {c.last}</span>
-                      <span className="truncate text-xs text-text-secondary">{c.email}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Pill tone={STATUS_TONE[c.status]}>{c.status}</Pill>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {c.lists.map((l) => (
-                      <span key={l} className="rounded-md border border-border bg-surface-active px-1.5 py-0.5 text-xs text-muted-foreground">
-                        {l}
-                      </span>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{c.location}</TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{c.added}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit contact", icon: Pencil },
-                      { label: "Manage tags", icon: Tag },
-                      { label: "Unsubscribe", icon: Ban, separatorBefore: true },
-                      { label: "Delete", icon: Trash2, danger: true, onSelect: () => setContacts((p) => p.filter((x) => x.id !== c.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
+      {/* Table keeps shadcn Table for header select-all + selected-row state */}
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No contacts found"
+          description="No contacts match your filters."
+          className="rounded-xl border border-border bg-surface-subtle"
+          action={
+            <Button onClick={() => setAddOpen(true)}>
+              <UserPlus className="h-4 w-4" /> Add contact
+            </Button>
+          }
+        />
+      ) : (
+        <SectionCard bodyPadding={false}>
+          <Table>
+            <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">
-                  No contacts match your filters.
-                </TableCell>
+                <TableHead className="w-10 pr-0">
+                  <Checkbox checked={allVisibleSelected} onCheckedChange={toggleAll} aria-label="Select all" />
+                </TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Lists</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Added</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((c) => (
+                <TableRow key={c.id} data-state={selected.has(c.id) ? "selected" : undefined} className="border-border">
+                  <TableCell className="pr-0">
+                    <Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggleOne(c.id)} aria-label={`Select ${c.first}`} />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="size-9 border border-border">
+                        <AvatarFallback className="bg-surface-active text-xs font-semibold text-foreground">
+                          {initials(c.first, c.last)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex min-w-0 flex-col">
+                        <span className="font-medium text-foreground">{c.first} {c.last}</span>
+                        <span className="truncate text-xs text-text-secondary">{c.email}</span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={STATUS_TONE[c.status]}>{c.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {c.lists.map((l) => (
+                        <Badge key={l} variant="neutral">{l}</Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{c.location}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{c.added}</TableCell>
+                  <TableCell className="text-right">
+                    <ActionMenu
+                      label={`Actions for ${c.first} ${c.last}`}
+                      items={[
+                        { label: "Edit contact", icon: Pencil },
+                        { label: "Manage tags", icon: Tag },
+                        { separator: true },
+                        { label: "Unsubscribe", icon: Ban },
+                        { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setContacts((p) => p.filter((x) => x.id !== c.id)) },
+                      ]}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </SectionCard>
+      )}
 
       <p className="text-xs text-text-secondary">
         Showing {filtered.length} of {contacts.length} contacts

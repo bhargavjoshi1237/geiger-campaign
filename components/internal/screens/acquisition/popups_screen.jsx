@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Plus, Pencil, Copy, Pause, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Pencil, Copy, Pause, Trash2, AppWindow } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, Pill, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -27,16 +24,19 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  cn,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  Badge,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
-const TRIGGER_TONE = { "Exit intent": "red", "On scroll": "blue", "Time delay": "violet", "On click": "amber" };
-const STATUS_TONE = { Active: "green", Paused: "amber", Draft: "zinc" };
+const TRIGGER_TONE = { "Exit intent": "danger", "On scroll": "info", "Time delay": "purple", "On click": "warning" };
+const STATUS_TONE = { Active: "success", Paused: "warning", Draft: "neutral" };
 
 const STATUSES = ["All", "Active", "Paused", "Draft"];
 const TRIGGERS = ["Exit intent", "On scroll", "Time delay", "On click"];
@@ -71,7 +71,7 @@ function CreatePopupDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Popup name" htmlFor="popup-name">
-            <Input id="popup-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome 15% Off" className="bg-background border-border" />
+            <Input id="popup-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Welcome 15% Off" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Trigger">
@@ -89,8 +89,8 @@ function CreatePopupDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Create popup</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Create popup</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -111,87 +111,98 @@ export function PopupsScreen() {
     );
   }, [popups, query, status]);
 
+  const columns = [
+    { key: "name", header: "Popup", render: (p) => <span className="font-medium text-foreground">{p.name}</span> },
+    { key: "trigger", header: "Trigger", render: (p) => <Badge variant={TRIGGER_TONE[p.trigger]}>{p.trigger}</Badge> },
+    { key: "type", header: "Type", className: "text-muted-foreground", render: (p) => p.type },
+    {
+      key: "impressions",
+      header: "Impressions",
+      className: "tabular-nums text-muted-foreground",
+      render: (p) => (p.impressions ? p.impressions.toLocaleString() : "—"),
+    },
+    {
+      key: "conversion",
+      header: "Conversion",
+      render: (p) =>
+        p.conversion > 0 ? (
+          <div className="w-[120px] space-y-1.5">
+            <Progress value={p.conversion} className="h-1.5 bg-surface-hover" />
+            <p className="text-xs text-text-secondary">{p.conversion}%</p>
+          </div>
+        ) : <span className="text-text-secondary">—</span>,
+    },
+    { key: "status", header: "Status", render: (p) => <Badge variant={STATUS_TONE[p.status]}>{p.status}</Badge> },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (p) => (
+        <ActionMenu
+          items={[
+            { label: "Edit", icon: Pencil },
+            { label: "Duplicate", icon: Copy },
+            { label: "Pause", icon: Pause },
+            { separator: true },
+            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setPopups((prev) => prev.filter((x) => x.id !== p.id)) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Popups"
         description="On-site popups triggered by visitor behavior."
         actions={
-          <Button onClick={() => setCreateOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Create popup
           </Button>
         }
       />
 
-      <div className="flex flex-col gap-3 border-t border-surface-active pt-4 sm:flex-row sm:items-center">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
+                {status === "All" ? "All statuses" : status}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44">
+              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {STATUSES.map((s) => (
+                <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer", status === s && "font-medium")}>
+                  {s === "All" ? "All statuses" : s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SearchInput value={query} onChange={setQuery} placeholder="Search popups…" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 justify-between border-border bg-surface-card text-foreground hover:bg-surface-subtle sm:w-40">
-              {status === "All" ? "All statuses" : status}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 border-border bg-surface-card text-foreground">
-            <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-surface-hover" />
-            {STATUSES.map((s) => (
-              <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className={cn("cursor-pointer focus:bg-surface-hover focus:text-foreground", status === s && "text-white")}>
-                {s === "All" ? "All statuses" : s}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Popup</TableHead>
-              <TableHead>Trigger</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Impressions</TableHead>
-              <TableHead>Conversion</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((p) => (
-              <TableRow key={p.id} className="border-border">
-                <TableCell><span className="font-medium text-foreground">{p.name}</span></TableCell>
-                <TableCell><Pill tone={TRIGGER_TONE[p.trigger]}>{p.trigger}</Pill></TableCell>
-                <TableCell className="text-muted-foreground">{p.type}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{p.impressions ? p.impressions.toLocaleString() : "—"}</TableCell>
-                <TableCell>
-                  {p.conversion > 0 ? (
-                    <div className="w-[120px] space-y-1.5">
-                      <Progress value={p.conversion} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                      <p className="text-xs text-text-secondary">{p.conversion}%</p>
-                    </div>
-                  ) : <span className="text-text-secondary">—</span>}
-                </TableCell>
-                <TableCell><Pill tone={STATUS_TONE[p.status]}>{p.status}</Pill></TableCell>
-                <TableCell className="text-right">
-                  <RowActions
-                    items={[
-                      { label: "Edit", icon: Pencil },
-                      { label: "Duplicate", icon: Copy },
-                      { label: "Pause", icon: Pause },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setPopups((prev) => prev.filter((x) => x.id !== p.id)) },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={7} className="py-14 text-center text-sm text-text-secondary">No popups match your filters.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(p) => p.id}
+        empty={
+          <EmptyState
+            icon={AppWindow}
+            title="No popups match your filters"
+            description="Try a different search or status, or create a new popup."
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> Create popup
+              </Button>
+            }
+            className="rounded-xl border border-border bg-surface-subtle"
+          />
+        }
+      />
 
       <CreatePopupDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(p) => setPopups((prev) => [{ id: Date.now(), ...p }, ...prev])} />
     </MainScreenWrapper>

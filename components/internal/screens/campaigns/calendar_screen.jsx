@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Mail, Smartphone, Bell } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -20,11 +17,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  cn,
+  ScreenHeader,
+  SectionCard,
+  Field,
 } from "@geiger/ui";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const CHANNEL_META = { Email: { icon: Mail, tone: "border-blue-500/40 bg-blue-500/15 text-blue-200" }, SMS: { icon: Smartphone, tone: "border-emerald-500/40 bg-emerald-500/15 text-emerald-200" }, Push: { icon: Bell, tone: "border-violet-500/40 bg-violet-500/15 text-violet-200" } };
+const CHANNEL_META = { Email: { icon: Mail, tone: "border-blue-500/40 bg-blue-500/15 text-blue-800 dark:text-blue-200" }, SMS: { icon: Smartphone, tone: "border-emerald-500/40 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200" }, Push: { icon: Bell, tone: "border-violet-500/40 bg-violet-500/15 text-violet-800 dark:text-violet-200" } };
 
 // Default scheduled campaigns for June 2026 (month index 5).
 const INITIAL_EVENTS = [
@@ -54,7 +55,7 @@ function ScheduleDialog({ open, onOpenChange, onCreate, year, month, daysInMonth
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="Campaign name" htmlFor="cal-name">
-            <Input id="cal-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo" className="bg-background border-border" />
+            <Input id="cal-name" value={form.name} onChange={(e) => set("name")(e.target.value)} placeholder="e.g. Spring Promo" className="border-border" />
           </Field>
           <div className="grid grid-cols-3 gap-3">
             <Field label="Day">
@@ -66,7 +67,7 @@ function ScheduleDialog({ open, onOpenChange, onCreate, year, month, daysInMonth
               </Select>
             </Field>
             <Field label="Time" htmlFor="cal-time">
-              <Input id="cal-time" type="time" value={form.time} onChange={(e) => set("time")(e.target.value)} className="bg-background border-border" />
+              <Input id="cal-time" type="time" value={form.time} onChange={(e) => set("time")(e.target.value)} className="border-border" />
             </Field>
             <Field label="Channel">
               <Select value={form.channel} onValueChange={set("channel")}>
@@ -77,8 +78,8 @@ function ScheduleDialog({ open, onOpenChange, onCreate, year, month, daysInMonth
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Schedule</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Schedule</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -114,27 +115,27 @@ export function CalendarScreen() {
   };
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Calendar"
         description="See every scheduled campaign across channels in one place."
         actions={
-          <Button onClick={() => setScheduleOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Plus className="h-4 w-4" /> Schedule campaign</Button>
+          <Button onClick={() => setScheduleOpen(true)}><Plus className="h-4 w-4" /> Schedule campaign</Button>
         }
       />
 
-      <div className="flex items-center justify-between border-t border-surface-active pt-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-white">{MONTHS[month]} {year}</h2>
+          <h2 className="text-lg font-semibold text-foreground">{MONTHS[month]} {year}</h2>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon-sm" onClick={() => shift(-1)} className="border-border bg-surface-card text-foreground hover:bg-surface-active"><ChevronLeft className="h-4 w-4" /></Button>
-            <Button variant="outline" size="icon-sm" onClick={() => shift(1)} className="border-border bg-surface-card text-foreground hover:bg-surface-active"><ChevronRight className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon-sm" onClick={() => shift(-1)} className="bg-surface-card" aria-label="Previous month"><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon-sm" onClick={() => shift(1)} className="bg-surface-card" aria-label="Next month"><ChevronRight className="h-4 w-4" /></Button>
           </div>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => { setYear(2026); setMonth(5); }} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Today</Button>
+        <Button variant="ghost" size="sm" onClick={() => { setYear(2026); setMonth(5); }} className="text-muted-foreground">Today</Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
+      <SectionCard bodyPadding={false}>
         <div className="grid grid-cols-7 border-b border-border bg-surface-subtle">
           {WEEKDAYS.map((w) => (
             <div key={w} className="px-3 py-2 text-center text-[11px] font-medium uppercase tracking-wider text-text-secondary">{w}</div>
@@ -170,7 +171,7 @@ export function CalendarScreen() {
             </div>
           ))}
         </div>
-      </div>
+      </SectionCard>
 
       <ScheduleDialog
         open={scheduleOpen}

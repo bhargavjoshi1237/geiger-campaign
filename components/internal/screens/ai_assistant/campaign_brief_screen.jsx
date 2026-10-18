@@ -5,8 +5,6 @@ import {
   Sparkles, RotateCcw, Target, Users, Mail, Lightbulb, Clock, MousePointerClick,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Select,
@@ -15,6 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
+  ScreenHeader,
+  SectionCard,
+  EmptyState,
+  Field,
 } from "@geiger/ui";
 
 const OBJECTIVES = ["Awareness", "Acquisition", "Retention", "Re-engagement"];
@@ -75,15 +77,15 @@ export function CampaignBriefScreen() {
     setBrief(buildBrief({ objective, audience, channel, tone, message }));
 
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Campaign Brief"
         description="Turn a few inputs into a structured, ready-to-run campaign brief."
       />
 
-      <div className="grid grid-cols-1 gap-4 border-t border-surface-active pt-4 lg:grid-cols-[380px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[380px_1fr]">
         {/* Config */}
-        <div className="space-y-4 rounded-xl border border-border bg-surface-subtle p-5">
+        <SectionCard contentClassName="space-y-4">
           <Field label="Objective">
             <Select value={objective} onValueChange={setObjective}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -122,32 +124,32 @@ export function CampaignBriefScreen() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="e.g. Our spring collection is 25% off for the next 48 hours."
-              className="min-h-24 bg-background border-border"
+              className="min-h-24 bg-background"
             />
           </Field>
-          <Button onClick={generate} className="h-9 w-full bg-white text-black hover:bg-[#e5e5e5]">
+          <Button onClick={generate} className="w-full">
             <Sparkles className="h-4 w-4" /> {brief ? "Regenerate brief" : "Generate brief"}
           </Button>
-        </div>
+        </SectionCard>
 
         {/* Result */}
         {!brief ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle py-20 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface-active text-muted-foreground">
-              <Sparkles className="h-6 w-6" />
-            </span>
-            <p className="mt-4 text-sm text-muted-foreground">Fill in the details and generate your brief.</p>
-            <p className="mt-1 text-xs text-text-secondary">Your structured campaign brief will appear here.</p>
-          </div>
+          <EmptyState
+            icon={Sparkles}
+            title="Fill in the details and generate your brief."
+            description="Your structured campaign brief will appear here."
+            className="rounded-xl border border-dashed border-border bg-surface-subtle py-20"
+          />
         ) : (
-          <div className="space-y-5 rounded-xl border border-border bg-surface-subtle p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">Generated campaign brief</h2>
-              <Button onClick={generate} size="sm" variant="outline" className="h-8 border-border bg-surface-card text-foreground hover:bg-surface-subtle">
+          <SectionCard
+            title="Generated campaign brief"
+            action={
+              <Button onClick={generate} size="sm" variant="outline" className="bg-surface-card hover:bg-surface-subtle">
                 <RotateCcw className="h-3.5 w-3.5" /> Regenerate
               </Button>
-            </div>
-
+            }
+            contentClassName="space-y-5"
+          >
             <Section icon={Target} title="Goal">
               <p className="text-sm text-muted-foreground">{brief.goal}</p>
             </Section>
@@ -180,7 +182,7 @@ export function CampaignBriefScreen() {
                 {brief.cta}
               </span>
             </Section>
-          </div>
+          </SectionCard>
         )}
       </div>
     </MainScreenWrapper>

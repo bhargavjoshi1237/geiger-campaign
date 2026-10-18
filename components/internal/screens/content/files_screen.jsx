@@ -4,10 +4,7 @@ import React, { useMemo, useState } from "react";
 import {
   Upload, FileText, FileSpreadsheet, FileImage, File as FileIcon, Download, Pencil, FolderInput, Trash2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_header";
-import { TableShell, SearchInput, RowActions, Field } from "@/components/internal/shared/screen_kit";
 import {
   Button,
   Dialog,
@@ -22,12 +19,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+  DataTable,
+  EmptyState,
+  ActionMenu,
+  Field,
 } from "@geiger/ui";
 
 const TYPE_META = {
@@ -67,7 +65,7 @@ function UploadFileDialog({ open, onOpenChange, onCreate }) {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Field label="File name" htmlFor="f-name">
-            <Input id="f-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. june-recap.pdf" className="bg-background border-border" />
+            <Input id="f-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. june-recap.pdf" className="border-border" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -85,8 +83,8 @@ function UploadFileDialog({ open, onOpenChange, onCreate }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:bg-surface-active hover:text-foreground">Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim()} className="bg-white text-black hover:bg-[#e5e5e5]">Upload file</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.name.trim()}>Upload file</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -103,70 +101,69 @@ export function FilesScreen() {
     return files.filter((f) => !q || f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q));
   }, [files, query]);
 
+  const columns = [
+    {
+      key: "name",
+      header: "Name",
+      render: (f) => {
+        const Icon = TYPE_META[f.type].icon;
+        return (
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><Icon className="h-4 w-4" /></span>
+            <span className="font-medium text-foreground">{f.name}</span>
+          </div>
+        );
+      },
+    },
+    { key: "type", header: "Type", className: "text-muted-foreground", render: (f) => f.type },
+    { key: "size", header: "Size", className: "tabular-nums text-muted-foreground", render: (f) => f.size },
+    { key: "modified", header: "Modified", className: "text-muted-foreground", render: (f) => f.modified },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (f) => (
+        <ActionMenu items={[
+          { label: "Download", icon: Download },
+          { label: "Rename", icon: Pencil },
+          { label: "Move", icon: FolderInput },
+          { separator: true },
+          { label: "Delete", icon: Trash2, destructive: true, onSelect: () => setFiles((p) => p.filter((x) => x.id !== f.id)) },
+        ]} />
+      ),
+    },
+  ];
+
   return (
-    <MainScreenWrapper className="dark">
+    <MainScreenWrapper>
       <ScreenHeader
         title="Files"
         description="Documents and downloadable files used across your campaigns."
         actions={
-          <Button onClick={() => setUploadOpen(true)} className="h-9 bg-white text-black hover:bg-[#e5e5e5]"><Upload className="h-4 w-4" /> Upload file</Button>
+          <Button onClick={() => setUploadOpen(true)}><Upload className="h-4 w-4" /> Upload file</Button>
         }
       />
 
-      <div className="border-t border-surface-active pt-4">
+      <Toolbar>
         <p className="text-xs text-text-secondary">
           <span className="text-muted-foreground">All files</span> / Campaign Assets
         </p>
-      </div>
-
-      <div className="border-t border-surface-active pt-4">
         <SearchInput value={query} onChange={setQuery} placeholder="Search files…" />
-      </div>
+      </Toolbar>
 
-      <TableShell>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Size</TableHead>
-              <TableHead>Modified</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((f) => {
-              const Icon = TYPE_META[f.type].icon;
-              return (
-                <TableRow key={f.id} className="border-border">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-muted-foreground"><Icon className="h-4 w-4" /></span>
-                      <span className="font-medium text-foreground">{f.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{f.type}</TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">{f.size}</TableCell>
-                  <TableCell className="text-muted-foreground">{f.modified}</TableCell>
-                  <TableCell className="text-right">
-                    <RowActions items={[
-                      { label: "Download", icon: Download },
-                      { label: "Rename", icon: Pencil },
-                      { label: "Move", icon: FolderInput },
-                      { label: "Delete", icon: Trash2, danger: true, separatorBefore: true, onSelect: () => setFiles((p) => p.filter((x) => x.id !== f.id)) },
-                    ]} />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {filtered.length === 0 && (
-              <TableRow className="border-border hover:bg-transparent">
-                <TableCell colSpan={5} className="py-14 text-center text-sm text-text-secondary">No files found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableShell>
+      <DataTable
+        columns={columns}
+        data={filtered}
+        getRowKey={(f) => f.id}
+        empty={
+          <EmptyState
+            icon={FileIcon}
+            title="No files found"
+            className="rounded-xl border border-border bg-surface-subtle"
+            action={<Button variant="outline" onClick={() => setUploadOpen(true)}><Upload className="h-4 w-4" /> Upload file</Button>}
+          />
+        }
+      />
 
       <UploadFileDialog open={uploadOpen} onOpenChange={setUploadOpen} onCreate={(f) => setFiles((p) => [{ id: Date.now(), ...f }, ...p])} />
     </MainScreenWrapper>

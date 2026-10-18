@@ -185,6 +185,26 @@ export function ProjectProvider({ children }) {
   );
 }
 
+// The landing playground's one fixed project: no fetch, no URL, no remembered choice.
+export function PlaygroundProjectProvider({ project, children }) {
+  const value = useMemo(
+    () => ({
+      project,
+      projectId: project.id,
+      projects: [project],
+      loading: false,
+      setActiveProject: () => {},
+      createProject: async () => null,
+      refresh: async () => [project],
+    }),
+    [project],
+  );
+
+  return (
+    <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>
+  );
+}
+
 export function useProject() {
   const ctx = useContext(ProjectContext);
   if (ctx === undefined) {
