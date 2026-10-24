@@ -212,3 +212,8 @@ export function useProject() {
   }
   return ctx;
 }
+
+// For chrome that also renders outside the workspace (the landing header): null when no provider is mounted.
+export function useOptionalProject() {
+  return useContext(ProjectContext) ?? null;
+}
