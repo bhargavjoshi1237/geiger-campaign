@@ -77,7 +77,7 @@ export function ProjectSidebar({ activeTab = "Overview", onTabChange = () => {} 
       <MobileSidebarHeader />
       <SidebarContent className="space-y-2 relative flex-1 overflow-hidden bg-sidebar">
         <div className="absolute inset-0 w-full h-full bg-sidebar translate-x-0">
-          <div className="h-full overflow-y-auto overflow-x-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="h-full overflow-y-auto overflow-x-hidden py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>

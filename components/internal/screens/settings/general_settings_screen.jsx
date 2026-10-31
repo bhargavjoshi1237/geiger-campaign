@@ -1,134 +1,256 @@
 "use client";
 
-import React from "react";
-import { Link2, Mail, Megaphone } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Gauge, Lock, Moon } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
+  Button,
+  Field,
   Input,
+  LogoLoading,
+  ScreenHeader,
+  SectionCard,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  ScreenHeader,
-  SectionCard,
-  SettingsList,
   SettingRow,
-  Field,
+  SettingsList,
+  Switch,
 } from "@geiger/ui";
+import { useProject } from "@/context/project-context";
+import { useRbac } from "@/context/rbac-context";
+import { useWorkspaceUrl } from "@/lib/hooks/use-workspace-url";
+import { CURRENCY_OPTIONS, LOCALE_OPTIONS, TIMEZONE_OPTIONS, isValidEmail, isValidTime } from "@/lib/settings/defaults";
+import { getWorkspaceSettings, saveWorkspaceSettings } from "@/lib/supabase/workspace_settings";
+import { getUser } from "@/lib/supabase/user";
 import { SaveChangesButton, useSettingsForm } from "./settings_form";
 
-const DEFAULTS = {
-  name: "Halcyon Studio",
-  subdomain: "halcyon",
-  timezone: "America/New_York",
-  language: "en",
-  dateFormat: "MM/DD/YYYY",
-  weeklySummary: true,
-  productUpdates: true,
+const EMPTY = {
+  name: "",
+  timezone: "UTC",
+  locale: "en-US",
+  currency: "USD",
+  fromName: "",
+  fromEmail: "",
+  replyTo: "",
+  quietEnabled: false,
+  quietStart: "21:00",
+  quietEnd: "08:00",
+  capEnabled: false,
+  weeklyFrequencyCap: "3",
 };
 
+function toForm(settings, projectName) {
+  const { general, sending } = settings;
+  return {
+    name: general.name || projectName || "",
+    timezone: general.timezone,
+    locale: general.locale,
+    currency: general.currency,
+    fromName: sending.fromName,
+    fromEmail: sending.fromEmail,
+    replyTo: sending.replyTo,
+    quietEnabled: Boolean(sending.quietHours),
+    quietStart: sending.quietHours?.start || "21:00",
+    quietEnd: sending.quietHours?.end || "08:00",
+    capEnabled: Boolean(sending.weeklyFrequencyCap),
+    weeklyFrequencyCap: String(sending.weeklyFrequencyCap || 3),
+  };
+}
+
+function validate(form) {
+  if (!form.name.trim()) return "Give the workspace a name.";
+  if (form.fromEmail && !isValidEmail(form.fromEmail)) return "The default from address isn't a valid email.";
+  if (form.replyTo && !isValidEmail(form.replyTo)) return "The reply-to address isn't a valid email.";
+  if (form.quietEnabled && (!isValidTime(form.quietStart) || !isValidTime(form.quietEnd))) return "Quiet hours need a start and end time.";
+  if (form.quietEnabled && form.quietStart === form.quietEnd) return "Quiet hours can't start and end at the same time.";
+  const cap = Number(form.weeklyFrequencyCap);
+  if (form.capEnabled && (!Number.isInteger(cap) || cap < 1 || cap > 50)) return "The weekly cap must be a whole number from 1 to 50.";
+  return null;
+}
+
 export function GeneralSettingsScreen() {
-  const { form, set, dirty, saving, save } = useSettingsForm(DEFAULTS);
+  const { projectId, project } = useProject();
+  const { can } = useRbac();
+  const { setTab } = useWorkspaceUrl();
+  const canManage = can("campaign.settings.manage");
+  const [loading, setLoading] = useState(true);
+
+  const { form, set, dirty, saving, save, reset } = useSettingsForm(EMPTY, {
+    onSave: async (values) => {
+      const problem = validate(values);
+      if (problem) return problem;
+      const user = await getUser();
+      const saved = await saveWorkspaceSettings(
+        projectId,
+        {
+          general: { name: values.name.trim(), timezone: values.timezone, locale: values.locale, currency: values.currency },
+          sending: {
+            fromName: values.fromName.trim(),
+            fromEmail: values.fromEmail.trim().toLowerCase(),
+            replyTo: values.replyTo.trim().toLowerCase(),
+            quietHours: values.quietEnabled ? { start: values.quietStart, end: values.quietEnd } : null,
+            weeklyFrequencyCap: values.capEnabled ? Number(values.weeklyFrequencyCap) : null,
+          },
+        },
+        { createdBy: user?.id ?? null },
+      );
+      return saved ? true : "Couldn't save settings — check your access and try again.";
+    },
+  });
+
+  useEffect(() => {
+    if (!projectId) return undefined;
+    let alive = true;
+    getWorkspaceSettings(projectId).then((settings) => {
+      if (!alive) return;
+      if (settings) reset(toForm(settings, project?.name));
+      setLoading(false);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [projectId, project?.name, reset]);
+
+  const disabled = !canManage;
+  const timezones = TIMEZONE_OPTIONS.includes(form.timezone) ? TIMEZONE_OPTIONS : [form.timezone, ...TIMEZONE_OPTIONS];
 
   return (
     <MainScreenWrapper>
       <ScreenHeader
         title="General"
-        description="Core settings for your Campaign workspace."
-        actions={<SaveChangesButton dirty={dirty} saving={saving} onClick={save} />}
+        description="Workspace identity, localization and the sending defaults every campaign starts from."
+        actions={<SaveChangesButton dirty={dirty} saving={saving} onClick={save} disabled={disabled} />}
       />
 
-      <div className="space-y-6">
-        <SectionCard title="Workspace" description="How your workspace is named and addressed.">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Workspace name" htmlFor="ws-name">
-              <Input id="ws-name" value={form.name} onChange={(e) => set("name")(e.target.value)} />
-            </Field>
+      {loading ? (
+        <div className="flex min-h-60 items-center justify-center">
+          <LogoLoading size={48} aria-label="Loading settings" />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {disabled ? (
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-subtle px-4 py-3 text-sm text-text-secondary">
+              <Lock className="h-4 w-4 shrink-0" /> You can view these settings; changing them needs the “Manage settings” permission.
+            </div>
+          ) : null}
 
-            <Field
-              label="Workspace URL"
-              htmlFor="ws-subdomain"
-              hint="Your public subdomain. Lowercase letters, numbers and hyphens only."
-            >
-              <div className="flex items-center gap-2">
-                <span className="flex shrink-0 items-center gap-2 rounded-md border border-border bg-surface-card px-3 py-2 font-mono text-sm text-muted-foreground">
-                  <Link2 className="h-4 w-4 text-text-secondary" />
-                  geiger.studio/
-                </span>
-                <Input
-                  id="ws-subdomain"
-                  value={form.subdomain}
-                  onChange={(e) => set("subdomain")(e.target.value)}
-                  placeholder="acme"
-                  className="min-w-0"
-                />
-              </div>
-            </Field>
-          </div>
-        </SectionCard>
+          <SectionCard title="Workspace" description="How the workspace is named and how dates, times and money are shown.">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Workspace name" htmlFor="ws-name" hint="Used as the sender's company name when a campaign has none.">
+                <Input id="ws-name" value={form.name} onChange={(e) => set("name")(e.target.value)} disabled={disabled} />
+              </Field>
+              <Field label="Time zone" hint="Schedules, quiet hours and reports use this zone.">
+                <Select value={form.timezone} onValueChange={set("timezone")} disabled={disabled}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timezones.map((tz) => (
+                      <SelectItem key={tz} value={tz}>
+                        {tz.replace(/_/g, " ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Locale">
+                <Select value={form.locale} onValueChange={set("locale")} disabled={disabled}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOCALE_OPTIONS.map((l) => (
+                      <SelectItem key={l.value} value={l.value}>
+                        {l.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Currency" hint="Revenue and attribution reports are shown in this currency.">
+                <Select value={form.currency} onValueChange={set("currency")} disabled={disabled}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CURRENCY_OPTIONS.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+          </SectionCard>
 
-        <SectionCard title="Localization" description="Defaults for dates, times and language across the workspace.">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="Timezone">
-              <Select value={form.timezone} onValueChange={set("timezone")}>
-                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="America/Los_Angeles">(GMT-08:00) Pacific Time</SelectItem>
-                  <SelectItem value="America/New_York">(GMT-05:00) Eastern Time</SelectItem>
-                  <SelectItem value="Europe/London">(GMT+00:00) London</SelectItem>
-                  <SelectItem value="Europe/Berlin">(GMT+01:00) Berlin</SelectItem>
-                  <SelectItem value="Asia/Tokyo">(GMT+09:00) Tokyo</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+          <SectionCard
+            title="Sending defaults"
+            description="Used whenever a campaign or automation doesn't set its own sender."
+            action={
+              <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setTab("Sending Domains")}>
+                Sending domains
+              </Button>
+            }
+          >
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label="From name" htmlFor="ws-from-name">
+                <Input id="ws-from-name" value={form.fromName} onChange={(e) => set("fromName")(e.target.value)} placeholder={form.name || "Your company"} disabled={disabled} />
+              </Field>
+              <Field label="From email" htmlFor="ws-from-email" hint="Must be on a verified sending domain.">
+                <Input id="ws-from-email" type="email" value={form.fromEmail} onChange={(e) => set("fromEmail")(e.target.value)} placeholder="hello@yourdomain.com" disabled={disabled} />
+              </Field>
+              <Field label="Reply-to" htmlFor="ws-reply-to" hint="Leave empty to receive replies at the from address.">
+                <Input id="ws-reply-to" type="email" value={form.replyTo} onChange={(e) => set("replyTo")(e.target.value)} placeholder="support@yourdomain.com" disabled={disabled} />
+              </Field>
+            </div>
 
-            <Field label="Default language">
-              <Select value={form.language} onValueChange={set("language")}>
-                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English (US)</SelectItem>
-                  <SelectItem value="en-GB">English (UK)</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                  <SelectItem value="de">Deutsch</SelectItem>
-                  <SelectItem value="ja">日本語</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field label="Date format">
-              <Select value={form.dateFormat} onValueChange={set("dateFormat")}>
-                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
-                  <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-                  <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-                  <SelectItem value="DD MMM YYYY">DD MMM YYYY</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Notifications" description="Workspace emails sent to you.">
-          <SettingsList>
-            <SettingRow
-              icon={Mail}
-              title="Weekly summary email"
-              description="A digest of campaign performance every Monday."
-              checked={form.weeklySummary}
-              onCheckedChange={set("weeklySummary")}
-            />
-            <SettingRow
-              icon={Megaphone}
-              title="Product update announcements"
-              description="Occasional emails about new features and changes."
-              checked={form.productUpdates}
-              onCheckedChange={set("productUpdates")}
-            />
-          </SettingsList>
-        </SectionCard>
-      </div>
+            <SettingsList className="mt-5 border-t border-border pt-4">
+              <SettingRow
+                icon={Moon}
+                title="Quiet hours"
+                description="SMS, WhatsApp and automation messages due inside this window wait until it ends, in the recipient's time zone when known."
+                control={<Switch checked={form.quietEnabled} onCheckedChange={set("quietEnabled")} disabled={disabled} aria-label="Quiet hours" />}
+              />
+              {form.quietEnabled ? (
+                <div className="grid max-w-sm grid-cols-2 gap-3 py-3.5">
+                  <Field label="From" htmlFor="ws-quiet-start">
+                    <Input id="ws-quiet-start" type="time" value={form.quietStart} onChange={(e) => set("quietStart")(e.target.value)} disabled={disabled} />
+                  </Field>
+                  <Field label="Until" htmlFor="ws-quiet-end">
+                    <Input id="ws-quiet-end" type="time" value={form.quietEnd} onChange={(e) => set("quietEnd")(e.target.value)} disabled={disabled} />
+                  </Field>
+                </div>
+              ) : null}
+              <SettingRow
+                icon={Gauge}
+                title="Weekly frequency cap"
+                description="Contacts who already got this many marketing messages in the last 7 days are skipped by campaigns and automations."
+                control={
+                  <div className="flex items-center gap-3">
+                    {form.capEnabled ? (
+                      <Input
+                        type="number"
+                        min={1}
+                        max={50}
+                        value={form.weeklyFrequencyCap}
+                        onChange={(e) => set("weeklyFrequencyCap")(e.target.value)}
+                        aria-label="Messages per week"
+                        className="h-8 w-20 tabular-nums"
+                        disabled={disabled}
+                      />
+                    ) : null}
+                    <Switch checked={form.capEnabled} onCheckedChange={set("capEnabled")} disabled={disabled} aria-label="Weekly frequency cap" />
+                  </div>
+                }
+              />
+            </SettingsList>
+          </SectionCard>
+        </div>
+      )}
     </MainScreenWrapper>
   );
 }

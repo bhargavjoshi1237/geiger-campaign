@@ -1,22 +1,16 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { toast } from "sonner";
-import { Copy, FileText, Globe, Pencil, Plus, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
+import { Copy, FileText, Globe, KeyRound, Loader2, Plus, RefreshCw, Settings2, Trash2 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { ListPagination, usePagination } from "@/components/internal/shared/pagination";
 import { EditorShell } from "@/components/internal/shared/editor_shell";
 import FilterDropdown from "@/components/internal/screens/overview/filter_dropdown";
 import { useWorkspaceUrl } from "@/lib/hooks/use-workspace-url";
+import { useProject } from "@/context/project-context";
+import { useCan } from "@/context/rbac-context";
 import {
   Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -28,218 +22,160 @@ import {
   SearchInput,
   DataTable,
   EmptyState,
-  StatusPill,
   Badge,
   ActionMenu,
   Field,
-  InlineTitleInput,
+  LoadingArea,
   SectionCard,
   SettingsList,
   SettingRow,
+  Textarea,
 } from "@geiger/ui";
-import { DeleteDialog, OUTLINE_BUTTON, PRIMARY_BUTTON } from "./deliverability_kit";
-
-const REGION_LABEL = { us: "US (us-east)", eu: "EU (eu-west)", au: "AU (ap-southeast)" };
-
-const REGION_OPTIONS = [
-  { value: "us", label: "United States" },
-  { value: "eu", label: "European Union" },
-  { value: "au", label: "Australia" },
-];
-
-const INITIAL = [
-  { id: 1, domain: "mail.halcyon.studio", region: "us", spf: "pass", dkim: "pass", dmarc: "pass", status: "Verified" },
-  { id: 2, domain: "news.brightlabs.io", region: "eu", spf: "pass", dkim: "pass", dmarc: "pass", status: "Verified" },
-  { id: 3, domain: "send.northwind.co", region: "us", spf: "pass", dkim: "fail", dmarc: "pass", status: "Pending" },
-  { id: 4, domain: "updates.lumen.app", region: "au", spf: "pass", dkim: "pass", dmarc: "fail", status: "Pending" },
-  { id: 5, domain: "promo.heritagebank.com", region: "us", spf: "fail", dkim: "fail", dmarc: "fail", status: "Failed" },
-];
-
-const DOMAIN_STATUS_MAP = {
-  Verified: { label: "Verified", variant: "success", dotClass: "bg-emerald-400" },
-  Pending: { label: "Pending", variant: "warning", dotClass: "bg-amber-400" },
-  Failed: { label: "Failed", variant: "danger", dotClass: "bg-red-400" },
-};
+import { DEFAULT_PROVIDER, RECORD_PURPOSES, providerFor, regionLabel } from "@/lib/deliverability/records";
+import {
+  AddDomainDialog,
+  DANGER_ICON_BUTTON,
+  DELIVERABILITY_MANAGE,
+  DOMAIN_STATUS_MAP,
+  DeleteDialog,
+  DomainStatus,
+  OUTLINE_BUTTON,
+  PRIMARY_BUTTON,
+  RecordBadge,
+  RecordsTable,
+  copyText,
+  formatDateTime,
+  number,
+  recordsAsText,
+  requiredProgress,
+  useSendingDomains,
+  zoneOf,
+} from "./deliverability_kit";
 
 const STATUS_FILTER_OPTIONS = [
   { value: "all", label: "All statuses" },
-  { value: "Verified", label: "Verified" },
-  { value: "Pending", label: "Pending" },
-  { value: "Failed", label: "Failed" },
+  ...Object.entries(DOMAIN_STATUS_MAP).map(([value, s]) => ({ value, label: s.label })),
 ];
 
-const REGION_FILTER_OPTIONS = [{ value: "all", label: "All regions" }, ...REGION_OPTIONS];
-
-const DNS_CHECKS = [
-  { key: "spf", label: "SPF", description: "Authorises our servers to send for this domain." },
-  { key: "dkim", label: "DKIM", description: "Signs every message so it can't be tampered with." },
-  { key: "dmarc", label: "DMARC", description: "Tells providers what to do with unauthenticated mail." },
-];
+const REGION_FILTER_OPTIONS = [{ value: "all", label: "All regions" }, ...providerFor(DEFAULT_PROVIDER).regions];
 
 const DOMAIN_NAV = [
-  { key: "details", label: "Details", icon: Globe, desc: "The sending domain and the region it sends from." },
-  { key: "dns", label: "DNS checks", icon: ShieldCheck, desc: "SPF, DKIM, and DMARC results from the last verification." },
+  { key: "records", label: "DNS records", icon: FileText, desc: "Publish these at your DNS host, then verify." },
+  { key: "settings", label: "Settings", icon: Settings2, desc: "Region and the DKIM key the provider issued for this domain." },
+  { key: "details", label: "Details", icon: Globe, desc: "How this domain sends and when it was last checked." },
 ];
 
-const CheckBadge = ({ value }) => (
-  <Badge variant={value === "pass" ? "success" : "danger"}>{value === "pass" ? "Pass" : "Fail"}</Badge>
-);
+const RECORD_KEYS = ["dkim", "spf", "mx", "dmarc"];
 
-// Pass/fail badge for a single DNS check column
-const checkColumn = (key, header) => ({ key, header, render: (d) => <CheckBadge value={d[key]} /> });
+function DomainEditor({ domain, canManage, verifying, onBack, onVerify, onSaveSettings, onDelete }) {
+  const provider = providerFor(domain.provider);
+  const [region, setRegion] = useState(domain.region);
+  const [dkimKey, setDkimKey] = useState(domain.settings.dkimKey || "");
+  const [saving, setSaving] = useState(false);
+  const dirty = region !== domain.region || dkimKey.trim() !== (domain.settings.dkimKey || "");
+  const { verified, total } = requiredProgress(domain);
+  const zone = zoneOf(domain.domain);
 
-function AddDomainDialog({ open, onOpenChange, onCreate }) {
-  const [domain, setDomain] = useState("");
-  const [region, setRegion] = useState("us");
-
-  const submit = () => {
-    if (!domain.trim()) {
-      toast.error("Enter a domain to add.");
-      return;
-    }
-    onCreate({
-      domain: domain.trim().toLowerCase(),
-      region,
-      spf: "fail",
-      dkim: "fail",
-      dmarc: "fail",
-      status: "Pending",
-    });
-    setDomain("");
-    setRegion("us");
-    onOpenChange(false);
+  const save = async () => {
+    setSaving(true);
+    await onSaveSettings(domain, { region, settings: { ...domain.settings, dkimKey: dkimKey.replace(/\s+/g, "").replace(/^p=/i, "") } });
+    setSaving(false);
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-background">
-        <DialogHeader>
-          <DialogTitle>Add sending domain</DialogTitle>
-          <DialogDescription>Add a domain, then publish the generated DNS records to verify it.</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4">
-          <Field label="Domain" htmlFor="d-domain" hint="Use a subdomain dedicated to email, e.g. mail.yourbrand.com.">
-            <Input
-              id="d-domain"
-              value={domain}
-              onChange={(e) => setDomain(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key !== "Enter") return;
-                e.preventDefault();
-                submit();
-              }}
-              placeholder="mail.yourbrand.com"
-              autoFocus
-            />
-          </Field>
-          <Field label="Sending region">
-            <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {REGION_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </Field>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" className={OUTLINE_BUTTON} onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button className={PRIMARY_BUTTON} onClick={submit}>Add domain</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function DomainEditor({ record, onBack, onSave, onDelete }) {
-  const [domain, setDomain] = useState(record.domain);
-  const [region, setRegion] = useState(record.region);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const dirty = domain.trim() !== record.domain || region !== record.region;
-  const passing = DNS_CHECKS.filter((c) => record[c.key] === "pass").length;
-
-  const save = (extra) =>
-    onSave(record.id, { domain: domain.trim().toLowerCase() || record.domain, region, ...extra });
 
   return (
     <EditorShell
       back={{ label: "Back", onClick: onBack }}
-      title={
-        <InlineTitleInput
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          aria-label="Domain name"
-          placeholder="Untitled domain"
-          className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl"
-        />
-      }
+      title={domain.domain}
       badges={
         <>
-          <StatusPill status={record.status} map={DOMAIN_STATUS_MAP} />
-          <Badge variant="neutral">{REGION_LABEL[record.region]}</Badge>
-          <span className="text-xs text-text-tertiary">{passing} of {DNS_CHECKS.length} checks passing</span>
+          <DomainStatus domain={domain} />
+          <Badge variant="neutral">{regionLabel(domain.provider, domain.region)}</Badge>
+          <span className="text-xs text-text-tertiary">
+            {verified} of {total} required records verified · Checked {formatDateTime(domain.lastCheckedAt).toLowerCase()}
+          </span>
         </>
       }
       actions={
         <>
-          <Button variant="outline" className={OUTLINE_BUTTON} disabled={!dirty} onClick={() => save()}>
-            Save
+          <Button variant="ghost" size="icon" aria-label="Delete domain" className={DANGER_ICON_BUTTON} disabled={!canManage} onClick={() => onDelete(domain)}>
+            <Trash2 className="h-4 w-4" />
           </Button>
-          <Button className={PRIMARY_BUTTON} onClick={() => save({ status: "Pending" })}>
-            <RefreshCw className="h-4 w-4" /> Re-verify
+          <Button variant="outline" className={OUTLINE_BUTTON} onClick={() => copyText(recordsAsText(domain), "DNS records")}>
+            <Copy className="h-4 w-4" /> Copy records
           </Button>
-          <ActionMenu
-            label="Domain actions"
-            items={[{ icon: Trash2, label: "Delete", variant: "destructive", onSelect: () => setDeleteTarget(record) }]}
-          />
+          <Button className={PRIMARY_BUTTON} disabled={!canManage || verifying} onClick={() => onVerify(domain)}>
+            {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Verify now
+          </Button>
         </>
       }
       nav={DOMAIN_NAV}
-      defaultSection="details"
-      after={
-        <DeleteDialog
-          target={deleteTarget}
-          label={deleteTarget?.domain}
-          noun="domain"
-          onCancel={() => setDeleteTarget(null)}
-          onConfirm={(d) => {
-            setDeleteTarget(null);
-            onDelete(d);
-          }}
-        />
-      }
+      defaultSection="records"
     >
       {({ active }) => (
         <>
-          {active === "details" ? (
-            <SectionCard>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Domain" htmlFor="de-domain" hint="Changing the domain requires re-verifying its DNS.">
-                  <Input id="de-domain" value={domain} onChange={(e) => setDomain(e.target.value)} />
-                </Field>
-                <Field label="Sending region">
-                  <Select value={region} onValueChange={setRegion}>
-                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {REGION_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </Field>
+          {active === "records" ? (
+            <div className="space-y-4">
+              <p className="text-sm text-text-secondary">
+                Add these records at the DNS host for <span className="font-medium text-foreground">{zone}</span>. Hosts are shown
+                relative to the zone; some DNS hosts want the full name instead.
+              </p>
+              <RecordsTable domain={domain} />
+              <SectionCard>
+                <SettingsList>
+                  {domain.records.map((r) => (
+                    <SettingRow
+                      key={r.key}
+                      title={RECORD_PURPOSES[r.purpose]?.label || r.key}
+                      description={r.message || RECORD_PURPOSES[r.purpose]?.description}
+                      control={<RecordBadge status={r.status} />}
+                    />
+                  ))}
+                </SettingsList>
+              </SectionCard>
+            </div>
+          ) : null}
+
+          {active === "settings" ? (
+            <SectionCard bare title="Region & DKIM key" description="Where this domain sends from, and the exact DKIM key to verify against." contentClassName="space-y-4">
+              <Field label="Sending region" hint="The bounce MX record points at this region's feedback server.">
+                <Select value={region} onValueChange={setRegion} disabled={!canManage}>
+                  <SelectTrigger className="w-full sm:w-80"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {provider.regions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field
+                label="DKIM public key"
+                htmlFor="sd-dkim"
+                hint="Paste the p= value the provider issued so we verify an exact match. Left empty, any valid published key passes."
+              >
+                <Textarea
+                  id="sd-dkim"
+                  value={dkimKey}
+                  disabled={!canManage}
+                  onChange={(e) => setDkimKey(e.target.value)}
+                  placeholder="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQ…"
+                  className="min-h-[96px] font-mono text-xs"
+                />
+              </Field>
+              <div className="flex justify-end">
+                <Button className={PRIMARY_BUTTON} disabled={!canManage || !dirty || saving} onClick={save}>
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save and re-check
+                </Button>
               </div>
             </SectionCard>
           ) : null}
 
-          {active === "dns" ? (
-            <SectionCard>
+          {active === "details" ? (
+            <SectionCard bare title="Sending setup" description="How this domain sends, and when it was last verified and checked.">
               <SettingsList>
-                {DNS_CHECKS.map((c) => (
-                  <SettingRow
-                    key={c.key}
-                    title={c.label}
-                    description={c.description}
-                    control={<CheckBadge value={record[c.key]} />}
-                  />
-                ))}
+                <SettingRow icon={KeyRound} title="Sending provider" description="Email leaves through geiger-dash, which registers the domain with this provider and issues its DKIM key." control={<span className="text-sm text-muted-foreground">{provider.label}</span>} />
+                <SettingRow title="Region" description="Where the provider sends and receives bounces for this domain." control={<span className="text-sm text-muted-foreground">{regionLabel(domain.provider, domain.region)}</span>} />
+                <SettingRow title="Return path" description="SPF and bounce handling live on this subdomain, so the domain's own SPF is untouched." control={<span className="font-mono text-xs text-muted-foreground">{provider.returnPathSubdomain}.{domain.domain}</span>} />
+                <SettingRow title="First verified" description="When every required record first passed." control={<span className="text-sm text-muted-foreground">{formatDateTime(domain.verifiedAt)}</span>} />
+                <SettingRow title="Last DNS check" description="Domains are re-checked every day; a broken record marks the domain as failing." control={<span className="text-sm text-muted-foreground">{formatDateTime(domain.lastCheckedAt)}</span>} />
+                <SettingRow title="Last blocklist check" description="See Blocklist Monitor for results." control={<span className="text-sm text-muted-foreground">{formatDateTime(domain.blocklistCheckedAt)}</span>} />
               </SettingsList>
             </SectionCard>
           ) : null}
@@ -250,8 +186,10 @@ function DomainEditor({ record, onBack, onSave, onDelete }) {
 }
 
 export function SendingDomainsScreen() {
+  const { projectId } = useProject();
+  const canManage = useCan(DELIVERABILITY_MANAGE);
   const { recordId, openRecord, closeRecord } = useWorkspaceUrl();
-  const [domains, setDomains] = useState(INITIAL);
+  const { loading, domains, verifying, verify, create, saveSettings, remove } = useSendingDomains(projectId);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
@@ -269,50 +207,76 @@ export function SendingDomainsScreen() {
   }, [domains, search, statusFilter, regionFilter]);
 
   const stats = useMemo(() => {
-    const count = (s) => domains.filter((d) => d.status === s).length.toLocaleString("en-US");
+    const count = (s) => domains.filter((d) => d.status === s).length;
+    const missing = domains.reduce((n, d) => n + d.records.filter((r) => r.required && r.status !== "verified").length, 0);
     return [
-      { label: "Domains", value: domains.length.toLocaleString("en-US") },
-      { label: "Verified", value: count("Verified") },
-      { label: "Pending", value: count("Pending") },
-      { label: "Failed", value: count("Failed") },
+      { label: "Domains", value: loading ? "" : number(domains.length), footer: "Registered for sending" },
+      { label: "Verified", value: loading ? "" : number(count("verified")), footer: "All required records pass" },
+      { label: "Pending", value: loading ? "" : number(count("pending")), footer: `${number(missing)} required records outstanding` },
+      { label: "Failing", value: loading ? "" : number(count("failing")), footer: "Verified once, now broken" },
     ];
-  }, [domains]);
+  }, [domains, loading]);
 
   const pager = usePagination(filtered, { resetKey: `${search}|${statusFilter}|${regionFilter}` });
 
-  const handleCreate = (d) => {
-    const row = { id: crypto.randomUUID(), ...d };
-    setDomains((p) => [row, ...p]);
-    toast.success("Domain added.");
-    openRecord(String(row.id));
+  const handleCreate = async (input) => {
+    const created = await create(input);
+    if (created) openRecord(created.id);
+    return Boolean(created);
   };
 
-  const handleSave = (id, patch) => {
-    setDomains((p) => p.map((d) => (d.id === id ? { ...d, ...patch } : d)));
-    toast.success(patch.status === "Pending" ? "Verification restarted." : "Domain saved.");
-  };
-
-  const handleDuplicate = (d) => {
-    const copy = { ...d, id: crypto.randomUUID(), domain: `${d.domain} (copy)`, spf: "fail", dkim: "fail", dmarc: "fail", status: "Pending" };
-    setDomains((p) => [copy, ...p]);
-    toast.success("Domain duplicated.");
-  };
-
-  const handleDelete = (d) => {
+  const handleDelete = async (d) => {
     setDeleteTarget(null);
-    setDomains((p) => p.filter((x) => x.id !== d.id));
-    toast.success(`Deleted "${d.domain}".`);
-    if (String(d.id) === recordId) closeRecord();
+    if (d.id === recordId) closeRecord();
+    await remove(d);
   };
 
-  const reverify = (id) => handleSave(id, { status: "Pending" });
+  const deleteDialog = (
+    <DeleteDialog
+      target={deleteTarget}
+      label={deleteTarget?.domain}
+      noun="domain"
+      description="Campaigns can't send from it until it's added again. DNS records at your host aren't touched."
+      onCancel={() => setDeleteTarget(null)}
+      onConfirm={handleDelete}
+    />
+  );
 
-  const open = domains.find((d) => String(d.id) === recordId);
+  const open = domains.find((d) => d.id === recordId);
   if (open) {
-    return <DomainEditor key={open.id} record={open} onBack={closeRecord} onSave={handleSave} onDelete={handleDelete} />;
+    return (
+      <>
+        <DomainEditor
+          key={open.id}
+          domain={open}
+          canManage={canManage}
+          verifying={verifying.includes(open.id)}
+          onBack={closeRecord}
+          onVerify={verify}
+          onSaveSettings={saveSettings}
+          onDelete={setDeleteTarget}
+        />
+        {deleteDialog}
+      </>
+    );
   }
 
   const filtersActive = search || statusFilter !== "all" || regionFilter !== "all";
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setRegionFilter("all");
+  };
+
+  const recordColumn = (key) => ({
+    key,
+    header: RECORD_PURPOSES[key].label,
+    className: "whitespace-nowrap",
+    render: (d) => {
+      const r = d.records.find((x) => x.key === key);
+      return r ? <RecordBadge status={r.status} /> : <span className="text-xs text-text-tertiary">—</span>;
+    },
+  });
 
   const columns = [
     {
@@ -325,15 +289,14 @@ export function SendingDomainsScreen() {
           </span>
           <div className="flex min-w-0 flex-col">
             <span className="truncate font-medium text-foreground">{d.domain}</span>
-            <span className="truncate text-xs text-text-secondary">{REGION_LABEL[d.region]}</span>
+            <span className="truncate text-xs text-text-secondary">{regionLabel(d.provider, d.region)}</span>
           </div>
         </div>
       ),
     },
-    checkColumn("spf", "SPF"),
-    checkColumn("dkim", "DKIM"),
-    checkColumn("dmarc", "DMARC"),
-    { key: "status", header: "Status", render: (d) => <StatusPill status={d.status} map={DOMAIN_STATUS_MAP} /> },
+    ...RECORD_KEYS.map(recordColumn),
+    { key: "status", header: "Status", className: "whitespace-nowrap", render: (d) => <DomainStatus domain={d} /> },
+    { key: "checked", header: "Last checked", className: "whitespace-nowrap text-muted-foreground", render: (d) => formatDateTime(d.lastCheckedAt) },
     {
       key: "actions",
       header: "",
@@ -341,14 +304,13 @@ export function SendingDomainsScreen() {
       className: "text-right",
       render: (d) => (
         <ActionMenu
-          label="Domain actions"
+          label={`Actions for ${d.domain}`}
           items={[
-            { icon: Pencil, label: "Edit", onSelect: () => openRecord(String(d.id)) },
-            { icon: Copy, label: "Duplicate", onSelect: () => handleDuplicate(d) },
-            { icon: FileText, label: "View DNS records", onSelect: () => openRecord(String(d.id)) },
-            { icon: RefreshCw, label: "Re-verify", onSelect: () => reverify(d.id) },
-            { separator: true },
-            { icon: Trash2, label: "Delete", variant: "destructive", onSelect: () => setDeleteTarget(d) },
+            { icon: FileText, label: "View DNS records", onSelect: () => openRecord(d.id) },
+            { icon: Copy, label: "Copy records", onSelect: () => copyText(recordsAsText(d), "DNS records") },
+            canManage && { icon: RefreshCw, label: "Verify now", onSelect: () => verify(d) },
+            canManage && { separator: true },
+            canManage && { icon: Trash2, label: "Delete", variant: "destructive", onSelect: () => setDeleteTarget(d) },
           ]}
         />
       ),
@@ -361,7 +323,7 @@ export function SendingDomainsScreen() {
         title="Sending Domains"
         description="Verify the domains you send from and keep their DNS records healthy."
         actions={
-          <Button className={PRIMARY_BUTTON} onClick={() => setCreateOpen(true)}>
+          <Button className={PRIMARY_BUTTON} disabled={!canManage} onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" /> Add domain
           </Button>
         }
@@ -377,57 +339,51 @@ export function SendingDomainsScreen() {
         <SearchInput value={search} onChange={setSearch} placeholder="Search domains…" />
       </Toolbar>
 
-      <div className="space-y-5">
-        <DataTable
-          columns={columns}
-          data={pager.pageItems}
-          getRowKey={(d) => d.id}
-          onRowClick={(d) => openRecord(String(d.id))}
-          empty={
-            <div className="rounded-xl border border-border bg-surface-subtle">
-              <EmptyState
-                icon={Globe}
-                title={filtersActive ? "No matches" : "No sending domains yet"}
-                description={
-                  filtersActive
-                    ? "Try a different search or filter."
-                    : "Add a domain and publish its DNS records to start sending from it."
-                }
-                action={
-                  filtersActive ? (
-                    <Button
-                      variant="outline"
-                      className={OUTLINE_BUTTON}
-                      onClick={() => {
-                        setSearch("");
-                        setStatusFilter("all");
-                        setRegionFilter("all");
-                      }}
-                    >
-                      Clear filters
-                    </Button>
-                  ) : (
-                    <Button className={PRIMARY_BUTTON} onClick={() => setCreateOpen(true)}>
-                      <Plus className="h-4 w-4" /> Add domain
-                    </Button>
-                  )
-                }
-              />
-            </div>
-          }
-        />
-        <ListPagination {...pager} itemLabel="domains" />
-      </div>
+      {loading ? (
+        <LoadingArea size={48} label="Loading sending domains" panel />
+      ) : (
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(d) => d.id}
+            onRowClick={(d) => openRecord(d.id)}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Globe}
+                  title={filtersActive ? "No matches" : "No sending domains yet"}
+                  description={
+                    filtersActive
+                      ? "Try a different search or filter."
+                      : "Add the domain you send from to get its DKIM, SPF, bounce and DMARC records."
+                  }
+                  action={
+                    filtersActive ? (
+                      <Button variant="outline" className={OUTLINE_BUTTON} onClick={clearFilters}>
+                        Clear filters
+                      </Button>
+                    ) : canManage ? (
+                      <Button className={PRIMARY_BUTTON} onClick={() => setCreateOpen(true)}>
+                        <Plus className="h-4 w-4" /> Add domain
+                      </Button>
+                    ) : null
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="domains" />
+        </div>
+      )}
 
-      <AddDomainDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={handleCreate} />
-
-      <DeleteDialog
-        target={deleteTarget}
-        label={deleteTarget?.domain}
-        noun="domain"
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={handleDelete}
+      <AddDomainDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        existing={domains}
+        onCreate={handleCreate}
       />
+      {deleteDialog}
     </MainScreenWrapper>
   );
 }

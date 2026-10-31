@@ -1,185 +1,102 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Server, KeyRound, Ban, Trash2 } from "lucide-react";
+import { ArrowRight, Server } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  ScreenHeader,
-  Badge,
-  ActionMenu,
-  Field,
-  SectionCard,
-  DataTable,
-  EmptyState,
-} from "@geiger/ui";
+import { useWorkspaceUrl } from "@/lib/hooks/use-workspace-url";
+import { Badge, Button, ScreenHeader, SectionCard, SegmentedTabs, SettingRow, SettingsList } from "@geiger/ui";
+import { CodeBlock, CopyField, NotConnectedCard, SectionLoading, useChannelStatus } from "@/components/internal/screens/channels/channels_kit";
 
-const INITIAL = [
-  { id: 1, name: "Production app", username: "smtp_a1b2c3", created: "Apr 14, 2026", status: "Active" },
-  { id: 2, name: "Marketing worker", username: "smtp_d4e5f6", created: "Apr 3, 2026", status: "Active" },
-  { id: 3, name: "Legacy CRM bridge", username: "smtp_9z8y7x", created: "Feb 22, 2026", status: "Revoked" },
-  { id: 4, name: "Staging sandbox", username: "smtp_q1w2e3", created: "Feb 10, 2026", status: "Active" },
+// Honest state of SMTP: this stack runs no SMTP listener — every email leaves through Geiger Dash's HTTPS
+// API — so there are no SMTP credentials to issue. The screen shows the real delivery path and how to move
+// an SMTP integration onto POST /api/v1/messages.
+
+const LANG_TABS = [
+  { value: "node", label: "Node.js" },
+  { value: "python", label: "Python" },
 ];
 
-function CreateCredentialDialog({ open, onOpenChange, onCreate }) {
-  const [name, setName] = useState("");
-  const username = "smtp_" + String(Date.now()).slice(-6);
+function snippets(url) {
+  const endpoint = url || "https://<your-deployment>/api/v1/messages";
+  return {
+    node: `// Before: nodemailer.createTransport({ host, port, auth }).sendMail({ from, to, subject, html })
+// After: the same call shape over HTTPS — one recipient per request.
+export async function sendMail({ from, to, subject, html, idempotencyKey }) {
+  const res = await fetch("${endpoint}", {
+    method: "POST",
+    headers: {
+      Authorization: \`Bearer \${process.env.GEIGER_SECRET_KEY}\`,
+      "Content-Type": "application/json",
+      ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
+    },
+    body: JSON.stringify({ from, to, subject, html }),
+  });
+  const body = await res.json();
+  if (!res.ok) throw new Error(body.error || \`Send failed (\${res.status})\`);
+  return body; // { id, status }
+}`,
+    python: `# Before: smtplib.SMTP(host, port).send_message(msg)
+# After: one HTTPS request per recipient.
+import os, requests
 
-  const submit = () => {
-    if (!name.trim()) return;
-    onCreate({
-      name: name.trim(),
-      username,
-      created: "Just now",
-      status: "Active",
-    });
-    setName("");
-    onOpenChange(false);
+def send_mail(sender, to, subject, html, idempotency_key=None):
+    headers = {"Authorization": f"Bearer {os.environ['GEIGER_SECRET_KEY']}"}
+    if idempotency_key:
+        headers["Idempotency-Key"] = idempotency_key
+    res = requests.post("${endpoint}", headers=headers, timeout=15,
+                        json={"from": sender, "to": to, "subject": subject, "html": html})
+    res.raise_for_status()
+    return res.json()  # {"id": ..., "status": ...}`,
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create SMTP credential</DialogTitle>
-          <DialogDescription>Use these credentials with any standard SMTP client to relay mail.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <Field label="Credential name" htmlFor="c-name">
-            <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Production app" className="border-border" />
-          </Field>
-          <Field label="Generated username" hint="A password will be shown once after creation.">
-            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">{username}</div>
-          </Field>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={submit} disabled={!name.trim()}>Create credential</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 export function SmtpRelayScreen() {
-  const [creds, setCreds] = useState(INITIAL);
-  const [port, setPort] = useState("587");
-  const [security, setSecurity] = useState("starttls");
-  const [createOpen, setCreateOpen] = useState(false);
-
-  const revoke = (id) => setCreds((p) => p.map((c) => (c.id === id ? { ...c, status: "Revoked" } : c)));
-  const remove = (id) => setCreds((p) => p.filter((c) => c.id !== id));
-
-  const columns = [
-    { key: "name", header: "Name", className: "font-medium text-foreground" },
-    { key: "username", header: "Username", className: "font-mono text-muted-foreground" },
-    { key: "created", header: "Created", className: "whitespace-nowrap text-muted-foreground" },
-    { key: "status", header: "Status", render: (c) => <Badge variant={c.status === "Active" ? "success" : "neutral"}>{c.status}</Badge> },
-    {
-      key: "actions",
-      header: "Actions",
-      align: "right",
-      render: (c) => (
-        <ActionMenu
-          items={[
-            { label: "Reset password", icon: KeyRound },
-            { separator: true },
-            { label: "Revoke", icon: Ban, destructive: true, onSelect: () => revoke(c.id) },
-            { label: "Delete", icon: Trash2, destructive: true, onSelect: () => remove(c.id) },
-          ]}
-        />
-      ),
-    },
-  ];
+  const { openRecordInTab } = useWorkspaceUrl();
+  const { status, loading } = useChannelStatus();
+  const [lang, setLang] = useState("node");
+  const configured = Boolean(status?.email?.configured);
+  const code = snippets(status?.urls?.messagesApi);
 
   return (
     <MainScreenWrapper>
-      <ScreenHeader
-        title="SMTP Relay"
-        description="Send through a standard SMTP relay using credentials you control."
-        actions={
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" /> Create credential
-          </Button>
-        }
-      />
+      <ScreenHeader title="SMTP Relay" description="What this deployment offers instead of SMTP, and how to switch an SMTP integration over." />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
-        {/* Connection settings */}
-        <SectionCard
-          title={
-            <span className="flex items-center gap-2">
-              <Server className="h-4 w-4 text-text-secondary" />
-              Connection settings
-            </span>
-          }
-          contentClassName="space-y-4"
-        >
-          <Field label="Host">
-            <div className="rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-muted-foreground">smtp.geiger.studio</div>
-          </Field>
-          <Field label="Port">
-            <Select value={port} onValueChange={setPort}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="587">587 (STARTTLS)</SelectItem>
-                <SelectItem value="465">465 (SSL)</SelectItem>
-                <SelectItem value="2525">2525</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Security">
-            <Select value={security} onValueChange={setSecurity}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="starttls">STARTTLS</SelectItem>
-                <SelectItem value="ssl">SSL/TLS</SelectItem>
-                <SelectItem value="none">None</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <p className="text-xs text-text-secondary">Point your app's SMTP client at this host using one of the credentials on the right.</p>
-        </SectionCard>
-
-        {/* Credentials */}
-        <SectionCard
-          bare
-          title={
-            <span className="flex items-center gap-2">
-              <KeyRound className="h-4 w-4 text-text-secondary" />
-              Credentials
-            </span>
-          }
-        >
-          <DataTable
-            columns={columns}
-            data={creds}
-            getRowKey={(c) => c.id}
-            empty={
-              <EmptyState
-                icon={KeyRound}
-                title="No credentials found"
-                className="rounded-xl border border-border bg-surface-subtle"
-                action={<Button variant="outline" onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> Create credential</Button>}
-              />
+      {loading ? (
+        <SectionLoading label="Checking email delivery" />
+      ) : (
+        <>
+          <NotConnectedCard
+            icon={Server}
+            title="No SMTP relay on this deployment"
+            description="Geiger Campaign doesn't run an SMTP server, so there are no hosts, ports or SMTP credentials to issue. Campaign, automation and transactional email all leave through Geiger Dash's HTTPS API — send from your apps with the Email API instead."
+            action={
+              <Button onClick={() => openRecordInTab(null, "Email API")}>
+                Open the Email API <ArrowRight className="h-4 w-4" />
+              </Button>
             }
           />
-        </SectionCard>
-      </div>
 
-      <CreateCredentialDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={(c) => setCreds((p) => [{ id: Date.now(), ...c }, ...p])} />
+          <SectionCard title="How email leaves" description="The one delivery path every send uses.">
+            <SettingsList>
+              <SettingRow
+                title="Geiger Dash email API"
+                description={configured ? `Pre-rendered messages are posted to ${status.email.apiHost}, which delivers them.` : "GEIGER_EMAIL_API_URL and GEIGER_EMAIL_API_KEY aren't set, so email can't be sent yet."}
+                control={<Badge variant={configured ? "success" : "warning"}>{configured ? "Configured" : "Not configured"}</Badge>}
+              />
+              <SettingRow title="SMTP" description="No listener runs in this stack; nothing accepts SMTP connections." control={<Badge variant="neutral">Not available</Badge>} />
+            </SettingsList>
+          </SectionCard>
+
+          <SectionCard title="Move an SMTP integration to the API" description="Swap the SMTP transport for one HTTPS call. Use a secret key with the messages:send scope." contentClassName="space-y-4">
+            <CopyField label="Endpoint" value={status?.urls?.messagesApi ? `POST ${status.urls.messagesApi}` : ""} htmlFor="smtp-endpoint" />
+            <SegmentedTabs tabs={LANG_TABS} value={lang} onChange={setLang} />
+            <CodeBlock label="snippet">{code[lang]}</CodeBlock>
+            <p className="text-xs text-text-secondary">
+              Tools that can only send over SMTP (and can&apos;t make an HTTPS request) can&apos;t relay through Geiger today — keep those on your own SMTP provider.
+            </p>
+          </SectionCard>
+        </>
+      )}
     </MainScreenWrapper>
   );
 }

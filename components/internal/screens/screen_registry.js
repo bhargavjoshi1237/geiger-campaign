@@ -118,7 +118,7 @@ import { ConnectionsScreen } from "./settings/connections_screen";
 import { AdvancedSettingsScreen } from "./settings/advanced_settings_screen";
 
 // Maps a sidebar tab title to the screen component that renders it.
-// Titles not present here fall back to the PlaceholderScreen.
+// Titles not present here fall back to the ComingSoonScreen.
 export const SCREEN_REGISTRY = {
   Overview: CampaignOverviewScreen,
 

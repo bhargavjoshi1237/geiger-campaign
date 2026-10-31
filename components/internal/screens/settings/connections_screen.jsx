@@ -1,185 +1,264 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plug, RefreshCw, Unplug } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { ArrowRight, Plug } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { ListPagination, usePagination } from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/overview/filter_dropdown";
+import { useProject } from "@/context/project-context";
+import { useWorkspaceUrl } from "@/lib/hooks/use-workspace-url";
+import { listConnections } from "@/lib/supabase/channel_connections";
+import { listLinkedAccounts } from "@/lib/supabase/workspace_settings";
 import {
   Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  ScreenHeader,
   DataTable,
   EmptyState,
-  Badge,
-  ActionMenu,
-  Field,
+  LogoLoading,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
 } from "@geiger/ui";
 
-const STATUS_TONE = {
-  Connected: "success",
-  Expired: "warning",
-  Disconnected: "neutral",
+const DAY = 24 * 60 * 60 * 1000;
+
+const STATUS_MAP = {
+  connected: { label: "Connected", variant: "success" },
+  expiring: { label: "Token expiring", variant: "warning" },
+  pending: { label: "Pending", variant: "warning" },
+  error: { label: "Error", variant: "danger" },
+  disconnected: { label: "Disconnected", variant: "neutral" },
+  not_connected: { label: "Not set up", variant: "outline", dot: false },
 };
 
-const SERVICE_META = {
-  Google: { initials: "G", scope: "Email, Calendar" },
-  Microsoft: { initials: "MS", scope: "Email, Contacts" },
-  Shopify: { initials: "SH", scope: "Orders, Customers" },
-  Stripe: { initials: "ST", scope: "Payments, Customers" },
-  Meta: { initials: "M", scope: "Ads, Audiences" },
-  Slack: { initials: "SL", scope: "Notifications" },
-};
+// Channel -> the sidebar screen that connects and manages it.
+const CHANNELS = [
+  { key: "email", label: "Email", tab: "Email" },
+  { key: "sms", label: "SMS", tab: "SMS" },
+  { key: "whatsapp", label: "WhatsApp", tab: "WhatsApp" },
+  { key: "instagram", label: "Instagram", tab: "Instagram" },
+  { key: "messenger", label: "Messenger", tab: "Messenger" },
+  { key: "telegram", label: "Telegram", tab: "Telegram" },
+  { key: "tiktok", label: "TikTok", tab: "TikTok" },
+  { key: "rcs", label: "RCS", tab: "RCS" },
+  { key: "push", label: "Push", tab: "Push" },
+  { key: "in_app", label: "In-app", tab: "In-App" },
+];
+const CHANNEL = Object.fromEntries(CHANNELS.map((c) => [c.key, c]));
 
-const INITIAL = [
-  { id: 1, service: "Google", account: "alex@halcyon.studio", scope: "Email, Calendar", status: "Connected", connected: "May 12, 2026" },
-  { id: 2, service: "Microsoft", account: "ops@halcyonstudio.onmicrosoft.com", scope: "Email, Contacts", status: "Connected", connected: "Apr 28, 2026" },
-  { id: 3, service: "Shopify", account: "halcyon-shop.myshopify.com", scope: "Orders, Customers", status: "Expired", connected: "Feb 3, 2026" },
-  { id: 4, service: "Stripe", account: "acct_1Q8vXkHalcyon", scope: "Payments, Customers", status: "Connected", connected: "Jan 19, 2026" },
-  { id: 5, service: "Meta", account: "@halcyon.studio", scope: "Ads, Audiences", status: "Disconnected", connected: "—" },
+const PROVIDER_LABEL = {
+  geiger_email: "Geiger email",
+  twilio: "Twilio",
+  meta_cloud: "WhatsApp Cloud API",
+  meta_graph: "Meta Graph API",
+  telegram_bot: "Telegram Bot API",
+  tiktok: "TikTok",
+  google_rcs: "Google RCS",
+  web_push: "Web Push",
+  shopify: "Shopify",
+  woocommerce: "WooCommerce",
+  custom: "Custom store",
+  meta_ads: "Meta Ads",
+};
+const providerLabel = (p) => PROVIDER_LABEL[p] || (p ? p.charAt(0).toUpperCase() + p.slice(1).replace(/_/g, " ") : "—");
+
+const KIND_LABEL = { channel: "Channel", integration: "App", store: "Store", ads: "Ad account" };
+const TYPE_FILTER_OPTIONS = [
+  { value: "all", label: "All types" },
+  { value: "channel", label: "Channels" },
+  { value: "integration", label: "Apps" },
+  { value: "store", label: "Stores" },
+  { value: "ads", label: "Ad accounts" },
+];
+const STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "attention", label: "Needs attention" },
+  ...Object.entries(STATUS_MAP).map(([value, m]) => ({ value, label: m.label })),
 ];
 
-function ConnectAccountDialog({ open, onOpenChange, onConnect }) {
-  const [service, setService] = useState("Google");
-  const [account, setAccount] = useState("");
+const ATTENTION = new Set(["error", "pending", "expiring"]);
 
-  const submit = () => {
-    if (!account.trim()) return;
-    onConnect({
-      service,
-      account: account.trim(),
-      scope: SERVICE_META[service]?.scope ?? "—",
-      status: "Connected",
-      connected: "Just now",
-    });
-    setService("Google");
-    setAccount("");
-    onOpenChange(false);
-  };
+function effectiveStatus(status, expiresAt) {
+  const s = ["connected", "pending", "error", "disconnected"].includes(status) ? status : "pending";
+  if (s === "connected" && expiresAt && new Date(expiresAt).getTime() - Date.now() < 7 * DAY) return "expiring";
+  return s;
+}
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Connect account</DialogTitle>
-          <DialogDescription>Link an external account to your workspace via OAuth.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <Field label="Service">
-            <Select value={service} onValueChange={setService}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {Object.keys(SERVICE_META).map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Account" htmlFor="conn-account" hint="The email or handle authorizing the connection.">
-            <Input
-              id="conn-account"
-              value={account}
-              onChange={(e) => setAccount(e.target.value)}
-              placeholder="name@company.com"
-              className="border-border"
-            />
-          </Field>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={submit} disabled={!account.trim()}>Connect</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—");
+
+function buildRows(connections, linked) {
+  const rows = connections.map((c) => ({
+    id: c.id,
+    kind: "channel",
+    channel: c.channel,
+    name: c.name || CHANNEL[c.channel]?.label || c.channel,
+    provider: c.provider,
+    handle: c.handle || c.externalId || "",
+    status: effectiveStatus(c.status, c.health?.tokenExpiresAt || c.health?.expiresAt),
+    error: c.health?.lastError || (Array.isArray(c.health?.issues) ? c.health.issues.find((i) => i?.level === "error")?.message : "") || "",
+    connectedAt: c.connectedAt,
+    destination: CHANNEL[c.channel]?.tab || "Email",
+  }));
+  for (const a of linked) {
+    rows.push({ ...a, status: effectiveStatus(a.status, a.expiresAt), error: a.error || "" });
+  }
+  const used = new Set(connections.map((c) => c.channel));
+  for (const ch of CHANNELS) {
+    if (used.has(ch.key)) continue;
+    rows.push({ id: `missing:${ch.key}`, kind: "channel", channel: ch.key, name: ch.label, provider: "", handle: "", status: "not_connected", error: "", connectedAt: null, destination: ch.tab });
+  }
+  return rows;
 }
 
 export function ConnectionsScreen() {
-  const [connections, setConnections] = useState(INITIAL);
-  const [connectOpen, setConnectOpen] = useState(false);
+  const { projectId } = useProject();
+  const { setTab } = useWorkspaceUrl();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  const reconnect = (id) => setConnections((p) => p.map((c) => (c.id === id ? { ...c, status: "Connected", connected: "Just now" } : c)));
-  const disconnect = (id) => setConnections((p) => p.map((c) => (c.id === id ? { ...c, status: "Disconnected", connected: "—" } : c)));
+  useEffect(() => {
+    if (!projectId) return undefined;
+    let alive = true;
+    Promise.all([listConnections(projectId), listLinkedAccounts(projectId)]).then(([connections, linked]) => {
+      if (!alive) return;
+      setRows(buildRows(connections ?? [], linked ?? []));
+      setLoading(false);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [projectId]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (typeFilter !== "all" && r.kind !== typeFilter) return false;
+      if (statusFilter === "attention" ? !ATTENTION.has(r.status) : statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (q && !`${r.name} ${r.handle} ${providerLabel(r.provider)}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [rows, query, typeFilter, statusFilter]);
+
+  const stats = useMemo(() => {
+    const count = (fn) => rows.filter(fn).length.toLocaleString("en-US");
+    return [
+      { label: "Connected", value: count((r) => r.status === "connected" || r.status === "expiring") },
+      { label: "Needs attention", value: count((r) => ATTENTION.has(r.status)) },
+      { label: "Disconnected", value: count((r) => r.status === "disconnected") },
+      { label: "Channels not set up", value: count((r) => r.status === "not_connected") },
+    ];
+  }, [rows]);
+
+  const pager = usePagination(filtered, { resetKey: `${query}|${typeFilter}|${statusFilter}` });
+  const filtersActive = query || typeFilter !== "all" || statusFilter !== "all";
 
   const columns = [
     {
-      key: "service",
-      header: "Service",
-      render: (c) => (
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-active text-xs font-semibold text-foreground">
-            {SERVICE_META[c.service]?.initials ?? c.service[0]}
-          </span>
-          <span className="font-medium text-foreground">{c.service}</span>
+      key: "name",
+      header: "Connection",
+      render: (r) => (
+        <div className="min-w-0">
+          <p className="truncate font-medium text-foreground">{r.name}</p>
+          <p className="truncate text-xs text-text-tertiary">{r.provider ? providerLabel(r.provider) : "No provider connected"}</p>
         </div>
       ),
     },
-    { key: "account", header: "Account", className: "font-mono text-muted-foreground", render: (c) => c.account },
-    { key: "scope", header: "Scope", className: "text-muted-foreground", render: (c) => c.scope },
-    { key: "status", header: "Status", render: (c) => <Badge variant={STATUS_TONE[c.status]}>{c.status}</Badge> },
-    { key: "connected", header: "Connected", className: "whitespace-nowrap text-muted-foreground", render: (c) => c.connected },
+    { key: "kind", header: "Type", className: "whitespace-nowrap text-muted-foreground", render: (r) => (r.kind === "channel" ? `${KIND_LABEL.channel} · ${CHANNEL[r.channel]?.label ?? r.channel}` : KIND_LABEL[r.kind]) },
+    { key: "handle", header: "Account", className: "max-w-56 truncate font-mono text-xs text-muted-foreground", render: (r) => r.handle || "—" },
+    {
+      key: "status",
+      header: "Status",
+      render: (r) => (
+        <div className="space-y-1">
+          <StatusPill status={r.status} map={STATUS_MAP} />
+          {r.error ? <p className="max-w-64 truncate text-xs text-red-600 dark:text-red-400" title={r.error}>{r.error}</p> : null}
+        </div>
+      ),
+    },
+    { key: "connectedAt", header: "Connected", className: "whitespace-nowrap text-muted-foreground", render: (r) => formatDate(r.connectedAt) },
     {
       key: "actions",
-      header: "Actions",
+      header: "",
       align: "right",
-      render: (c) => (
-        <ActionMenu
-          items={[
-            { label: "Reconnect", icon: RefreshCw, onSelect: () => reconnect(c.id) },
-            { separator: true },
-            { label: "Disconnect", icon: Unplug, destructive: true, onSelect: () => disconnect(c.id) },
-          ]}
-        />
+      render: (r) => (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-muted-foreground hover:text-foreground"
+          onClick={(e) => {
+            e.stopPropagation();
+            setTab(r.destination);
+          }}
+        >
+          {r.status === "not_connected" ? "Connect" : "Manage"} <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
       ),
     },
   ];
 
   return (
     <MainScreenWrapper>
-      <ScreenHeader
-        title="Connections"
-        description="Authenticated accounts linked to your workspace."
-        actions={
-          <Button onClick={() => setConnectOpen(true)}>
-            <Plug className="h-4 w-4" /> Connect account
-          </Button>
-        }
-      />
+      <ScreenHeader title="Connections" description="Every channel account, app, store and ad account linked to this workspace, in one place." />
 
-      <div>
-        <DataTable
-          columns={columns}
-          data={connections}
-          getRowKey={(c) => c.id}
-          empty={
-            <EmptyState
-              icon={Plug}
-              title="No connections found"
-              className="rounded-xl border border-border bg-surface-subtle"
-              action={
-                <Button onClick={() => setConnectOpen(true)}>
-                  <Plug className="h-4 w-4" /> Connect account
-                </Button>
+      {loading ? (
+        <div className="flex min-h-60 items-center justify-center">
+          <LogoLoading size={48} aria-label="Loading connections" />
+        </div>
+      ) : (
+        <>
+          <StatsBar stats={stats} />
+
+          <Toolbar>
+            <div className="flex items-center gap-2">
+              <FilterDropdown value={typeFilter} onValueChange={setTypeFilter} options={TYPE_FILTER_OPTIONS} height="h-9" />
+              <FilterDropdown value={statusFilter} onValueChange={setStatusFilter} options={STATUS_FILTER_OPTIONS} height="h-9" />
+            </div>
+            <SearchInput value={query} onChange={setQuery} placeholder="Search connections…" />
+          </Toolbar>
+
+          <div className="space-y-5">
+            <DataTable
+              columns={columns}
+              data={pager.pageItems}
+              getRowKey={(r) => r.id}
+              onRowClick={(r) => setTab(r.destination)}
+              empty={
+                <div className="rounded-xl border border-border bg-surface-subtle">
+                  <EmptyState
+                    icon={Plug}
+                    title={filtersActive ? "No matches" : "No connections yet"}
+                    description={filtersActive ? "Try a different search or filter." : "Connect a channel to start sending."}
+                    action={
+                      filtersActive ? (
+                        <Button
+                          variant="outline"
+                          className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
+                          onClick={() => {
+                            setQuery("");
+                            setTypeFilter("all");
+                            setStatusFilter("all");
+                          }}
+                        >
+                          Clear filters
+                        </Button>
+                      ) : (
+                        <Button onClick={() => setTab("Email")}>
+                          <Plug className="h-4 w-4" /> Connect email
+                        </Button>
+                      )
+                    }
+                  />
+                </div>
               }
             />
-          }
-        />
-      </div>
-
-      <ConnectAccountDialog
-        open={connectOpen}
-        onOpenChange={setConnectOpen}
-        onConnect={(c) => setConnections((p) => [{ id: Date.now(), ...c }, ...p])}
-      />
+            <ListPagination {...pager} itemLabel="connections" />
+          </div>
+        </>
+      )}
     </MainScreenWrapper>
   );
 }

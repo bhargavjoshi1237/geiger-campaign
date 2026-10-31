@@ -1,177 +1,412 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Download, Mail, Smartphone, Eye } from "lucide-react";
-import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
+  AppWindow,
+  ArrowUpRight,
+  Bell,
+  Braces,
+  Camera,
+  Copy,
+  Download,
+  Eye,
+  FileText,
+  History,
+  Mail,
+  MessageCircle,
+  MessageSquare,
+  Radio,
+  ScrollText,
+  Send,
+  Smartphone,
+  UserRound,
+  Video,
+} from "lucide-react";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { ListPagination, usePagination } from "@/components/internal/shared/pagination";
+import { EditorShell } from "@/components/internal/shared/editor_shell";
+import FilterDropdown from "@/components/internal/screens/overview/filter_dropdown";
+import { useWorkspaceUrl } from "@/lib/hooks/use-workspace-url";
+import { listDeliveries } from "@/lib/supabase/deliveries";
+import { getDelivery, listDeliveryEvents } from "@/lib/supabase/message_logs";
+import { listApiKeys } from "@/lib/supabase/api_keys";
+import {
+  ActionMenu,
+  Badge,
   Button,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  cn,
+  DataTable,
   ScreenHeader,
   SearchInput,
-  Badge,
-  ActionMenu,
   SectionCard,
+  SettingRow,
+  SettingsList,
+  StatsBar,
+  StatusPill,
   Toolbar,
-  DataTable,
-  EmptyState,
 } from "@geiger/ui";
+import {
+  CHANNEL_LABEL,
+  DELIVERY_STATUS_MAP,
+  ListEmptyState,
+  OUTLINE_BUTTON,
+  SOURCE_LABEL,
+  SectionLoading,
+  copyText,
+  formatDateTime,
+  formatRelative,
+  isDelivered,
+  isFailed,
+  useNow,
+} from "@/components/internal/screens/channels/channels_kit";
 
-const STATUS_TONE = {
-  Delivered: "success",
-  Opened: "info",
-  Deferred: "warning",
-  Bounced: "danger",
-  Failed: "danger",
+// Every message any channel sent (campaign, automation, API, test…) from campaign.deliveries, with filters,
+// CSV export and a read-only detail: delivery fields plus the lifecycle and tracked events behind it.
+
+const CHANNEL_ICON = {
+  email: Mail,
+  sms: Smartphone,
+  whatsapp: MessageCircle,
+  push: Bell,
+  in_app: AppWindow,
+  instagram: Camera,
+  messenger: MessageSquare,
+  telegram: Send,
+  tiktok: Video,
+  rcs: Radio,
 };
 
-const STATUSES = ["Delivered", "Opened", "Deferred", "Bounced", "Failed"];
-const CHANNELS = ["Email", "SMS"];
-
-const EVENT_DOT = {
-  Queued: "bg-neutral-500",
-  Sent: "bg-blue-500",
-  Delivered: "bg-emerald-500",
-  Opened: "bg-blue-500",
-  Deferred: "bg-amber-500",
-  Bounced: "bg-red-500",
-  Failed: "bg-red-500",
+const PROVIDER_LABEL = {
+  geiger_email: "Geiger Dash",
+  twilio: "Twilio",
+  meta_cloud: "WhatsApp Cloud API",
+  web_push: "Web Push",
+  geiger_sdk: "In-app SDK",
+  instagram: "Instagram",
+  messenger: "Messenger",
+  telegram: "Telegram Bot API",
+  tiktok: "TikTok",
+  rcs: "RCS Business Messaging",
 };
 
-// Build a realistic event timeline for a given status.
-function eventsFor(status, sentAt) {
-  const base = [
-    { label: "Queued", time: "14:22:01" },
-    { label: "Sent", time: "14:22:02" },
-  ];
-  switch (status) {
-    case "Opened":
-      return [...base, { label: "Delivered", time: "14:22:04" }, { label: "Opened", time: "14:48:31" }];
-    case "Delivered":
-      return [...base, { label: "Delivered", time: "14:22:05" }];
-    case "Deferred":
-      return [...base, { label: "Deferred", time: "14:22:09" }];
-    case "Bounced":
-      return [...base, { label: "Bounced", time: "14:22:03" }];
-    case "Failed":
-      return [{ label: "Queued", time: "14:22:01" }, { label: "Failed", time: "14:22:02" }];
-    default:
-      return base;
-  }
-}
+const ENGAGED = new Set(["opened", "read", "clicked", "replied"]);
 
-const INITIAL = [
-  { id: 1, time: "Jun 7, 14:22", recipient: "ava.cole@northwind.io", subject: "Your receipt for order #48213", channel: "Email", status: "Opened", msgId: "msg_8f2a14c9" },
-  { id: 2, time: "Jun 7, 13:58", recipient: "+1 (415) 555-0142", subject: "Your Geiger code is 884213", channel: "SMS", status: "Delivered", msgId: "msg_2b71e0aa" },
-  { id: 3, time: "Jun 7, 13:40", recipient: "liam@obrien.dev", subject: "Reset your password", channel: "Email", status: "Delivered", msgId: "msg_c4d9f1e2" },
-  { id: 4, time: "Jun 7, 12:11", recipient: "bounce@deadhost.io", subject: "Confirm your email address", channel: "Email", status: "Bounced", msgId: "msg_77aa3b18" },
-  { id: 5, time: "Jun 7, 11:47", recipient: "noah.schmidt@hverk.de", subject: "Welcome to Geiger!", channel: "Email", status: "Opened", msgId: "msg_19c8e44d" },
-  { id: 6, time: "Jun 7, 11:02", recipient: "+44 7700 900812", subject: "Your order #48199 has shipped", channel: "SMS", status: "Delivered", msgId: "msg_5e2f90b1" },
-  { id: 7, time: "Jun 7, 10:30", recipient: "maria.gomez@lumen.co", subject: "Your receipt for order #48190", channel: "Email", status: "Deferred", msgId: "msg_a3b6c2d7" },
-  { id: 8, time: "Jun 7, 09:55", recipient: "test.unsub@mail.com", subject: "Subscription renews soon", channel: "Email", status: "Failed", msgId: "msg_d81f02ac" },
-  { id: 9, time: "Jun 7, 09:14", recipient: "+1 (212) 555-0177", subject: "Your delivery is arriving today", channel: "SMS", status: "Delivered", msgId: "msg_6c1a73fb" },
-  { id: 10, time: "Jun 7, 08:42", recipient: "jordan.lee@brightpath.app", subject: "Confirm your email address", channel: "Email", status: "Opened", msgId: "msg_b92e51da" },
-  { id: 11, time: "Jun 7, 08:05", recipient: "old.address@legacy.co", subject: "Your password was changed", channel: "Email", status: "Bounced", msgId: "msg_4f70d9c3" },
-  { id: 12, time: "Jun 6, 23:31", recipient: "+61 491 570 156", subject: "Your verification code is 552901", channel: "SMS", status: "Delivered", msgId: "msg_e07b3a26" },
+const STATUS_GROUPS = {
+  delivered: { label: "Delivered or engaged", test: (s) => isDelivered(s) },
+  sent: { label: "Sent, no receipt yet", test: (s) => s === "sent" },
+  queued: { label: "Queued", test: (s) => s === "queued" },
+  failed: { label: "Bounced or failed", test: (s) => isFailed(s) },
+  not_sent: { label: "Not sent", test: (s) => s === "not_sent" },
+  unsubscribed: { label: "Unsubscribed", test: (s) => s === "unsubscribed" },
+};
+
+const STATUS_FILTER_OPTIONS = [{ value: "all", label: "All statuses" }, ...Object.entries(STATUS_GROUPS).map(([value, g]) => ({ value, label: g.label }))];
+
+const RANGES = [
+  { value: "1", label: "Last 24 hours" },
+  { value: "7", label: "Last 7 days" },
+  { value: "30", label: "Last 30 days" },
+  { value: "90", label: "Last 90 days" },
 ];
 
+const LOG_NAV = [
+  { key: "details", label: "Details", icon: FileText, desc: "Who it went to, how it was sent and what came back." },
+  { key: "events", label: "Events", icon: History, desc: "The delivery lifecycle and every event recorded against it." },
+  { key: "raw", label: "Raw record", icon: Braces, desc: "The delivery row as stored, for debugging and support." },
+];
+
+const pct = (n, d) => (d ? `${Math.round((n / d) * 100)}%` : "—");
+const num = (n) => Number(n || 0).toLocaleString("en-US");
+
 function ChannelCell({ channel }) {
-  const Icon = channel === "SMS" ? Smartphone : Mail;
+  const Icon = CHANNEL_ICON[channel] || Mail;
   return (
-    <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
-      <Icon className="h-3.5 w-3.5" /> {channel}
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-text-secondary">
+      <Icon className="h-3.5 w-3.5" /> {CHANNEL_LABEL[channel] || channel}
     </span>
   );
 }
 
-function LabeledRow({ label, children }) {
-  return (
-    <div className="grid grid-cols-[110px_1fr] items-start gap-3 py-1.5">
-      <span className="text-xs font-medium uppercase tracking-wider text-text-secondary">{label}</span>
-      <div className="min-w-0 text-sm text-foreground">{children}</div>
-    </div>
+const sourceLabel = (d) => (d.sourceType === "transactional" && d.templateKey ? `API · ${d.templateKey}` : SOURCE_LABEL[d.sourceType] || d.sourceType);
+
+const csvCell = (v) => {
+  const s = String(v ?? "");
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+function exportCsv(rows) {
+  const header = ["created_at", "channel", "to", "subject", "source", "template", "status", "provider", "provider_id", "error", "opens", "clicks", "id"];
+  const lines = rows.map((d) =>
+    [d.createdAt, d.channel, d.to, d.subject, d.sourceType, d.templateKey || "", d.status, d.provider, d.providerId || "", d.error, d.openCount, d.clickCount, d.id].map(csvCell).join(","),
   );
+  const blob = new Blob([[header.join(","), ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `message-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
-function MessageDetailDialog({ log, onOpenChange }) {
-  if (!log) return null;
-  const events = eventsFor(log.status, log.time);
-  return (
-    <Dialog open={!!log} onOpenChange={(o) => { if (!o) onOpenChange(null); }}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Message details</DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <SectionCard contentClassName="p-4">
-            <LabeledRow label="To"><span className="break-all">{log.recipient}</span></LabeledRow>
-            <LabeledRow label="Channel"><ChannelCell channel={log.channel} /></LabeledRow>
-            <LabeledRow label="Subject"><span className="break-words">{log.subject}</span></LabeledRow>
-            <LabeledRow label="Status"><Badge variant={STATUS_TONE[log.status]}>{log.status}</Badge></LabeledRow>
-            <LabeledRow label="Message ID"><span className="font-mono text-muted-foreground">{log.msgId}</span></LabeledRow>
-            <LabeledRow label="Sent at"><span className="text-muted-foreground">{log.time}</span></LabeledRow>
-          </SectionCard>
+// "email.clicked" -> "clicked"; anything else keeps its name.
+const eventStatus = (name) => {
+  const tail = String(name || "").split(".").pop();
+  return DELIVERY_STATUS_MAP[tail] ? tail : null;
+};
 
-          <div className="mt-4">
-            <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-secondary">Events</h3>
-            <ol className="space-y-3">
-              {events.map((ev, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <span className={cn("h-2 w-2 rounded-full", EVENT_DOT[ev.label])} />
-                  <span className="flex-1 text-sm text-foreground">{ev.label}</span>
-                  <span className="font-mono text-xs text-text-secondary">{ev.time}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(null)}>Close</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+// Lifecycle from the delivery's timestamps, plus tracked events; timestamps fill in where no event was recorded.
+function buildTimeline(d, events) {
+  const items = [{ id: "queued", status: "queued", at: d.createdAt, detail: `${sourceLabel(d)} · ${CHANNEL_LABEL[d.channel] || d.channel}` }];
+  if (d.sentAt) items.push({ id: "sent", status: "sent", at: d.sentAt, detail: [PROVIDER_LABEL[d.provider] || d.provider, d.providerId].filter(Boolean).join(" · ") });
+  if (d.deliveredAt) items.push({ id: "delivered", status: "delivered", at: d.deliveredAt });
+  const seen = new Set();
+  for (const e of events) {
+    const status = eventStatus(e.name);
+    if (status) seen.add(status);
+    const detail = e.properties?.url || e.url || e.properties?.body || e.properties?.userAgent || "";
+    items.push({ id: e.id, status, name: e.name, at: e.occurredAt, detail: String(detail).slice(0, 140) });
+  }
+  if (d.openedAt && !seen.has("opened") && !seen.has("read")) items.push({ id: "opened", status: d.channel === "email" ? "opened" : "read", at: d.openedAt });
+  if (d.clickedAt && !seen.has("clicked")) items.push({ id: "clicked", status: "clicked", at: d.clickedAt });
+  if (d.bouncedAt && !seen.has("bounced")) items.push({ id: "bounced", status: "bounced", at: d.bouncedAt, detail: d.error });
+  if (d.unsubscribedAt && !seen.has("unsubscribed")) items.push({ id: "unsubscribed", status: "unsubscribed", at: d.unsubscribedAt });
+  if (["failed", "not_sent", "complained"].includes(d.status) && !seen.has(d.status)) {
+    items.push({ id: "terminal", status: d.status, at: d.sentAt || d.createdAt, detail: d.error });
+  }
+  return items.sort((a, b) => String(a.at || "").localeCompare(String(b.at || "")));
+}
+
+const value = (text, mono = false) => <span className={`max-w-[360px] break-all text-right text-sm text-foreground ${mono ? "font-mono text-xs" : ""}`}>{text || "—"}</span>;
+
+function MessageDetail({ delivery, projectId, onBack }) {
+  const { openRecordInTab } = useWorkspaceUrl();
+  const [events, setEvents] = useState(null);
+  const [keyName, setKeyName] = useState("");
+  const now = useNow();
+
+  useEffect(() => {
+    let alive = true;
+    listDeliveryEvents(projectId, delivery.id).then((rows) => alive && setEvents(rows ?? []));
+    if (delivery.apiKeyId) {
+      listApiKeys(projectId).then((keys) => alive && setKeyName((keys || []).find((k) => k.id === delivery.apiKeyId)?.name || ""));
+    }
+    return () => {
+      alive = false;
+    };
+  }, [projectId, delivery.id, delivery.apiKeyId]);
+
+  const timeline = useMemo(() => (events ? buildTimeline(delivery, events) : []), [delivery, events]);
+  const d = delivery;
+  const links = [
+    d.contactId && { label: "Contact", icon: UserRound, onClick: () => openRecordInTab(d.contactId, "Contacts") },
+    d.campaignId && { label: "Campaign", icon: Mail, onClick: () => openRecordInTab(d.campaignId, "All Campaigns") },
+    d.sourceType === "transactional" && d.sourceId && { label: "Template", icon: ScrollText, onClick: () => openRecordInTab(d.sourceId, "Transactional Templates") },
+  ].filter(Boolean);
+
+  return (
+    <EditorShell
+      back={{ label: "Back", onClick: onBack }}
+      title={d.subject || d.to}
+      status={d.status}
+      statusMap={DELIVERY_STATUS_MAP}
+      badges={
+        <>
+          <ChannelCell channel={d.channel} />
+          <span className="text-xs text-text-tertiary">
+            {sourceLabel(d)} · {formatRelative(d.createdAt, now)}
+          </span>
+        </>
+      }
+      actions={
+        <>
+          {links.map((l) => (
+            <Button key={l.label} variant="outline" className={OUTLINE_BUTTON} onClick={l.onClick}>
+              <l.icon className="h-4 w-4" /> {l.label}
+            </Button>
+          ))}
+          <Button variant="outline" className={OUTLINE_BUTTON} onClick={() => copyText(d.id, "Message ID copied")}>
+            <Copy className="h-4 w-4" /> Copy ID
+          </Button>
+        </>
+      }
+      nav={LOG_NAV}
+      defaultSection="details"
+    >
+      {({ active }) => (
+        <>
+          {active === "details" ? (
+            <SectionCard bare title="Delivery record" description="Where the message went, what sent it and how the provider handled it.">
+              <SettingsList>
+                <SettingRow title="To" description="The address, number or contact the message was sent to." control={value(d.to, d.channel !== "email")} />
+                {d.subject ? <SettingRow title={d.channel === "email" ? "Subject" : "Title"} description="As handed to the provider." control={value(d.subject)} /> : null}
+                <SettingRow title="Channel" description="How the message was delivered." control={<ChannelCell channel={d.channel} />} />
+                <SettingRow
+                  title="Source"
+                  description="What sent it."
+                  control={value(`${SOURCE_LABEL[d.sourceType] || d.sourceType}${d.templateKey ? ` · ${d.templateKey}${d.templateVersion ? ` v${d.templateVersion}` : ""}` : ""}${d.variant ? ` · variant ${d.variant}` : ""}`)}
+                />
+                {d.apiKeyId ? <SettingRow title="API key" description="The secret key that authenticated the request." control={value(keyName || d.apiKeyId, !keyName)} /> : null}
+                <SettingRow title="Provider" description="Who accepted the message and their reference for it." control={value([PROVIDER_LABEL[d.provider] || d.provider, d.providerId].filter(Boolean).join(" · "), Boolean(d.providerId))} />
+                <SettingRow title="Message ID" description="Reference this when debugging or contacting support." control={value(d.id, true)} />
+                <SettingRow title="Queued" description="When the message was logged." control={value(formatDateTime(d.createdAt))} />
+                {d.sentAt ? <SettingRow title="Sent" description="When the provider accepted it." control={value(formatDateTime(d.sentAt))} /> : null}
+                {d.channel === "email" ? <SettingRow title="Opens · clicks" description="Tracked opens and link clicks." control={value(`${num(d.openCount)} · ${num(d.clickCount)}`)} /> : null}
+                {d.cost > 0 ? <SettingRow title="Cost" description="As reported by the provider." control={value(`${d.cost.toFixed(4)} ${d.currency}`)} /> : null}
+                {d.error ? (
+                  <SettingRow title="Error" description="Why the message didn't go through." control={<span className="max-w-[360px] text-right text-sm text-red-600 dark:text-red-400">{d.error}</span>} />
+                ) : null}
+              </SettingsList>
+            </SectionCard>
+          ) : null}
+
+          {active === "events" ? (
+            <SectionCard>
+              {events === null ? (
+                <SectionLoading label="Loading events" size={36} />
+              ) : (
+                <ol className="divide-y divide-border">
+                  {timeline.map((ev) => (
+                    <li key={ev.id} className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
+                      <div className="flex min-w-0 flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          {ev.status ? <StatusPill status={ev.status} map={DELIVERY_STATUS_MAP} /> : <Badge variant="neutral">Event</Badge>}
+                          {ev.name ? <span className="font-mono text-xs text-text-secondary">{ev.name}</span> : null}
+                        </div>
+                        {ev.detail ? <span className="truncate text-xs text-text-tertiary">{ev.detail}</span> : null}
+                      </div>
+                      <span className="shrink-0 font-mono text-xs tabular-nums text-text-secondary">{formatDateTime(ev.at)}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </SectionCard>
+          ) : null}
+
+          {active === "raw" ? (
+            <SectionCard description="Message bodies aren't stored — only the delivery record and its metadata.">
+              <pre className="max-h-[480px] overflow-auto rounded-lg border border-border bg-surface-card p-4 font-mono text-xs leading-relaxed text-muted-foreground">
+                {JSON.stringify(d, null, 2)}
+              </pre>
+            </SectionCard>
+          ) : null}
+        </>
+      )}
+    </EditorShell>
   );
 }
 
 export function MessageLogsScreen() {
+  const { projectId, recordId, openRecord, closeRecord, openRecordInTab } = useWorkspaceUrl();
+  const now = useNow();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState("7");
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [channelFilter, setChannelFilter] = useState("All");
-  const [selected, setSelected] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [channelFilter, setChannelFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [direct, setDirect] = useState(null);
+
+  useEffect(() => {
+    if (!projectId) return undefined;
+    let alive = true;
+    listDeliveries(projectId, { since: new Date(now - Number(range) * 86_400_000).toISOString(), limit: 5000 }).then((data) => {
+      if (!alive) return;
+      setRows(data ?? []);
+      setLoading(false);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [projectId, range, now]);
+
+  const listed = rows.find((d) => d.id === recordId) || null;
+
+  // Deep links (Recent deliveries on channel screens) may point outside the loaded window.
+  useEffect(() => {
+    if (!projectId || !recordId || loading || listed) return undefined;
+    let alive = true;
+    getDelivery(projectId, recordId).then((d) => alive && setDirect(d));
+    return () => {
+      alive = false;
+    };
+  }, [projectId, recordId, loading, listed]);
+
+  const channelOptions = useMemo(() => {
+    const present = [...new Set(rows.map((d) => d.channel))];
+    return [{ value: "all", label: "All channels" }, ...present.map((c) => ({ value: c, label: CHANNEL_LABEL[c] || c }))];
+  }, [rows]);
+
+  const sourceOptions = useMemo(() => {
+    const present = [...new Set(rows.map((d) => d.sourceType))];
+    return [{ value: "all", label: "All sources" }, ...present.map((s) => ({ value: s, label: SOURCE_LABEL[s] || s }))];
+  }, [rows]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return INITIAL.filter((l) =>
-      (statusFilter === "All" || l.status === statusFilter) &&
-      (channelFilter === "All" || l.channel === channelFilter) &&
-      (!q || l.recipient.toLowerCase().includes(q) || l.subject.toLowerCase().includes(q)),
-    );
-  }, [query, statusFilter, channelFilter]);
+    return rows.filter((d) => {
+      if (statusFilter !== "all" && !STATUS_GROUPS[statusFilter].test(d.status)) return false;
+      if (channelFilter !== "all" && d.channel !== channelFilter) return false;
+      if (sourceFilter !== "all" && d.sourceType !== sourceFilter) return false;
+      if (q && !`${d.to} ${d.subject} ${d.id} ${d.providerId || ""} ${d.templateKey || ""}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [rows, query, statusFilter, channelFilter, sourceFilter]);
+
+  const stats = useMemo(() => {
+    const attempted = rows.filter((d) => d.status !== "not_sent" && d.status !== "queued");
+    const delivered = attempted.filter((d) => isDelivered(d.status)).length;
+    const engaged = attempted.filter((d) => ENGAGED.has(d.status)).length;
+    const failed = attempted.filter((d) => isFailed(d.status)).length;
+    const notSent = rows.filter((d) => d.status === "not_sent").length;
+    const period = RANGES.find((r) => r.value === range)?.label.toLowerCase();
+    return [
+      { label: "Messages", value: num(rows.length), footer: period },
+      { label: "Delivered", value: num(delivered), footer: `${pct(delivered, attempted.length)} of attempted` },
+      { label: "Engaged", value: num(engaged), footer: `${pct(engaged, delivered)} opened, read or clicked` },
+      { label: "Failed", value: num(failed + notSent), footer: `${num(notSent)} blocked before the provider` },
+    ];
+  }, [rows, range]);
+
+  const pager = usePagination(filtered, { resetKey: `${query}|${statusFilter}|${channelFilter}|${sourceFilter}|${range}` });
+
+  const open = listed || (direct?.id === recordId ? direct : null);
+  if (open) return <MessageDetail key={open.id} delivery={open} projectId={projectId} onBack={closeRecord} />;
+
+  const filtersActive = query || statusFilter !== "all" || channelFilter !== "all" || sourceFilter !== "all";
+  const clearFilters = () => {
+    setQuery("");
+    setStatusFilter("all");
+    setChannelFilter("all");
+    setSourceFilter("all");
+  };
 
   const columns = [
-    { key: "time", header: "Time", className: "whitespace-nowrap text-muted-foreground" },
-    { key: "recipient", header: "Recipient", className: "font-medium text-foreground" },
-    { key: "subject", header: "Subject", className: "max-w-xs truncate text-muted-foreground" },
-    { key: "channel", header: "Channel", render: (l) => <ChannelCell channel={l.channel} /> },
-    { key: "status", header: "Status", render: (l) => <Badge variant={STATUS_TONE[l.status]}>{l.status}</Badge> },
+    { key: "time", header: "Time", className: "whitespace-nowrap font-mono text-xs tabular-nums text-muted-foreground", render: (d) => formatDateTime(d.createdAt) },
+    {
+      key: "recipient",
+      header: "Recipient",
+      render: (d) => (
+        <div className="flex min-w-0 max-w-[340px] flex-col">
+          <span className="truncate font-medium text-foreground">{d.to}</span>
+          <span className="truncate text-xs text-text-secondary">{d.error && isFailed(d.status) ? d.error : d.subject || "—"}</span>
+        </div>
+      ),
+    },
+    { key: "channel", header: "Channel", render: (d) => <ChannelCell channel={d.channel} /> },
+    { key: "source", header: "Source", className: "whitespace-nowrap text-muted-foreground", render: sourceLabel },
+    { key: "status", header: "Status", className: "whitespace-nowrap", render: (d) => <StatusPill status={d.status} map={DELIVERY_STATUS_MAP} /> },
     {
       key: "actions",
-      header: "Actions",
+      header: "",
       align: "right",
-      render: (l) => (
+      render: (d) => (
         <ActionMenu
+          label={`Actions for message to ${d.to}`}
           items={[
-            { label: "View", icon: Eye, onSelect: () => setSelected(l) },
+            { label: "View details", icon: Eye, onSelect: () => openRecord(d.id) },
+            d.contactId && { label: "Open contact", icon: ArrowUpRight, onSelect: () => openRecordInTab(d.contactId, "Contacts") },
+            { label: "Copy message ID", icon: Copy, onSelect: () => copyText(d.id, "Message ID copied") },
           ]}
         />
       ),
@@ -182,66 +417,48 @@ export function MessageLogsScreen() {
     <MainScreenWrapper>
       <ScreenHeader
         title="Message Logs"
-        description="A searchable record of every transactional message and its delivery events."
+        description="Every message sent on any channel, with its delivery status and events."
         actions={
-          <Button variant="outline" className="bg-surface-card hover:bg-surface-subtle">
-            <Download className="h-4 w-4" /> Export
+          <Button variant="outline" className={OUTLINE_BUTTON} disabled={!filtered.length} onClick={() => exportCsv(filtered)}>
+            <Download className="h-4 w-4" /> Export CSV
           </Button>
         }
       />
 
+      <StatsBar stats={stats} />
+
       <Toolbar>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
-                {statusFilter === "All" ? "All statuses" : statusFilter}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-44 bg-surface-card">
-              <DropdownMenuLabel className="text-text-secondary">Filter by status</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-surface-hover" />
-              {["All", ...STATUSES].map((s) => (
-                <DropdownMenuItem key={s} onSelect={() => setStatusFilter(s)} className={cn("cursor-pointer focus:bg-surface-hover", statusFilter === s && "font-medium")}>
-                  {s === "All" ? "All statuses" : s}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="justify-between bg-surface-card hover:bg-surface-subtle sm:w-40">
-                {channelFilter === "All" ? "All channels" : channelFilter}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-44 bg-surface-card">
-              <DropdownMenuLabel className="text-text-secondary">Filter by channel</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-surface-hover" />
-              {["All", ...CHANNELS].map((c) => (
-                <DropdownMenuItem key={c} onSelect={() => setChannelFilter(c)} className={cn("cursor-pointer focus:bg-surface-hover", channelFilter === c && "font-medium")}>
-                  {c === "All" ? "All channels" : c}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex flex-wrap items-center gap-2">
+          <FilterDropdown value={range} onValueChange={setRange} options={RANGES} height="h-9" />
+          <FilterDropdown value={statusFilter} onValueChange={setStatusFilter} options={STATUS_FILTER_OPTIONS} height="h-9" />
+          <FilterDropdown value={channelFilter} onValueChange={setChannelFilter} options={channelOptions} height="h-9" />
+          <FilterDropdown value={sourceFilter} onValueChange={setSourceFilter} options={sourceOptions} height="h-9" />
         </div>
-        <SearchInput value={query} onChange={setQuery} placeholder="Search recipient or subject…" />
+        <SearchInput value={query} onChange={setQuery} placeholder="Search recipient, subject or ID…" />
       </Toolbar>
 
-      <DataTable
-        columns={columns}
-        data={filtered}
-        getRowKey={(l) => l.id}
-        empty={
-          <EmptyState
-            icon={Mail}
-            title="No messages found"
-            className="rounded-xl border border-border bg-surface-subtle"
+      {loading ? (
+        <SectionLoading label="Loading message logs" />
+      ) : (
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(d) => d.id}
+            onRowClick={(d) => openRecord(d.id)}
+            empty={
+              <ListEmptyState
+                icon={ScrollText}
+                filtersActive={filtersActive}
+                onClear={clearFilters}
+                title="No messages in this period"
+                description="Campaigns, automations, the Email API and channel tests all log here as they send. Try a longer period."
+              />
+            }
           />
-        }
-      />
-
-      <MessageDetailDialog log={selected} onOpenChange={setSelected} />
+          <ListPagination {...pager} itemLabel="messages" />
+        </div>
+      )}
     </MainScreenWrapper>
   );
 }

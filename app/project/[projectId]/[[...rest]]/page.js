@@ -12,7 +12,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@geiger/ui";
-import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
+import { ComingSoonScreen } from "@/components/internal/screens/coming_soon";
 import { getScreen } from "@/components/internal/screens/screen_registry";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { useWorkspaceUrl } from "@/lib/hooks/use-workspace-url";
@@ -76,7 +76,7 @@ function ScreenArea({ activeItem, Screen }) {
       {Screen ? (
         <Screen />
       ) : (
-        <PlaceholderScreen title={activeItem.title} icon={activeItem.icon} />
+        <ComingSoonScreen title={activeItem.title} />
       )}
     </div>
   );

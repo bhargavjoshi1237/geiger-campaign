@@ -3,8 +3,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import { Button, ScreenHeader, SegmentedTabs, StatsBar } from "@geiger/ui";
+import { Button, ScreenHeader, StatsBar, Toolbar } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import FilterDropdown from "@/components/internal/screens/overview/filter_dropdown";
 import { useProject } from "@/context/project-context";
 import { useRbac } from "@/context/rbac-context";
 import {
@@ -192,6 +193,8 @@ export function TeamRolesScreen() {
           </Button>
         );
 
+  const viewFilter = <FilterDropdown value={tab} onValueChange={setTab} options={TEAM_TABS} height="h-9" />;
+
   return (
     <MainScreenWrapper>
       <ScreenHeader
@@ -202,10 +205,9 @@ export function TeamRolesScreen() {
 
       <StatsBar stats={stats} columns={4} />
 
-      <SegmentedTabs tabs={TEAM_TABS} value={tab} onChange={setTab} />
-
       {tab === "members" ? (
         <MembersTab
+          viewFilter={viewFilter}
           members={members}
           roles={roles}
           loading={loading}
@@ -217,15 +219,20 @@ export function TeamRolesScreen() {
           onRemove={handleRemove}
         />
       ) : (
-        <RolesTab
-          roles={roles}
-          members={members}
-          loading={loading}
-          canManage={canManageRoles}
-          onSave={handleSaveRole}
-          onDelete={handleDeleteRole}
-          onCreateClick={() => setCreateOpen(true)}
-        />
+        <div className="space-y-4">
+          <Toolbar>
+            <div className="flex items-center gap-2">{viewFilter}</div>
+          </Toolbar>
+          <RolesTab
+            roles={roles}
+            members={members}
+            loading={loading}
+            canManage={canManageRoles}
+            onSave={handleSaveRole}
+            onDelete={handleDeleteRole}
+            onCreateClick={() => setCreateOpen(true)}
+          />
+        </div>
       )}
 
       <AddMemberDialog

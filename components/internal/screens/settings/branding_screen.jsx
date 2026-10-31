@@ -57,7 +57,7 @@ export function BrandingScreen() {
             ) : null}
 
             {active === "color" ? (
-              <SectionCard contentClassName="space-y-4">
+              <SectionCard bare title="Accent color" description="The hex value applied to buttons and links, with a live preview." contentClassName="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Hex value" htmlFor="brand-color">
                     <div className="flex items-center gap-3">
@@ -105,7 +105,7 @@ export function BrandingScreen() {
             ) : null}
 
             {active === "footer" ? (
-              <SectionCard>
+              <SectionCard bare title="Legal footer" description="Your postal address and unsubscribe note, added to every email.">
                 <Field
                   label="Footer text"
                   htmlFor="brand-footer"
@@ -122,7 +122,7 @@ export function BrandingScreen() {
             ) : null}
 
             {active === "sender" ? (
-              <SectionCard>
+              <SectionCard bare title="Sender identity" description="The name and address new campaigns are sent from.">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="From name" htmlFor="from-name">
                     <Input

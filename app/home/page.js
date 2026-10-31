@@ -5,7 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { Topbar } from "@/components/internal/topbar/topbar";
 import { LoadingScreen, SidebarInset, SidebarProvider } from "@geiger/ui";
-import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
+import { ComingSoonScreen } from "@/components/internal/screens/coming_soon";
 import { getScreen } from "@/components/internal/screens/screen_registry";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";
 
@@ -53,7 +53,7 @@ function HomeLayoutContent() {
               {ActiveScreen ? (
                 <ActiveScreen />
               ) : (
-                <PlaceholderScreen title={activeItem.title} icon={activeItem.icon} />
+                <ComingSoonScreen title={activeItem.title} />
               )}
             </main>
           </SidebarInset>

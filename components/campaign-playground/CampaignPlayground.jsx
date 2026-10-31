@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@geiger/ui";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { Topbar } from "@/components/internal/topbar/topbar";
-import { PlaceholderScreen } from "@/components/internal/screens/placeholder_screen";
+import { ComingSoonScreen } from "@/components/internal/screens/coming_soon";
 import { getScreen } from "@/components/internal/screens/screen_registry";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { ScreenErrorBoundary } from "@/components/landing/ScreenErrorBoundary";
@@ -30,7 +30,7 @@ function findNavItem(title) {
 
 // The registry screen for the tab, or the placeholder for a nav entry that has none (as on the project route).
 function ScreenArea({ activeItem, Screen }) {
-  return Screen ? <Screen /> : <PlaceholderScreen title={activeItem.title} icon={activeItem.icon} />;
+  return Screen ? <Screen /> : <ComingSoonScreen title={activeItem.title} />;
 }
 
 // The project route's shell (app/project/[projectId]/[[...rest]]/page.js): same topbar, sidebar and screen registry.

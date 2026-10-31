@@ -345,7 +345,7 @@ model best and is the most defensible against the incumbents' biggest weakness.
 
 Six new groups plus targeted extensions to three existing ones. Titles map 1:1 to
 `SCREEN_REGISTRY` keys in `components/internal/screens/screen_registry.js`; unregistered titles fall
-back to `PlaceholderScreen`, so the nav can land before the screens do.
+back to `ComingSoonScreen`, so the nav can land before the screens do.
 
 ### New groups
 

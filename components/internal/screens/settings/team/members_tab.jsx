@@ -27,8 +27,13 @@ import {
   SelectValue,
   Toolbar,
 } from "@geiger/ui";
+import { ListPagination, usePagination } from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/overview/filter_dropdown";
 import { listOrgCandidates } from "@/lib/supabase/rbac";
 import { formatDate, initials, roleVariant } from "./constants";
+
+const OUTLINE_BUTTON =
+  "border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground";
 
 function MemberIdentity({ member, isYou }) {
   return (
@@ -175,25 +180,50 @@ export function MembersTab({
   onAddClick,
   onChangeRole,
   onRemove,
+  viewFilter = null,
 }) {
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [removeTarget, setRemoveTarget] = useState(null);
 
   const ownerCount = useMemo(
     () => members.filter((m) => m.roleKey === "owner").length,
     [members],
   );
 
+  // Roles come from the project, so the filter options follow them.
+  const roleFilterOptions = useMemo(
+    () => [{ value: "all", label: "All roles" }, ...roles.map((r) => ({ value: r.id, label: r.name }))],
+    [roles],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter((m) =>
-      [m.name, m.email, m.roleName].some((v) => v?.toLowerCase().includes(q)),
-    );
-  }, [members, search]);
+    return members.filter((m) => {
+      if (roleFilter !== "all" && m.roleId !== roleFilter) return false;
+      if (q && ![m.name, m.email, m.roleName].some((v) => v?.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }, [members, search, roleFilter]);
+
+  const pager = usePagination(filtered, { resetKey: `${search}|${roleFilter}` });
 
   // You can't change or remove yourself, nor the last owner — either would lock the project out of administration.
   const isLocked = (m) =>
     m.userId === currentUserId || (m.roleKey === "owner" && ownerCount <= 1);
+
+  const confirmRemove = () => {
+    const target = removeTarget;
+    setRemoveTarget(null);
+    onRemove(target);
+  };
+
+  const filtersActive = search || roleFilter !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setRoleFilter("all");
+  };
 
   const columns = [
     {
@@ -236,7 +266,7 @@ export function MembersTab({
                 icon: UserMinus,
                 label: "Remove from project",
                 destructive: true,
-                onSelect: () => onRemove(m),
+                onSelect: () => setRemoveTarget(m),
               },
             ]}
           />
@@ -244,48 +274,77 @@ export function MembersTab({
     },
   ];
 
-  if (loading) return <LoadingArea size={48} label="Loading members" panel />;
+  // The screen's view switcher leads the toolbar, so it stays visible while members load.
+  const toolbar = (
+    <Toolbar>
+      <div className="flex items-center gap-2">
+        {viewFilter}
+        <FilterDropdown value={roleFilter} onValueChange={setRoleFilter} options={roleFilterOptions} height="h-9" />
+      </div>
+      <SearchInput value={search} onChange={setSearch} placeholder="Search members…" />
+    </Toolbar>
+  );
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {toolbar}
+        <LoadingArea size={48} label="Loading members" panel />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <Toolbar>
-        <div />
-        <SearchInput value={search} onChange={setSearch} placeholder="Search members…" />
-      </Toolbar>
-      <DataTable
-        columns={columns}
-        data={filtered}
-        getRowKey={(m) => m.userId}
-        empty={
-          members.length === 0 ? (
-            <EmptyState
-              icon={Users}
-              title="No members yet"
-              description="Add teammates from your organization to give them access."
-              className="rounded-xl border border-border bg-surface-subtle"
-              action={
-                canInvite ? (
-                  <Button onClick={onAddClick}>
-                    <UserPlus className="h-4 w-4" /> Add member
-                  </Button>
-                ) : null
-              }
-            />
-          ) : (
-            <EmptyState
-              icon={Users}
-              title="No matching members"
-              description="Try a different name, email or role."
-              className="rounded-xl border border-border bg-surface-subtle"
-              action={
-                <Button variant="outline" onClick={() => setSearch("")}>
-                  Clear search
-                </Button>
-              }
-            />
-          )
-        }
-      />
+      {toolbar}
+
+      <div className="space-y-5">
+        <DataTable
+          columns={columns}
+          data={pager.pageItems}
+          getRowKey={(m) => m.userId}
+          empty={
+            <div className="rounded-xl border border-border bg-surface-subtle">
+              <EmptyState
+                icon={Users}
+                title={filtersActive ? "No matches" : "No members yet"}
+                description={filtersActive ? "Try a different search or filter." : "Add teammates from your organization to give them access."}
+                action={
+                  filtersActive ? (
+                    <Button variant="outline" className={OUTLINE_BUTTON} onClick={clearFilters}>
+                      Clear filters
+                    </Button>
+                  ) : canInvite ? (
+                    <Button onClick={onAddClick}>
+                      <UserPlus className="h-4 w-4" /> Add member
+                    </Button>
+                  ) : null
+                }
+              />
+            </div>
+          }
+        />
+        <ListPagination {...pager} itemLabel="members" />
+      </div>
+
+      <Dialog open={!!removeTarget} onOpenChange={(o) => !o && setRemoveTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Remove member</DialogTitle>
+            <DialogDescription>
+              Remove <span className="font-medium text-foreground">{removeTarget?.name || removeTarget?.email}</span> from this project? They lose access right away; you can add them back later.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRemoveTarget(null)}>
+              Cancel
+            </Button>
+            <Button className="bg-red-500/90 text-white hover:bg-red-500" onClick={confirmRemove}>
+              <UserMinus className="h-4 w-4" /> Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
